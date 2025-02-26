@@ -93,23 +93,44 @@
             <input type="text" id="project-name" name="project-name" />
           </div>
           <div>
-            <label for="board-select">Arduino Board:</label>
-            <select id="board-select" name="board">
-              <option value="">Select a board</option>
-              <!-- Boards will be loaded here -->
-            </select>
+            <label for="board-type">Arduino Board:</label>
+            <input
+              type="text"
+              id="board-type"
+              name="board-type"
+              placeholder="e.g., Arduino Uno, ESP32, etc."
+            />
           </div>
           <div>
-            <label for="components">Components:</label>
-            <select id="components" name="components" multiple>
-              <!-- Components will be loaded here -->
-            </select>
+            <label for="components-text">Components:</label>
+            <textarea
+              id="components-text"
+              name="components-text"
+              placeholder="List your components (e.g., LEDs, sensors, motors)"
+            ></textarea>
           </div>
           <div>
-            <label for="libraries">Libraries:</label>
-            <select id="libraries" name="libraries" multiple>
-              <!-- Libraries will be loaded here -->
-            </select>
+            <label for="libraries-text">Libraries:</label>
+            <textarea
+              id="libraries-text"
+              name="libraries-text"
+              placeholder="List the libraries your project uses"
+            ></textarea>
+          </div>
+          <div>
+            <label for="history-window"
+              >Conversation History Window Size:</label
+            >
+            <input
+              type="range"
+              id="history-window"
+              name="history-window"
+              min="1"
+              max="20"
+              value="10"
+              class="slider"
+            />
+            <span id="history-window-value">10 messages</span>
           </div>
           <button id="save-project">Save Project</button>
         </div>
@@ -136,13 +157,6 @@
       let currentConversationId = null;
       let currentProjectId = null;
 
-      // Load boards, libraries, and components when the page loads
-      document.addEventListener("DOMContentLoaded", function () {
-        loadBoards();
-        loadLibraries();
-        loadComponents();
-      });
-
       // Handle sending messages
       document
         .getElementById("send-button")
@@ -159,6 +173,15 @@
           }
         });
 
+      // Handle history value window
+      document
+        .getElementById("history-window")
+        .addEventListener("input", function () {
+          const value = this.value;
+          document.getElementById("history-window-value").textContent =
+            value + " messages";
+        });
+
       // Handle saving projects
       document
         .getElementById("save-project")
@@ -166,76 +189,36 @@
           saveProject();
         });
 
-      // Function to load Arduino boards from the API
-      function loadBoards() {
-        fetch("/api/boards/")
+      function loadProject(projectId) {
+        fetch(`/api/projects/${projectId}/`)
           .then((response) => response.json())
           .then((data) => {
-            const boardSelect = document.getElementById("board-select");
-            boardSelect.innerHTML = '<option value="">Select a board</option>';
+            // Update form fields
+            document.getElementById("project-name").value = data.name;
+            document.getElementById("board-type").value = data.board_type || "";
+            document.getElementById("components-text").value =
+              data.components_text || "";
+            document.getElementById("libraries-text").value =
+              data.libraries_text || "";
 
-            data.forEach((board) => {
-              const option = document.createElement("option");
-              option.value = board.id;
-              option.textContent = board.name;
-              boardSelect.appendChild(option);
-            });
+            // Update history window slider
+            const slider = document.getElementById("history-window");
+            slider.value = data.history_window_size || 10;
+            document.getElementById("history-window-value").textContent =
+              slider.value + " messages";
+
+            // Update current project ID
+            currentProjectId = data.id;
           })
-          .catch((error) => console.error("Error loading boards:", error));
-      }
-
-      // Function to load libraries from the API
-      function loadLibraries() {
-        fetch("/api/libraries/")
-          .then((response) => response.json())
-          .then((data) => {
-            const librariesSelect = document.getElementById("libraries");
-            librariesSelect.innerHTML = "";
-
-            data.forEach((library) => {
-              const option = document.createElement("option");
-              option.value = library.id;
-              option.textContent = library.name;
-              librariesSelect.appendChild(option);
-            });
-          })
-          .catch((error) => console.error("Error loading libraries:", error));
-      }
-
-      // Function to load components from the API
-      function loadComponents() {
-        fetch("/api/components/")
-          .then((response) => response.json())
-          .then((data) => {
-            const componentsSelect = document.getElementById("components");
-            componentsSelect.innerHTML = "";
-
-            data.forEach((component) => {
-              const option = document.createElement("option");
-              option.value = component.id;
-              option.textContent = component.name;
-              componentsSelect.appendChild(option);
-            });
-          })
-          .catch((error) => console.error("Error loading components:", error));
+          .catch((error) => console.error("Error loading project:", error));
       }
 
       // Function to save a project
       function saveProject() {
         const projectName = document.getElementById("project-name").value;
-        const boardId = document.getElementById("board-select").value;
-
-        // Get selected libraries
-        const librariesSelect = document.getElementById("libraries");
-        const selectedLibraries = Array.from(
-          librariesSelect.selectedOptions
-        ).map((option) => option.value);
-
-        // Get selected components
-        const componentsSelect = document.getElementById("components");
-        const selectedComponents = Array.from(
-          componentsSelect.selectedOptions
-        ).map((option) => option.value);
+        const boardType = document.getElementById("board-type").value;
+        const componentsText = document.getElementById("components-text").value;
+        const librariesText = document.getElementById("libraries-text").value;
 
         if (!projectName) {
           alert("Please enter a project name");
@@ -244,12 +227,11 @@
 
         const projectData = {
           name: projectName,
-          board: boardId || null,
-          libraries: selectedLibraries,
-          components: selectedComponents,
-          description: `Arduino project using ${
-            boardId ? "board #" + boardId : "no specific board"
-          }`,
+          board_type: boardType,
+          components_text: componentsText,
+          libraries_text: librariesText,
+          description: `Arduino project using ${boardType}`,
+          history_window_size: document.getElementById("history-window").value,
         };
 
         // If we already have a project, update it; otherwise create a new one
@@ -275,45 +257,12 @@
           .then((data) => {
             currentProjectId = data.id;
 
-            // If we already have a conversation, associate it with this project
-            if (currentConversationId) {
-              fetch(`/api/conversations/${currentConversationId}/`, {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-CSRFToken": getCookie("csrftoken"),
-                },
-                body: JSON.stringify({
-                  project: currentProjectId,
-                }),
-              }).then((response) => {
-                if (!response.ok) {
-                  console.warn(
-                    "Failed to update conversation with new project"
-                  );
-                }
-              });
-            }
-
             alert("Project saved successfully!");
 
             // Add a system message to the chat
-            const boardName =
-              document.getElementById("board-select").options[
-                document.getElementById("board-select").selectedIndex
-              ].text;
             const systemMessage = `Project "${projectName}" saved. ${
-              boardName ? "Using " + boardName + "." : ""
-            } ${
-              selectedComponents.length
-                ? selectedComponents.length + " components selected."
-                : ""
-            } ${
-              selectedLibraries.length
-                ? selectedLibraries.length + " libraries selected."
-                : ""
-            }`;
-
+              boardType ? "Using " + boardType + "." : ""
+            } Components: ${componentsText}. Libraries: ${librariesText}.`;
             addMessage(systemMessage, "assistant");
           })
           .catch((error) => {
