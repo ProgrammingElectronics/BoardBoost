@@ -1,5 +1,41 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils import timezone
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    tokens_remaining = models.IntegerField(default=10000)  # 10,000 tokens per day
+    last_token_reset = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.user.username}'s profile"
+
+    def reset_tokens_if_needed(self):
+        """Reset tokens if it's past midnight since the last reset"""
+        now = timezone.now()
+        # Check if the current date is different from last reset date
+        if now.date() > self.last_token_reset.date():
+            self.tokens_remaining = 10000  # Reset to daily limit
+            self.last_token_reset = now
+            self.save()
+            return True
+        return False
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    """Create a UserProfile automatically when a User is created"""
+    if created:
+        UserProfile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    """Save the UserProfile when the User is saved"""
+    instance.userprofile.save()
 
 
 class Project(models.Model):
