@@ -18,3 +18,11 @@
 "How can I control the LED matrix using Bluetooth?"
 "How do I store and display custom images on the LED matrix?"
 "How do I optimize my code to make animations smoother?"
+Can you write a program to blink 3 leds?
+Can you make it blink 5 LEDs now?
+I want to add a 50 pixel neopixel strip, can you add that and make it have neat effects?
+Can you add 3 servos please?
+Can you add a rotary encoder that helps me adjust teh speed of the Neopixel effects?
+I want 2 rotary encoders actaully.  One to control the neopixels, and the other for the LEDs, can you do that please?
+Wait, let just go back to the first program you wrote.
+What is the least lines of code you could write this in?

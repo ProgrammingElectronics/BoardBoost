@@ -264,12 +264,8 @@ def generate_response(current_message, conversation_id):
     """
     Generate a response using OpenAI's API with enhanced context management.
 
-    Args:
-        current_message (str): User's current message
-        conversation_id (int): ID of the conversation
-
     Returns:
-        str: The generated response
+        tuple: (response_text, tokens_used)
     """
     try:
         # Build context using our advanced context manager
@@ -283,9 +279,25 @@ def generate_response(current_message, conversation_id):
             model="gpt-3.5-turbo", messages=messages, temperature=0.7, max_tokens=1000
         )
 
-        return completion.choices[0].message.content
+        # Extract token usage
+        prompt_tokens = completion.usage.prompt_tokens
+        completion_tokens = completion.usage.completion_tokens
+        total_tokens = prompt_tokens + completion_tokens
+
+        return completion.choices[0].message.content, total_tokens
 
     except Exception as e:
         # In case of any errors, return a fallback message
         print(f"Error calling OpenAI API: {e}")
-        return f"I'm sorry, I encountered an error generating a response. Please try again later."
+        return (
+            f"I'm sorry, I encountered an error generating a response. Please try again later.",
+            0,
+        )
+
+
+def estimate_token_count(text):
+    """
+    Estimate the number of tokens in a text.
+    This is a rough estimation - approximately 4 characters per token for English.
+    """
+    return len(text) // 4 + 1
