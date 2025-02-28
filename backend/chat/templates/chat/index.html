@@ -1,438 +1,447 @@
 {% load humanize %}
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>PEAple - Arduino Coding Assistant</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-      }
-      .header {
-        background-color: #3498db;
-        color: white;
-        padding: 1rem;
-        text-align: center;
-      }
-      .main {
-        display: flex;
-        flex: 1;
-        overflow: hidden;
-      }
-      .sidebar {
-        width: 300px;
-        background-color: #f5f5f5;
-        padding: 1rem;
-        overflow-y: auto;
-      }
-      .chat-container {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        padding: 1rem;
-      }
-      .chat-messages {
-        flex: 1;
-        overflow-y: auto;
-        border: 1px solid #ddd;
-        padding: 1rem;
-        border-radius: 4px;
-        margin-bottom: 1rem;
-      }
-      .chat-input {
-        display: flex;
-      }
-      .chat-input textarea {
-        flex: 1;
-        padding: 0.5rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        resize: none;
-      }
-      .chat-input button {
-        padding: 0.5rem 1rem;
-        background-color: #3498db;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        margin-left: 0.5rem;
-        cursor: pointer;
-      }
-      .project-form {
-        margin-bottom: 1rem;
-      }
-      .message {
-        margin-bottom: 1rem;
-        padding: 0.5rem;
-        border-radius: 4px;
-      }
-      .user-message {
-        background-color: #e1f5fe;
-        text-align: right;
-      }
-      .assistant-message {
-        background-color: #f1f1f1;
-      }
-      .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #3498db;
-        color: white;
-        padding: 1rem;
-      }
 
-      .user-navigation {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-      }
+<head>
+  <title>PEAple - Arduino Coding Assistant</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
 
-      .user-welcome {
-        font-weight: bold;
-      }
+    .header {
+      background-color: #3498db;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
 
-      .logout-button,
-      .login-button,
-      .signup-button {
-        color: white;
-        text-decoration: none;
-        background-color: rgba(255, 255, 255, 0.2);
-        padding: 5px 10px;
-        border-radius: 4px;
-      }
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
 
-      .logout-button:hover,
-      .login-button:hover,
-      .signup-button:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-      }
+    .sidebar {
+      width: 300px;
+      background-color: #f5f5f5;
+      padding: 1rem;
+      overflow-y: auto;
+    }
 
-      #tokens-remaining {
-        font-size: 0.9em;
-        margin-right: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="header">
-      <h1>PEAple - Arduino Coding Assistant</h1>
-      <div class="user-navigation">
-        {% if user.is_authenticated %}
-        <span class="user-welcome">Welcome, {{ user.username }}!</span>
-        <span id="tokens-remaining"
-          >Tokens remaining: {{ tokens_remaining|intcomma }}</span
-        >
-        <a href="{% url 'logout' %}" class="logout-button">Logout</a>
-        {% else %}
-        <a href="{% url 'login' %}" class="login-button">Login</a>
-        <a href="{% url 'signup' %}" class="signup-button">Sign Up</a>
-        {% endif %}
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+
+    .chat-input {
+      display: flex;
+    }
+
+    .chat-input textarea {
+      flex: 1;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      resize: none;
+    }
+
+    .chat-input button {
+      padding: 0.5rem 1rem;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      margin-left: 0.5rem;
+      cursor: pointer;
+    }
+
+    .project-form {
+      margin-bottom: 1rem;
+    }
+
+    .message {
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+
+    .user-message {
+      background-color: #e1f5fe;
+      text-align: right;
+    }
+
+    .assistant-message {
+      background-color: #f1f1f1;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #3498db;
+      color: white;
+      padding: 1rem;
+    }
+
+    .user-navigation {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .user-welcome {
+      font-weight: bold;
+    }
+
+    .logout-button,
+    .login-button,
+    .signup-button {
+      color: white;
+      text-decoration: none;
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+
+    .logout-button:hover,
+    .login-button:hover,
+    .signup-button:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    #tokens-remaining {
+      font-size: 0.9em;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h1>PEAple - Arduino Coding Assistant</h1>
+    <div class="user-navigation">
+      {% if user.is_authenticated %}
+      <span class="user-welcome">Welcome, {{ user.username }}!</span>
+      <span id="tokens-remaining">Tokens remaining: {{ tokens_remaining|intcomma }}</span>
+      <a href="{% url 'logout' %}" class="logout-button">Logout</a>
+      {% else %}
+      <a href="{% url 'login' %}" class="login-button">Login</a>
+      <a href="{% url 'signup' %}" class="signup-button">Sign Up</a>
+      {% endif %}
+    </div>
+  </div>
+  <div class="main">
+    <div class="sidebar">
+      <h2>Project Settings</h2>
+      <div class="project-form">
+        <div>
+          <label for="project-name">Project Name:</label>
+          <input type="text" id="project-name" name="project-name" />
+        </div>
+        <div>
+          <label for="board-type">Arduino Board:</label>
+          <input type="text" id="board-type" name="board-type" placeholder="e.g., Arduino Uno, ESP32, etc." />
+        </div>
+        <div>
+          <label for="components-text">Components:</label>
+          <textarea id="components-text" name="components-text"
+            placeholder="List your components (e.g., LEDs, sensors, motors)"></textarea>
+        </div>
+        <div>
+          <label for="libraries-text">Libraries:</label>
+          <textarea id="libraries-text" name="libraries-text"
+            placeholder="List the libraries your project uses"></textarea>
+        </div>
+
+        <!-- model selection dropdowns -->
+        <div>
+          <label for="query-model">AI Model for Queries:</label>
+          <select id="query-model" name="query-model">
+            <option value="">Use Default</option>
+            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+            <option value="gpt-4">GPT-4</option>
+          </select>
+        </div>
+        <div>
+          <label for="summary-model">AI Model for Summaries:</label>
+          <select id="summary-model" name="summary-model">
+            <option value="">Use Default</option>
+            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+            <option value="gpt-4">GPT-4</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="history-window">Conversation History Window Size:</label>
+          <input type="range" id="history-window" name="history-window" min="1" max="20" value="10" class="slider" />
+          <span id="history-window-value">10 messages</span>
+        </div>
+        <button id="save-project">Save Project</button>
       </div>
     </div>
-    <div class="main">
-      <div class="sidebar">
-        <h2>Project Settings</h2>
-        <div class="user-info">
-          <p>Welcome, {{ user.username }}!</p>
-          <p id="tokens-remaining">
-            Tokens remaining today: {{ tokens_remaining|intcomma }}/10,000
-          </p>
-          <p>Tokens reset at midnight</p>
-        </div>
-        <div class="project-form">
-          <div>
-            <label for="project-name">Project Name:</label>
-            <input type="text" id="project-name" name="project-name" />
-          </div>
-          <div>
-            <label for="board-type">Arduino Board:</label>
-            <input
-              type="text"
-              id="board-type"
-              name="board-type"
-              placeholder="e.g., Arduino Uno, ESP32, etc."
-            />
-          </div>
-          <div>
-            <label for="components-text">Components:</label>
-            <textarea
-              id="components-text"
-              name="components-text"
-              placeholder="List your components (e.g., LEDs, sensors, motors)"
-            ></textarea>
-          </div>
-          <div>
-            <label for="libraries-text">Libraries:</label>
-            <textarea
-              id="libraries-text"
-              name="libraries-text"
-              placeholder="List the libraries your project uses"
-            ></textarea>
-          </div>
-          <div>
-            <label for="history-window"
-              >Conversation History Window Size:</label
-            >
-            <input
-              type="range"
-              id="history-window"
-              name="history-window"
-              min="1"
-              max="20"
-              value="10"
-              class="slider"
-            />
-            <span id="history-window-value">10 messages</span>
-          </div>
-          <button id="save-project">Save Project</button>
+    <div class="chat-container">
+      <div class="chat-messages" id="chat-messages">
+        <div class="message assistant-message">
+          Hello! I'm PEAple, your Arduino coding assistant. How can I help you
+          today?
         </div>
       </div>
-      <div class="chat-container">
-        <div class="chat-messages" id="chat-messages">
-          <div class="message assistant-message">
-            Hello! I'm PEAple, your Arduino coding assistant. How can I help you
-            today?
-          </div>
-        </div>
-        <div class="chat-input">
-          <textarea
-            id="user-input"
-            placeholder="Type your message here..."
-          ></textarea>
-          <button id="send-button">Send</button>
-        </div>
+      <div class="chat-input">
+        <textarea id="user-input" placeholder="Type your message here..."></textarea>
+        <button id="send-button">Send</button>
       </div>
     </div>
+  </div>
 
-    <script>
-      // Global variables
-      let currentConversationId = null;
-      let currentProjectId = null;
+  <script>
+    // Global variables
+    let currentConversationId = null;
+    let currentProjectId = null;
 
-      // Handle sending messages
-      document
-        .getElementById("send-button")
-        .addEventListener("click", function () {
+    // Handle sending messages
+    document
+      .getElementById("send-button")
+      .addEventListener("click", function () {
+        sendMessage();
+      });
+
+    document
+      .getElementById("user-input")
+      .addEventListener("keypress", function (e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
           sendMessage();
-        });
+        }
+      });
 
-      document
-        .getElementById("user-input")
-        .addEventListener("keypress", function (e) {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-          }
-        });
+    // Handle history value window
+    document
+      .getElementById("history-window")
+      .addEventListener("input", function () {
+        const value = this.value;
+        document.getElementById("history-window-value").textContent =
+          value + " messages";
+      });
 
-      // Handle history value window
-      document
-        .getElementById("history-window")
-        .addEventListener("input", function () {
-          const value = this.value;
+    // Handle saving projects
+    document
+      .getElementById("save-project")
+      .addEventListener("click", function () {
+        saveProject();
+      });
+
+    function loadProject(projectId) {
+      fetch(`/api/projects/${projectId}/`)
+        .then((response) => response.json())
+        .then((data) => {
+          // Update form fields
+          document.getElementById("project-name").value = data.name;
+          document.getElementById("board-type").value = data.board_type || "";
+          document.getElementById("components-text").value = data.components_text || "";
+          document.getElementById("libraries-text").value = data.libraries_text || "";
+
+          // Set model selections
+          document.getElementById("query-model").value = data.query_model || "";
+          document.getElementById("summary-model").value = data.summary_model || "";
+
+          // Update history window slider
+          const slider = document.getElementById("history-window");
+          slider.value = data.history_window_size || 10;
           document.getElementById("history-window-value").textContent =
-            value + " messages";
-        });
+            slider.value + " messages";
 
-      // Handle saving projects
-      document
-        .getElementById("save-project")
-        .addEventListener("click", function () {
-          saveProject();
-        });
+          // Update current project ID
+          currentProjectId = data.id;
+        })
+        .catch((error) => console.error("Error loading project:", error));
+    }
 
-      function loadProject(projectId) {
-        fetch(`/api/projects/${projectId}/`)
-          .then((response) => response.json())
-          .then((data) => {
-            // Update form fields
-            document.getElementById("project-name").value = data.name;
-            document.getElementById("board-type").value = data.board_type || "";
-            document.getElementById("components-text").value =
-              data.components_text || "";
-            document.getElementById("libraries-text").value =
-              data.libraries_text || "";
+    // Function to save a project
+    function saveProject() {
+      const projectName = document.getElementById("project-name").value;
+      const boardType = document.getElementById("board-type").value;
+      const componentsText = document.getElementById("components-text").value;
+      const librariesText = document.getElementById("libraries-text").value;
 
-            // Update history window slider
-            const slider = document.getElementById("history-window");
-            slider.value = data.history_window_size || 10;
-            document.getElementById("history-window-value").textContent =
-              slider.value + " messages";
+      // Get model selections
+      const queryModel = document.getElementById("query-model").value;
+      const summaryModel = document.getElementById("summary-model").value;
 
-            // Update current project ID
-            currentProjectId = data.id;
-          })
-          .catch((error) => console.error("Error loading project:", error));
+      if (!projectName) {
+        alert("Please enter a project name");
+        return;
       }
 
-      // Function to save a project
-      function saveProject() {
-        const projectName = document.getElementById("project-name").value;
-        const boardType = document.getElementById("board-type").value;
-        const componentsText = document.getElementById("components-text").value;
-        const librariesText = document.getElementById("libraries-text").value;
+      const projectData = {
+        name: projectName,
+        board_type: boardType,
+        components_text: componentsText,
+        libraries_text: librariesText,
+        description: `Arduino project using ${boardType}`,
+        query_model: queryModel,
+        summary_model: summaryModel,
+        history_window_size: document.getElementById("history-window").value,
+      };
 
-        if (!projectName) {
-          alert("Please enter a project name");
-          return;
-        }
+      // If we already have a project, update it; otherwise create a new one
+      const method = currentProjectId ? "PUT" : "POST";
+      const url = currentProjectId
+        ? `/api/projects/${currentProjectId}/`
+        : "/api/projects/";
 
-        const projectData = {
-          name: projectName,
-          board_type: boardType,
-          components_text: componentsText,
-          libraries_text: librariesText,
-          description: `Arduino project using ${boardType}`,
-          history_window_size: document.getElementById("history-window").value,
-        };
-
-        // If we already have a project, update it; otherwise create a new one
-        const method = currentProjectId ? "PUT" : "POST";
-        const url = currentProjectId
-          ? `/api/projects/${currentProjectId}/`
-          : "/api/projects/";
-
-        fetch(url, {
-          method: method,
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken"),
-          },
-          body: JSON.stringify(projectData),
+      fetch(url, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify(projectData),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
         })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
-            return response.json();
-          })
-          .then((data) => {
-            currentProjectId = data.id;
+        .then((data) => {
+          currentProjectId = data.id;
 
-            alert("Project saved successfully!");
+          alert("Project saved successfully!");
 
-            // Add a system message to the chat
-            const systemMessage = `Project "${projectName}" saved. ${
-              boardType ? "Using " + boardType + "." : ""
+          // Add a system message to the chat
+          const systemMessage = `Project "${projectName}" saved. ${boardType ? "Using " + boardType + "." : ""
             } Components: ${componentsText}. Libraries: ${librariesText}.`;
-            addMessage(systemMessage, "assistant");
-          })
-          .catch((error) => {
-            console.error("Error saving project:", error);
-            alert("Failed to save project. Please try again.");
-          });
-      }
-
-      // Function to send a message to the AI assistant
-      function sendMessage() {
-        const userInput = document.getElementById("user-input");
-        const message = userInput.value.trim();
-
-        if (!message) {
-          return;
-        }
-
-        // Add user message to chat UI
-        addMessage(message, "user");
-
-        // Clear input
-        userInput.value = "";
-
-        // Prepare message data
-        const messageData = {
-          content: message,
-          conversation_id: currentConversationId,
-          project_id: currentProjectId,
-        };
-
-        // Send message to API
-        fetch("/api/send-message/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken"),
-          },
-          body: JSON.stringify(messageData),
+          addMessage(systemMessage, "assistant");
         })
-          .then((response) => {
-            if (response.status === 403) {
-              // Handle insufficient tokens
-              return response.json().then((data) => {
-                throw new Error(data.error || "Insufficient tokens");
-              });
-            }
-            return response.json();
-          })
-          .then((data) => {
-            // Update current conversation ID
-            currentConversationId = data.conversation_id;
+        .catch((error) => {
+          console.error("Error saving project:", error);
+          alert("Failed to save project. Please try again.");
+        });
+    }
 
-            // Update tokens display
-            if (data.tokens_remaining !== undefined) {
-              document.getElementById(
-                "tokens-remaining"
-              ).textContent = `Tokens remaining: ${data.tokens_remaining.toLocaleString()}`;
-            }
+    // Function to send a message to the AI assistant
+    function sendMessage() {
+      const userInput = document.getElementById("user-input");
+      const message = userInput.value.trim();
 
-            // Add assistant message to chat
-            addMessage(data.assistant_message.content, "assistant");
+      if (!message) {
+        return;
+      }
 
-            // Optionally show token usage for this interaction
-            if (data.tokens_used) {
-              const tokenMsg = `(Used ${data.tokens_used} tokens for this response)`;
-              const tokenInfoDiv = document.createElement("div");
-              tokenInfoDiv.classList.add("token-info");
-              tokenInfoDiv.textContent = tokenMsg;
-              document
-                .getElementById("chat-messages")
-                .appendChild(tokenInfoDiv);
-            }
-          })
-          .catch((error) => {
-            console.error("Error sending message:", error);
-            addMessage(
-              error.message ||
-                "Sorry, there was an error processing your message.",
-              "assistant"
+      // Add user message to chat UI
+      addMessage(message, "user");
+
+      // Clear input
+      userInput.value = "";
+
+      // Prepare message data
+      const messageData = {
+        content: message,
+        conversation_id: currentConversationId,
+        project_id: currentProjectId,
+      };
+
+      // Send message to API
+      fetch("/api/send-message/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify(messageData),
+      })
+        .then((response) => {
+          if (response.status === 403) {
+            // Handle insufficient tokens
+            return response.json().then((data) => {
+              throw new Error(data.error || "Insufficient tokens");
+            });
+          }
+          return response.json();
+        })
+        .then((data) => {
+          // Update current conversation ID
+          currentConversationId = data.conversation_id;
+
+          // Update tokens display
+          if (data.tokens_remaining !== undefined) {
+            document.getElementById(
+              "tokens-remaining"
+            ).textContent = `Tokens remaining: ${data.tokens_remaining.toLocaleString()}`;
+          }
+
+          // Add assistant message to chat
+          addMessage(data.assistant_message.content, "assistant");
+
+          // Optionally show token usage for this interaction
+          if (data.tokens_used) {
+            const tokenMsg = `(Used ${data.tokens_used} tokens for this response)`;
+            const tokenInfoDiv = document.createElement("div");
+            tokenInfoDiv.classList.add("token-info");
+            tokenInfoDiv.textContent = tokenMsg;
+            document
+              .getElementById("chat-messages")
+              .appendChild(tokenInfoDiv);
+          }
+        })
+        .catch((error) => {
+          console.error("Error sending message:", error);
+          addMessage(
+            error.message ||
+            "Sorry, there was an error processing your message.",
+            "assistant"
+          );
+        });
+    }
+
+    // Helper function to add messages to the chat UI
+    function addMessage(content, sender) {
+      const chatMessages = document.getElementById("chat-messages");
+      const messageDiv = document.createElement("div");
+      messageDiv.classList.add("message");
+      messageDiv.classList.add(sender + "-message");
+      messageDiv.textContent = content;
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Helper function to get CSRF token from cookies
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(
+              cookie.substring(name.length + 1)
             );
-          });
-      }
-
-      // Helper function to add messages to the chat UI
-      function addMessage(content, sender) {
-        const chatMessages = document.getElementById("chat-messages");
-        const messageDiv = document.createElement("div");
-        messageDiv.classList.add("message");
-        messageDiv.classList.add(sender + "-message");
-        messageDiv.textContent = content;
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
-
-      // Helper function to get CSRF token from cookies
-      function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== "") {
-          const cookies = document.cookie.split(";");
-          for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === name + "=") {
-              cookieValue = decodeURIComponent(
-                cookie.substring(name.length + 1)
-              );
-              break;
-            }
+            break;
           }
         }
-        return cookieValue;
       }
-    </script>
-  </body>
+      return cookieValue;
+    }
+  </script>
+</body>
+
 </html>

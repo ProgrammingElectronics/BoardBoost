@@ -110,8 +110,8 @@ def send_message(request):
         )
 
         # Generate response with token usage information
-        assistant_response, tokens_used = generate_response(content, conversation.id)
-
+        assistant_response, tokens_used = generate_response(content, conversation.id, request.user)
+        
         # Update user's token balance
         profile.tokens_remaining -= tokens_used
         if profile.tokens_remaining < 0:
