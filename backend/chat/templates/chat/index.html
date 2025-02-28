@@ -6,6 +6,12 @@
   <title>PEAple - Arduino Coding Assistant</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- markdown-it for rendering markdown in messages -->
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it@12.0.6/dist/markdown-it.min.js"></script>
+  <!-- highlight.js for code syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -80,17 +86,81 @@
 
     .message {
       margin-bottom: 1rem;
-      padding: 0.5rem;
-      border-radius: 4px;
+      padding: 0.75rem;
+      border-radius: 8px;
+      line-height: 1.5;
+      max-width: 85%;
+      word-wrap: break-word;
     }
 
     .user-message {
       background-color: #e1f5fe;
       text-align: right;
+      margin-left: auto;
     }
 
     .assistant-message {
-      background-color: #f1f1f1;
+      background-color: #f5f5f5;
+      margin-right: auto;
+    }
+
+    .message-content {
+      overflow-x: auto;
+    }
+
+    /* Style for code blocks */
+    .message pre {
+      background-color: #f8f8f8;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 0.5rem;
+      overflow-x: auto;
+      margin: 0.5rem 0;
+    }
+
+    .message code {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+    }
+
+    /* Style for inline code */
+    .message p code {
+      background-color: #f0f0f0;
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+    }
+
+    /* Style for lists */
+    .message ul,
+    .message ol {
+      padding-left: 1.5rem;
+      margin: 0.5rem 0;
+    }
+
+    /* Style for tables */
+    .message table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 0.5rem 0;
+    }
+
+    .message th,
+    .message td {
+      border: 1px solid #ddd;
+      padding: 0.5rem;
+      text-align: left;
+    }
+
+    .message th {
+      background-color: #f2f2f2;
+    }
+
+    /* Style for blockquotes */
+    .message blockquote {
+      border-left: 4px solid #ddd;
+      padding-left: 1rem;
+      margin-left: 0;
+      color: #666;
     }
 
     .header {
@@ -131,6 +201,73 @@
     #tokens-remaining {
       font-size: 0.9em;
       margin-right: 10px;
+    }
+
+    /* Typing indicator styles */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      background-color: #f5f5f5;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      width: fit-content;
+      max-width: 85%;
+    }
+
+    .typing-indicator span {
+      height: 8px;
+      width: 8px;
+      margin: 0 1px;
+      background-color: #3498db;
+      border-radius: 50%;
+      display: inline-block;
+      opacity: 0.4;
+    }
+
+    .typing-indicator span:nth-child(1) {
+      animation: pulse 1s infinite;
+    }
+
+    .typing-indicator span:nth-child(2) {
+      animation: pulse 1s infinite 0.2s;
+    }
+
+    .typing-indicator span:nth-child(3) {
+      animation: pulse 1s infinite 0.4s;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 0.4;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.2);
+      }
+
+      100% {
+        opacity: 0.4;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
     }
   </style>
 </head>
@@ -177,16 +314,12 @@
           <label for="query-model">AI Model for Queries:</label>
           <select id="query-model" name="query-model">
             <option value="">Use Default</option>
-            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-            <option value="gpt-4">GPT-4</option>
           </select>
         </div>
         <div>
           <label for="summary-model">AI Model for Summaries:</label>
           <select id="summary-model" name="summary-model">
             <option value="">Use Default</option>
-            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-            <option value="gpt-4">GPT-4</option>
           </select>
         </div>
 
@@ -275,6 +408,48 @@
         .catch((error) => console.error("Error loading project:", error));
     }
 
+    function loadModelChoices() {
+      fetch('/api/model-choices/')
+        .then(response => response.json())
+        .then(data => {
+          // Populate query model dropdown
+          const queryModelSelect = document.getElementById('query-model');
+          // Clear existing options except the "Use Default" option
+          while (queryModelSelect.options.length > 1) {
+            queryModelSelect.remove(1);
+          }
+
+          // Add new options
+          data.query_models.forEach(([value, name]) => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = name;
+            queryModelSelect.appendChild(option);
+          });
+
+          // Populate summary model dropdown
+          const summaryModelSelect = document.getElementById('summary-model');
+          // Clear existing options except the "Use Default" option
+          while (summaryModelSelect.options.length > 1) {
+            summaryModelSelect.remove(1);
+          }
+
+          // Add new options
+          data.summary_models.forEach(([value, name]) => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = name;
+            summaryModelSelect.appendChild(option);
+          });
+        })
+        .catch(error => console.error('Error loading model choices:', error));
+    }
+
+    // Call this function when the page loads
+    document.addEventListener('DOMContentLoaded', function () {
+      loadModelChoices();
+    });
+
     // Function to save a project
     function saveProject() {
       const projectName = document.getElementById("project-name").value;
@@ -339,6 +514,7 @@
     }
 
     // Function to send a message to the AI assistant
+    // Function to send a message to the AI assistant
     function sendMessage() {
       const userInput = document.getElementById("user-input");
       const message = userInput.value.trim();
@@ -352,6 +528,9 @@
 
       // Clear input
       userInput.value = "";
+
+      // Show typing indicator
+      const indicator = showTypingIndicator();
 
       // Prepare message data
       const messageData = {
@@ -372,6 +551,7 @@
         .then((response) => {
           if (response.status === 403) {
             // Handle insufficient tokens
+            hideTypingIndicator(); // Hide indicator on error
             return response.json().then((data) => {
               throw new Error(data.error || "Insufficient tokens");
             });
@@ -379,6 +559,9 @@
           return response.json();
         })
         .then((data) => {
+          // Hide typing indicator before adding the assistant's message
+          hideTypingIndicator();
+
           // Update current conversation ID
           currentConversationId = data.conversation_id;
 
@@ -404,6 +587,9 @@
           }
         })
         .catch((error) => {
+          // Hide typing indicator on error
+          hideTypingIndicator();
+
           console.error("Error sending message:", error);
           addMessage(
             error.message ||
@@ -413,15 +599,74 @@
         });
     }
 
-    // Helper function to add messages to the chat UI
+    // Initialize markdown-it with options
+    const md = window.markdownit({
+      html: false,        // Disable HTML tags in source
+      breaks: true,       // Convert '\n' in paragraphs into <br>
+      linkify: true,      // Autoconvert URLs to links
+      typographer: true,  // Enable smartquotes and other typographic replacements
+      highlight: function (str, lang) {
+        if (lang && window.hljs && window.hljs.getLanguage(lang)) {
+          try {
+            return window.hljs.highlight(str, { language: lang }).value;
+          } catch (__) { }
+        }
+        return ''; // Use external default escaping
+      }
+    });
+
+    // Helper function to add messages to the chat UI with markdown support
     function addMessage(content, sender) {
       const chatMessages = document.getElementById("chat-messages");
       const messageDiv = document.createElement("div");
       messageDiv.classList.add("message");
       messageDiv.classList.add(sender + "-message");
-      messageDiv.textContent = content;
+
+      // Add fade-in class for assistant messages
+      if (sender === 'assistant') {
+        messageDiv.classList.add("fade-in");
+      }
+
+      // Create a div for the content to enable markdown rendering
+      const contentDiv = document.createElement("div");
+      contentDiv.classList.add("message-content");
+
+      // If the sender is assistant, render markdown
+      if (sender === 'assistant') {
+        // Process code blocks (```code```) to ensure proper language detection
+        let processedContent = content.replace(/```(\w+)?\n([\s\S]*?)```/g, function (match, language, code) {
+          return '```' + (language || 'plaintext') + '\n' + code + '```';
+        });
+
+        // Render markdown to HTML
+        contentDiv.innerHTML = md.render(processedContent);
+
+        // Initialize syntax highlighting for code blocks
+        if (window.hljs) {
+          setTimeout(() => {
+            messageDiv.querySelectorAll('pre code').forEach((block) => {
+              window.hljs.highlightElement(block);
+            });
+          }, 0);
+        }
+      } else {
+        // For user messages, just set text content
+        contentDiv.textContent = content;
+      }
+
+      messageDiv.appendChild(contentDiv);
       chatMessages.appendChild(messageDiv);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // For assistant messages, scroll to show the top of the message
+      if (sender === 'assistant') {
+        // Get the position of the top of the message relative to the chat container
+        const messageTop = messageDiv.offsetTop;
+        // Scroll to position the top of the message at the top of the viewport
+        chatMessages.scrollTop = messageTop - 20; // 20px padding for better visibility
+      } else {
+        // For user messages, scroll to the bottom as usual
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
     }
 
     // Helper function to get CSRF token from cookies
@@ -440,6 +685,37 @@
         }
       }
       return cookieValue;
+    }
+
+
+    // Function to show the typing indicator
+    function showTypingIndicator() {
+      const chatMessages = document.getElementById("chat-messages");
+
+      // Check if an indicator already exists
+      let indicator = document.querySelector('.typing-indicator');
+      if (!indicator) {
+        // Create the typing indicator
+        indicator = document.createElement("div");
+        indicator.classList.add("typing-indicator");
+        indicator.innerHTML = `
+      <span></span>
+      <span></span>
+      <span></span>
+    `;
+        chatMessages.appendChild(indicator);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      return indicator;
+    }
+
+    // Function to remove the typing indicator
+    function hideTypingIndicator() {
+      const indicator = document.querySelector('.typing-indicator');
+      if (indicator) {
+        indicator.remove();
+      }
     }
   </script>
 </body>

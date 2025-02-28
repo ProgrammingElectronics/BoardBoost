@@ -16,6 +16,13 @@ from .serializers import (
 from .ai_service import generate_response
 
 
+@api_view(['GET'])
+def get_model_choices(request):
+    return Response({
+        'query_models': UserProfile.QUERY_MODEL_CHOICES,
+        'summary_models': UserProfile.SUMMARY_MODEL_CHOICES
+    })
+
 def index(request):
     return render(request, "chat/index.html")
 
