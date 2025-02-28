@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, permission_classes
@@ -148,3 +149,25 @@ def index(request):
     return render(
         request, "chat/index.html", {"tokens_remaining": profile.tokens_remaining}
     )
+
+
+## User Settings #######################################
+@login_required
+def user_settings(request):
+    profile = request.user.userprofile
+    
+    if request.method == 'POST':
+        # Update user settings
+        profile.default_query_model = request.POST.get('default_query_model')
+        profile.default_summary_model = request.POST.get('default_summary_model')
+        profile.save()
+        
+        messages.success(request, 'Settings updated successfully!')
+        return redirect('user_settings')
+    
+    # For GET requests, just display the settings form
+    return render(request, 'chat/settings.html', {
+        'profile': profile,
+        'query_models': UserProfile.QUERY_MODEL_CHOICES,
+        'summary_models': UserProfile.SUMMARY_MODEL_CHOICES,
+    })

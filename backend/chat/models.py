@@ -10,6 +10,34 @@ class UserProfile(models.Model):
     tokens_remaining = models.IntegerField(default=10000)  # 10,000 tokens per day
     last_token_reset = models.DateTimeField(default=timezone.now)
 
+        # Model choices
+    QUERY_MODEL_CHOICES = [
+        ('gpt-3.5-turbo', 'GPT-3.5 Turbo'),
+        ('gpt-4', 'GPT-4'),
+        ('gpt-4o', 'GPT-4o'),
+        ('gpt-4o-mini', 'GPT-4o Mini'),
+    ]
+
+    SUMMARY_MODEL_CHOICES = [
+        ('gpt-3.5-turbo', 'GPT-3.5 Turbo'),
+        ('gpt-4', 'GPT-4'),
+        ('gpt-4o', 'GPT-4o'),
+        ('gpt-4o-mini', 'GPT-4o Mini'),
+    ]
+    
+    # Global model preferences
+    default_query_model = models.CharField(
+        max_length=50,
+        choices=QUERY_MODEL_CHOICES,
+        default='gpt-3.5-turbo'
+    )
+    
+    default_summary_model = models.CharField(
+        max_length=50,
+        choices=SUMMARY_MODEL_CHOICES,
+        default='gpt-3.5-turbo'
+    )
+
     def __str__(self):
         return f"{self.user.username}'s profile"
 
@@ -54,6 +82,25 @@ class Project(models.Model):
     # Additional project information
     description = models.TextField(blank=True)
     history_window_size = models.IntegerField(default=10)
+
+        # Use the same model choices as UserProfile
+    QUERY_MODEL_CHOICES = UserProfile.QUERY_MODEL_CHOICES
+    SUMMARY_MODEL_CHOICES = UserProfile.SUMMARY_MODEL_CHOICES
+    
+    # Project-specific model preferences (null means use user defaults)
+    query_model = models.CharField(
+        max_length=50,
+        choices=QUERY_MODEL_CHOICES,
+        blank=True,
+        null=True
+    )
+    
+    summary_model = models.CharField(
+        max_length=50,
+        choices=SUMMARY_MODEL_CHOICES,
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return self.name

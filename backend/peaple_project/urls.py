@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from chat.auth_views import SignUpView
-from chat.views import logout_view
+from chat.views import logout_view, user_settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -27,4 +27,5 @@ urlpatterns = [
     path("login/", auth_views.LoginView.as_view(), name="login"),
     path("logout/", logout_view, name="logout"),
     path("signup/", SignUpView.as_view(), name="signup"),
+    path('settings/', user_settings, name='user_settings'),
 ]
