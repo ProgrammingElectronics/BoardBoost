@@ -1,8 +1,35 @@
-{% extends "chat/base.html" %} {% block content %}
-<h2>Sign Up</h2>
-<form method="post">
-  {% csrf_token %} {{ form.as_p }}
-  <button type="submit">Sign Up</button>
-</form>
-<p>Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+{% extends "chat/base.html" %}
+
+{% block content %}
+<div class="auth-container signup">
+  <h2>Sign Up</h2>
+  <form method="post">
+    {% csrf_token %}
+    {% if form.errors %}
+    <ul class="errorlist">
+      {% for field in form %}
+      {% for error in field.errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% for field in form %}
+    <p>
+      {{ field.label_tag }}
+      {{ field }}
+      {% if field.help_text %}
+      <small class="helptext">{{ field.help_text }}</small>
+      {% endif %}
+    </p>
+    {% endfor %}
+
+    <button type="submit">Sign Up</button>
+  </form>
+  <p>Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+</div>
 {% endblock %}
