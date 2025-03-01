@@ -29,10 +29,8 @@
       display: flex;
       flex: 1;
       height: 100vh;
-      /* Full viewport height */
       overflow: hidden;
       position: relative;
-      /* For absolute positioning of children */
     }
 
     .sidebar {
@@ -46,6 +44,50 @@
       top: 0;
       bottom: 0;
       z-index: 10;
+      transition: transform 0.3s ease, width 0.3s ease;
+    }
+
+    .sidebar.collapsed {
+      width: 50px;
+      overflow: hidden;
+      transform: translateX(-250px);
+    }
+
+    .sidebar-toggle {
+      position: absolute;
+      bottom: 30px;
+      right: 15px;
+      width: 30px;
+      height: 30px;
+      background-color: #3498db;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 11;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+      padding: 0;
+    }
+
+    .sidebar-toggle-icon {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      color: white;
+    }
+
+    /* Simple arrow using content */
+    .sidebar-toggle-icon::after {
+      content: "◀";
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar.collapsed .sidebar-toggle-icon::after {
+      content: "▶";
     }
 
     .chat-container {
@@ -54,9 +96,13 @@
       flex-direction: column;
       padding: 1rem;
       padding-left: 320px;
-      /* Account for sidebar width + padding */
       height: 100vh;
       box-sizing: border-box;
+      transition: padding-left 0.3s ease;
+    }
+
+    .chat-container.sidebar-collapsed {
+      padding-left: 70px;
     }
 
     /* Chat messages take all available space */
@@ -358,7 +404,6 @@
   <div class="header">
     <div class="logo">
       <div class="logo-icon">P</div>
-      <!-- No text here, just the logo icon -->
     </div>
     <div class="user-navigation">
       {% if user.is_authenticated %}
@@ -372,7 +417,7 @@
     </div>
   </div>
   <div class="main">
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
       <h2>Project Settings</h2>
       <div class="project-form">
         <div>
@@ -415,8 +460,11 @@
         </div>
         <button id="save-project">Save Project</button>
       </div>
+      <button class="sidebar-toggle" id="sidebar-toggle">
+        <div class="sidebar-toggle-icon"></div>
+      </button>
     </div>
-    <div class="chat-container">
+    <div class="chat-container" id="chat-container">
       <div class="chat-messages" id="chat-messages">
         <div class="message assistant-message">
           Hello! I'm PEAple, your Arduino coding assistant. How can I help you
@@ -466,6 +514,33 @@
       .addEventListener("click", function () {
         saveProject();
       });
+
+    // Sidebar toggle functionality
+    document.addEventListener('DOMContentLoaded', function () {
+      const sidebar = document.getElementById('sidebar');
+      const chatContainer = document.querySelector('.chat-container');
+      const sidebarToggle = document.getElementById('sidebar-toggle');
+
+      if (sidebar && chatContainer && sidebarToggle) {
+        sidebarToggle.addEventListener('click', function () {
+          console.log('Toggle clicked'); // Debugging
+          sidebar.classList.toggle('collapsed');
+          chatContainer.classList.toggle('sidebar-collapsed');
+
+          // Save sidebar state to localStorage
+          localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        });
+
+        // Restore sidebar state from localStorage on page load
+        const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        if (sidebarCollapsed) {
+          sidebar.classList.add('collapsed');
+          chatContainer.classList.add('sidebar-collapsed');
+        }
+      } else {
+        console.error('One or more elements not found:', { sidebar, chatContainer, sidebarToggle });
+      }
+    });
 
     function loadProject(projectId) {
       fetch(`/api/projects/${projectId}/`)
@@ -598,7 +673,6 @@
         });
     }
 
-    // Function to send a message to the AI assistant
     // Function to send a message to the AI assistant
     function sendMessage() {
       const userInput = document.getElementById("user-input");
