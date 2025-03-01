@@ -9,10 +9,12 @@
   <!-- markdown-it for rendering markdown in messages -->
   <script src="https://cdn.jsdelivr.net/npm/markdown-it@12.0.6/dist/markdown-it.min.js"></script>
   <!-- highlight.js for code syntax highlighting -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <!-- Replace the current highlight.js stylesheet with a dark theme -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 
   <style>
+    /* Update body and main layout */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -20,19 +22,17 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
-    }
-
-    .header {
-      background-color: #3498db;
-      color: white;
-      padding: 1rem;
-      text-align: center;
+      overflow: hidden;
     }
 
     .main {
       display: flex;
       flex: 1;
+      height: 100vh;
+      /* Full viewport height */
       overflow: hidden;
+      position: relative;
+      /* For absolute positioning of children */
     }
 
     .sidebar {
@@ -40,6 +40,12 @@
       background-color: #f5f5f5;
       padding: 1rem;
       overflow-y: auto;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 10;
     }
 
     .chat-container {
@@ -47,8 +53,13 @@
       display: flex;
       flex-direction: column;
       padding: 1rem;
+      padding-left: 320px;
+      /* Account for sidebar width + padding */
+      height: 100vh;
+      box-sizing: border-box;
     }
 
+    /* Chat messages take all available space */
     .chat-messages {
       flex: 1;
       overflow-y: auto;
@@ -56,10 +67,17 @@
       padding: 1rem;
       border-radius: 4px;
       margin-bottom: 1rem;
+      /* Start from the top of the viewport */
+      padding-top: 40px;
+      /* Add padding at the top to account for header */
     }
 
+    /* Chat input stays at the bottom */
     .chat-input {
       display: flex;
+      margin-top: auto;
+      /* Push to bottom */
+      padding-bottom: 1rem;
     }
 
     .chat-input textarea {
@@ -110,24 +128,40 @@
 
     /* Style for code blocks */
     .message pre {
-      background-color: #f8f8f8;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      background-color: #282c35;
+      /* Dark background */
+      border: 1px solid #333;
+      border-radius: 6px;
+      /* Slightly reduced border radius */
       padding: 0.5rem;
+      /* Balanced padding */
       overflow-x: auto;
-      margin: 0.5rem 0;
+      margin: 0.25rem 0;
+      /* Reduced vertical margin */
+      color: #f8f8f8;
+      /* Light text color */
     }
 
-    .message code {
+    .message pre code {
       font-family: 'Courier New', Courier, monospace;
       font-size: 0.9rem;
+      padding: 0;
+      /* Remove any padding on the code element itself */
+      margin: 0;
+      /* Remove any margin on the code element */
+      display: block;
+      /* Ensure code takes up the full width */
+      line-height: 1.4;
+      /* Tighter line height */
     }
 
     /* Style for inline code */
     .message p code {
-      background-color: #f0f0f0;
+      background-color: #282c35;
+      color: #e0e0e0;
       padding: 0.2rem 0.4rem;
       border-radius: 3px;
+      font-size: 0.9rem;
     }
 
     /* Style for lists */
@@ -163,23 +197,65 @@
       color: #666;
     }
 
+    /* Updated header styles - keep the gradient but make it more subtle */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background-color: #3498db;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0));
       color: white;
-      padding: 1rem;
+      padding: 0.3rem 1rem;
+      height: 32px;
+      min-height: 32px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      box-sizing: border-box;
+    }
+
+    /* Logo placeholder */
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo-icon {
+      height: 24px;
+      width: 24px;
+      background-color: #3498db;
+      /* Logo background color */
+      border-radius: 50%;
+      margin-right: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .header h1 {
+      font-size: 1.2rem;
+      /* Smaller font for the title */
+      margin: 0;
+      /* Remove default margins */
+      font-weight: 500;
+      /* Slightly reduced font weight */
     }
 
     .user-navigation {
       display: flex;
-      gap: 15px;
+      gap: 10px;
+      /* Reduced gap */
       align-items: center;
+      font-size: 0.85rem;
+      /* Smaller text */
     }
 
     .user-welcome {
-      font-weight: bold;
+      font-weight: normal;
+      /* Reduced from bold */
     }
 
     .logout-button,
@@ -188,8 +264,12 @@
       color: white;
       text-decoration: none;
       background-color: rgba(255, 255, 255, 0.2);
-      padding: 5px 10px;
-      border-radius: 4px;
+      padding: 3px 8px;
+      /* Smaller padding */
+      border-radius: 3px;
+      /* Smaller radius */
+      font-size: 0.8rem;
+      /* Smaller font */
     }
 
     .logout-button:hover,
@@ -199,8 +279,10 @@
     }
 
     #tokens-remaining {
-      font-size: 0.9em;
-      margin-right: 10px;
+      font-size: 0.8rem;
+      /* Smaller font */
+      margin-right: 5px;
+      /* Reduced margin */
     }
 
     /* Typing indicator styles */
@@ -274,11 +356,14 @@
 
 <body>
   <div class="header">
-    <h1>PEAple - Arduino Coding Assistant</h1>
+    <div class="logo">
+      <div class="logo-icon">P</div>
+      <!-- No text here, just the logo icon -->
+    </div>
     <div class="user-navigation">
       {% if user.is_authenticated %}
-      <span class="user-welcome">Welcome, {{ user.username }}!</span>
-      <span id="tokens-remaining">Tokens remaining: {{ tokens_remaining|intcomma }}</span>
+      <span class="user-welcome">{{ user.username }}</span>
+      <span id="tokens-remaining">{{ tokens_remaining|intcomma }}</span>
       <a href="{% url 'logout' %}" class="logout-button">Logout</a>
       {% else %}
       <a href="{% url 'login' %}" class="login-button">Login</a>
@@ -659,10 +744,19 @@
 
       // For assistant messages, scroll to show the top of the message
       if (sender === 'assistant') {
-        // Get the position of the top of the message relative to the chat container
-        const messageTop = messageDiv.offsetTop;
-        // Scroll to position the top of the message at the top of the viewport
-        chatMessages.scrollTop = messageTop - 20; // 20px padding for better visibility
+        // Wait for the DOM to update and animations to start
+        setTimeout(() => {
+          // Get the position of the message relative to the chat container
+          const messageRect = messageDiv.getBoundingClientRect();
+          const chatRect = chatMessages.getBoundingClientRect();
+
+          // Calculate the scroll position needed to show the top of the message
+          // with additional padding (40px) to ensure it's not cut off
+          const scrollPosition = messageDiv.offsetTop - chatMessages.offsetTop - 40;
+
+          // Set the scroll position
+          chatMessages.scrollTop = scrollPosition;
+        }, 10); // Small delay to ensure DOM is updated
       } else {
         // For user messages, scroll to the bottom as usual
         chatMessages.scrollTop = chatMessages.scrollHeight;
