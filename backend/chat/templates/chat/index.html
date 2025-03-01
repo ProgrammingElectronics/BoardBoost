@@ -27,7 +27,8 @@
 
     .main {
       display: flex;
-      flex: 1;
+      /* flex: 1; */
+      flex: column;
       height: 100vh;
       overflow: hidden;
       position: relative;
@@ -115,7 +116,8 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: 1rem;
+      /* padding: 1rem; */
+      padding: 0;
       height: 100vh;
       box-sizing: border-box;
       max-width: 80%;
@@ -129,11 +131,11 @@
       flex: 1;
       overflow-y: auto;
       border: 1px solid #ddd;
-      padding: 1rem;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-      /* Start from the top of the viewport */
       padding-top: 20px;
+      border: none;
+      border-radius: 4px;
+      margin: 0;
+      bottom: 0;
       /* Add padding at the top to account for header */
       background-color: white;
     }
@@ -142,6 +144,7 @@
     /* Floating chat input box */
     .chat-input {
       display: flex;
+      align-items: flex-end;
       margin-top: auto;
       padding: 10px;
       background-color: white;
@@ -152,6 +155,7 @@
       z-index: 0;
       margin-bottom: 0px;
       border: 1px solid #e0e0e0;
+      gap: 10px;
     }
 
     .chat-input textarea {
@@ -182,18 +186,61 @@
 
     .chat-input button {
       padding: 10px 20px;
-      background-color: #3498db;
+      background-color: #154f74;
       color: white;
       border: none;
       border-radius: 8px;
-      margin-left: 10px;
       cursor: pointer;
       font-weight: 500;
       transition: background-color 0.2s;
+      align-self: flex-end;
+      /* Align button to the bottom */
+      height: 40px;
+      /* Fixed height */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0;
+      /* Remove any bottom margin */
     }
 
     .chat-input button:hover {
-      background-color: #2980b9;
+      background-color: rgb(21, 79, 116, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Webkit (Chrome, Safari, newer versions of Opera) */
+    .chat-messages::-webkit-scrollbar {
+      width: 10px;
+      /* Thin scrollbar */
+    }
+
+    .chat-messages::-webkit-scrollbar-track {
+      background: rgba(200, 200, 200, 0.2);
+      /* Very light, translucent background */
+      border-radius: 10px;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: rgba(100, 100, 100, 0.4);
+      /* Translucent gray */
+      border-radius: 10px;
+      border: 2px solid transparent;
+      /* Creates padding effect */
+      background-clip: content-box;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 100, 100, 0.6);
+      /* Slightly more opaque on hover */
+      border-radius: 10px;
+      background-clip: content-box;
+    }
+
+    /* Firefox scrollbar styles */
+    .chat-messages {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(100, 100, 100, 0.4) rgba(200, 200, 200, 0.2);
     }
 
     .message {
@@ -206,7 +253,9 @@
     }
 
     .user-message {
-      background-color: #e1f5fe;
+      color: white;
+      background-color: #2c3e50;
+      ;
       text-align: right;
       margin-left: auto;
     }
@@ -291,12 +340,55 @@
       color: #666;
     }
 
-    /* Updated header styles - keep the gradient but make it more subtle */
+
+    /* Styles for code block copy button */
+    .copy-code-button {
+      position: absolute !important;
+      top: 10px !important;
+      right: 10px !important;
+      z-index: 10 !important;
+      background: rgb(36, 37, 40) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      border-radius: 4px !important;
+      cursor: pointer !important;
+      padding: 5px 10px !important;
+      color: white !important;
+      font-size: 14px !important;
+      opacity: 1 !important;
+      transition: all 0.3s ease !important;
+    }
+
+    .message pre {
+      position: relative !important;
+    }
+
+    .message pre:hover .copy-code-button {
+      opacity: 1;
+    }
+
+    .copy-code-button:hover {
+      box-shadow: 0 4px 20px rgb(253, 252, 252);
+      /* background: rgba(255, 255, 255, 0.1);
+      border-radius: 40px; */
+    }
+
+    .copy-code-button svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2;
+    }
+
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.1));
+      background: linear-gradient(to bottom,
+          rgba(0, 0, 0, 0.9) 0%,
+          rgba(0, 0, 0, 0.8) 20%,
+          rgba(0, 0, 0, 0.7) 40%,
+          rgba(0, 0, 0, 0.5) 60%,
+          rgba(0, 0, 0, 0.3) 80%,
+          rgba(0, 0, 0, 0.1) 100%);
       color: white;
       padding: 0.3rem 1rem;
       height: 32px;
@@ -307,6 +399,8 @@
       left: 0;
       z-index: 100;
       box-sizing: border-box;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      /* Optional: adds a subtle shadow for depth */
     }
 
     /* Logo placeholder */
@@ -318,7 +412,7 @@
     .logo-icon {
       height: 24px;
       width: 24px;
-      background-color: #3498db;
+      background-color: #154f74;
       /* Logo background color */
       border-radius: 50%;
       margin-right: 8px;
@@ -395,7 +489,7 @@
       height: 8px;
       width: 8px;
       margin: 0 1px;
-      background-color: #3498db;
+      background-color: #154f74;
       border-radius: 50%;
       display: inline-block;
       opacity: 0.4;
@@ -556,6 +650,92 @@
         document.getElementById("history-window-value").textContent =
           value + " messages";
       });
+
+    // SVG icons for copy functionality
+    const COPY_ICON = `
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
+     viewBox="0 0 24 24" 
+     fill="none" 
+     stroke="currentColor" 
+     stroke-width="2" 
+     stroke-linecap="round" 
+     stroke-linejoin="round">
+  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+</svg>
+`;
+
+    const CHECK_ICON = `
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
+     viewBox="0 0 24 24" 
+     fill="none" 
+     stroke="currentColor" 
+     stroke-width="2" 
+     stroke-linecap="round" 
+     stroke-linejoin="round">
+  <polyline points="20 6 9 17 4 12"></polyline>
+</svg>
+`;
+
+    const ERROR_ICON = `
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
+     viewBox="0 0 24 24" 
+     fill="none" 
+     stroke="currentColor" 
+     stroke-width="2" 
+     stroke-linecap="round" 
+     stroke-linejoin="round">
+  <line x1="18" y1="6" x2="6" y2="18"></line>
+  <line x1="6" y1="6" x2="18" y2="18"></line>
+</svg>
+`;
+
+    // Modify the copy button script to use these SVGs
+    function addCopyButtons() {
+      const codeBlocks = document.querySelectorAll('.message pre');
+
+      codeBlocks.forEach((codeBlock) => {
+        if (codeBlock.querySelector('.copy-code-button')) return;
+
+        const copyButton = document.createElement('button');
+        copyButton.classList.add('copy-code-button');
+        copyButton.innerHTML = COPY_ICON;
+        copyButton.title = 'Copy code';
+
+        copyButton.addEventListener('click', () => {
+          const code = codeBlock.textContent;
+
+          navigator.clipboard.writeText(code).then(() => {
+            copyButton.innerHTML = CHECK_ICON;
+
+            setTimeout(() => {
+              copyButton.innerHTML = COPY_ICON;
+            }, 2000);
+          }).catch(err => {
+            console.error('Failed to copy code: ', err);
+            copyButton.innerHTML = ERROR_ICON;
+          });
+        });
+
+        const codeBlockWrapper = document.createElement('div');
+        codeBlockWrapper.style.position = 'relative';
+        codeBlock.parentNode.insertBefore(codeBlockWrapper, codeBlock);
+        codeBlockWrapper.appendChild(codeBlock);
+        codeBlockWrapper.appendChild(copyButton);
+      });
+    }
+
+    // Existing message handling remains the same
+    const originalAddMessage = window.addMessage;
+    window.addMessage = function (content, sender) {
+      originalAddMessage(content, sender);
+
+      if (sender === 'assistant') {
+        setTimeout(addCopyButtons, 0);
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', addCopyButtons);
 
     // Handle saving projects
     document
