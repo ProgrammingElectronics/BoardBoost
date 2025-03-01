@@ -11,4 +11,5 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path("api/send-message/", views.send_message, name="send_message"),
     path('api/model-choices/', views.get_model_choices, name='model-choices'),
+    path('api/projects/<int:project_id>/messages/', views.project_messages, name='project_messages'),
 ]

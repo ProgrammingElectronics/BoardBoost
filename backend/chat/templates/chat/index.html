@@ -35,6 +35,113 @@
       background-color: 595959;
     }
 
+    /* Left floating sidebar for projects */
+    .projects-sidebar {
+      width: 225px;
+      background-color: rgba(20, 20, 20, 0.95);
+      color: white;
+      padding: 1rem;
+      overflow-y: auto;
+      height: 100%;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 10;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      opacity: 0;
+      transform: translateX(-100%);
+      box-shadow: 3px 0 15px rgba(0, 0, 0, 0.3);
+      pointer-events: none;
+    }
+
+    /* Trigger area for the projects sidebar */
+    .projects-sidebar-trigger {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 20px;
+      height: 100%;
+      z-index: 9;
+    }
+
+    /* Show the projects sidebar on hover */
+    .projects-sidebar-trigger:hover+.projects-sidebar,
+    .projects-sidebar:hover {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    /* Style the projects list */
+    .projects-list {
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .project-item {
+      padding: 10px;
+      margin-bottom: 8px;
+      background-color: rgba(50, 50, 50, 0.5);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .project-item:hover {
+      background-color: rgba(70, 70, 70, 0.8);
+    }
+
+    .project-item.active {
+      background-color: #154f74;
+      font-weight: bold;
+    }
+
+    .project-name {
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .project-date {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 3px;
+    }
+
+    /* New project button */
+    .new-project-button {
+      width: 100%;
+      padding: 10px;
+      background-color: #154f74;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      /* Add space between button and project list */
+      transition: background-color 0.2s;
+    }
+
+    .projects-list {
+      margin-top: 5px;
+      /* Reduced from 1rem since we now have the button above */
+      margin-bottom: 1rem;
+    }
+
+    .new-project-button:hover {
+      background-color: #1a6998;
+    }
+
+    .loading-projects {
+      color: #aaa;
+      font-style: italic;
+      text-align: center;
+      margin-top: 20px;
+    }
+
     /* Floating sidebar that appears on hover */
     .sidebar {
       width: 225px;
@@ -213,10 +320,12 @@
     .chat-messages::-webkit-scrollbar {
       width: 10px;
       /* Thin scrollbar */
+      background: rgba(255, 255, 255);
     }
 
     .chat-messages::-webkit-scrollbar-track {
-      background: rgba(200, 200, 200, 0.2);
+      /* background: rgba(200, 200, 200, 0.2); */
+      background: rgba(255, 255, 255);
       /* Very light, translucent background */
       border-radius: 10px;
     }
@@ -559,6 +668,15 @@
     </div>
   </div>
   <div class="main">
+    <div class="projects-sidebar-trigger"></div>
+    <div class="projects-sidebar" id="projects-sidebar">
+      <h2>Your Projects</h2>
+      <button id="new-project-button" class="new-project-button">+ New Project</button>
+      <div class="projects-list" id="projects-list">
+        <!-- Projects will be loaded here dynamically -->
+        <div class="loading-projects">Loading your projects...</div>
+      </div>
+    </div>
     <div class="sidebar-trigger"></div>
     <div class="sidebar" id="sidebar">
       <h2>Project Settings</h2>
@@ -811,6 +929,124 @@
       }
     });
 
+    // Add this to your existing JavaScript
+
+    // Function to load user's projects
+    function loadUserProjects() {
+      fetch('/api/projects/')
+        .then(response => response.json())
+        .then(data => {
+          const projectsList = document.getElementById('projects-list');
+
+          // Clear loading message
+          projectsList.innerHTML = '';
+
+          if (data.length === 0) {
+            projectsList.innerHTML = '<div class="no-projects">No projects yet. Create one to get started!</div>';
+            return;
+          }
+
+          // Sort projects by last updated (newest first)
+          data.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+
+          // Add each project to the list
+          data.forEach(project => {
+            const projectItem = document.createElement('div');
+            projectItem.classList.add('project-item');
+            if (currentProjectId === project.id) {
+              projectItem.classList.add('active');
+            }
+
+            const projectDate = new Date(project.updated_at);
+            const formattedDate = projectDate.toLocaleDateString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            });
+
+            projectItem.innerHTML = `
+          <div class="project-name">${project.name}</div>
+          <div class="project-date">Last updated: ${formattedDate}</div>
+        `;
+
+            projectItem.addEventListener('click', () => {
+              // Set this as the active project
+              document.querySelectorAll('.project-item').forEach(item => {
+                item.classList.remove('active');
+              });
+              projectItem.classList.add('active');
+
+              // Load the project and its conversation
+              loadProject(project.id);
+
+              // Reset conversation
+              currentConversationId = null;
+
+              // Clear chat messages except for the welcome message
+              const chatMessages = document.getElementById('chat-messages');
+              chatMessages.innerHTML = '';
+
+              // Add welcome message for the project
+              const welcomeMessage = `I'm ready to help with your "${project.name}" project! ` +
+                `${project.board_type ? 'I see you\'re using ' + project.board_type + '.' : ''} ` +
+                'What would you like to discuss?';
+
+              addMessage(welcomeMessage, 'assistant');
+            });
+
+            projectsList.appendChild(projectItem);
+          });
+        })
+        .catch(error => {
+          console.error('Error loading projects:', error);
+          document.getElementById('projects-list').innerHTML =
+            '<div class="load-error">Error loading projects. Please try again.</div>';
+        });
+    }
+
+    // Add a function to create a new project
+    function createNewProject() {
+      // Clear form fields
+      document.getElementById('project-name').value = '';
+      document.getElementById('board-type').value = '';
+      document.getElementById('components-text').value = '';
+      document.getElementById('libraries-text').value = '';
+
+      // Reset project ID
+      currentProjectId = null;
+      currentConversationId = null;
+
+      // Clear chat messages except for the welcome message
+      const chatMessages = document.getElementById('chat-messages');
+      chatMessages.innerHTML = '';
+
+      // Add welcome message for new project
+      addMessage('Let\'s start a new project! Please enter your project details in the settings panel on the right, then save your project.', 'assistant');
+
+      // Update active project in the list
+      document.querySelectorAll('.project-item').forEach(item => {
+        item.classList.remove('active');
+      });
+    }
+
+    // Add event listener for the new project button
+    document.addEventListener('DOMContentLoaded', function () {
+      loadUserProjects();
+
+      // Add event listener for new project button
+      document.getElementById('new-project-button').addEventListener('click', createNewProject);
+
+      // Modify saveProject function to refresh the projects list after saving
+      const originalSaveProject = window.saveProject;
+      window.saveProject = function () {
+        // Call the original function
+        originalSaveProject.apply(this, arguments);
+
+        // Then update the projects list after a short delay to allow the save to complete
+        setTimeout(loadUserProjects, 1000);
+      };
+    });
+
     function loadProject(projectId) {
       fetch(`/api/projects/${projectId}/`)
         .then((response) => response.json())
@@ -833,8 +1069,40 @@
 
           // Update current project ID
           currentProjectId = data.id;
+
+          // Now load the project's conversation messages
+          loadProjectMessages(projectId);
         })
         .catch((error) => console.error("Error loading project:", error));
+    }
+
+    // Function to load project conversation messages
+    function loadProjectMessages(projectId) {
+      fetch(`/api/projects/${projectId}/messages/`)
+        .then(response => response.json())
+        .then(data => {
+          // Clear existing messages
+          const chatMessages = document.getElementById('chat-messages');
+          chatMessages.innerHTML = '';
+
+          if (data.messages && data.messages.length > 0) {
+            // Set the conversation ID
+            currentConversationId = data.conversation_id;
+
+            // Add all messages to the chat
+            data.messages.forEach(message => {
+              addMessage(message.content, message.sender);
+            });
+
+            // Scroll to the bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          } else {
+            // No messages, add a welcome message
+            const welcomeMessage = `I'm ready to help with your project! What would you like to discuss?`;
+            addMessage(welcomeMessage, 'assistant');
+          }
+        })
+        .catch(error => console.error('Error loading messages:', error));
     }
 
     function loadModelChoices() {
@@ -963,7 +1231,6 @@
       // Prepare message data
       const messageData = {
         content: message,
-        conversation_id: currentConversationId,
         project_id: currentProjectId,
       };
 

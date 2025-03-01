@@ -48,58 +48,45 @@ class ConversationViewSet(viewsets.ModelViewSet):
 @permission_classes([IsAuthenticated])
 def send_message(request):
     """Send a message - requires login and token availability"""
-    if request.method == "POST":
+    if request.method == 'POST':
         # Check if user has tokens remaining
         profile = request.user.userprofile
-
-        # Reset tokens if needed (past midnight)
+        
+        # Reset tokens if needed
         profile.reset_tokens_if_needed()
-
+        
         # Extract data from request
-        content = request.data.get("content")
-        conversation_id = request.data.get("conversation_id")
-        project_id = request.data.get("project_id")
-
+        content = request.data.get('content')
+        project_id = request.data.get('project_id')
+        
         # Validate inputs
         if not content:
             return Response(
-                {"error": "Message content is required"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {'error': 'Message content is required'}, 
+                status=status.HTTP_400_BAD_REQUEST
             )
-
-        # Get or create conversation - keep your existing code here
-        if conversation_id:
-            try:
-                conversation = Conversation.objects.get(id=conversation_id)
-            except Conversation.DoesNotExist:
-                if project_id:
-                    try:
-                        project = Project.objects.get(id=project_id)
-                        conversation = Conversation.objects.create(project=project)
-                    except Project.DoesNotExist:
-                        return Response(
-                            {"error": "Project not found"},
-                            status=status.HTTP_404_NOT_FOUND,
-                        )
-                else:
-                    return Response(
-                        {"error": "Conversation not found and no project_id provided"},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-        elif project_id:
+            
+        # Get or create project
+        if not project_id:
+            # Create a default project if none specified
+            project = Project.objects.create(
+                name="Default Project",
+                user=request.user
+            )
+            project_id = project.id
+        else:
             try:
                 project = Project.objects.get(id=project_id)
-                conversation = Conversation.objects.create(project=project)
             except Project.DoesNotExist:
                 return Response(
-                    {"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND
+                    {'error': 'Project not found'}, 
+                    status=status.HTTP_404_NOT_FOUND
                 )
-        else:
-            # For testing: create a temporary project and conversation
-            project = Project.objects.create(name="Temporary Project")
-            conversation = Conversation.objects.create(project=project)
+        
+        # Get or create the SINGLE conversation for this project
+        conversation, created = Conversation.objects.get_or_create(project=project)
 
-            # Estimate token count based on message length (approximately 4 chars per token)
+        # Estimate token count based on message length (approximately 4 chars per token)
         estimated_message_tokens = len(content) // 4 + 1
 
         # Check if user might exceed token limit
@@ -142,6 +129,26 @@ def send_message(request):
             }
         )
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def project_messages(request, project_id):
+    """Get all messages for a project's conversation"""
+    try:
+        project = Project.objects.get(id=project_id)
+        
+        # Get the project's conversation (or create it if it doesn't exist)
+        conversation, created = Conversation.objects.get_or_create(project=project)
+        
+        # Get all messages for this conversation
+        messages = Message.objects.filter(conversation=conversation).order_by('timestamp')
+        
+        return Response({
+            'conversation_id': conversation.id,
+            'messages': MessageSerializer(messages, many=True).data
+        })
+    except Project.DoesNotExist:
+        return Response({'error': 'Project not found'}, status=404)
 
 ## Login ################################################
 @login_required
