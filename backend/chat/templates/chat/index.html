@@ -31,63 +31,84 @@
       height: 100vh;
       overflow: hidden;
       position: relative;
+      background-color: 595959;
     }
 
+    /* Floating sidebar that appears on hover */
     .sidebar {
-      width: 300px;
-      background-color: #f5f5f5;
+      width: 225px;
+      background-color: rgba(20, 20, 20, 0.95);
+      color: white;
       padding: 1rem;
       overflow-y: auto;
       height: 100%;
-      position: absolute;
-      left: 0;
+      position: fixed;
+      right: 0;
       top: 0;
       bottom: 0;
       z-index: 10;
-      transition: transform 0.3s ease, width 0.3s ease;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      opacity: 0;
+      transform: translateX(100%);
+      box-shadow: -3px 0 15px rgba(0, 0, 0, 0.3);
+      pointer-events: none;
+      /* Initially doesn't capture mouse events */
     }
 
-    .sidebar.collapsed {
-      width: 50px;
-      overflow: hidden;
-      transform: translateX(-250px);
+    /* Responsive area on the left side of the screen that detects hover */
+    .sidebar-trigger {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 20px;
+      height: 100%;
+      z-index: 9;
     }
 
-    .sidebar-toggle {
-      position: absolute;
-      bottom: 30px;
-      right: 15px;
-      width: 30px;
-      height: 30px;
-      background-color: #3498db;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      z-index: 11;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 16px;
-      padding: 0;
+    /* When the trigger area is hovered, show the sidebar */
+    .sidebar-trigger:hover+.sidebar,
+    .sidebar:hover {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+      /* Allow interaction with the sidebar */
     }
 
-    .sidebar-toggle-icon {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      color: white;
+    .sidebar .project-form>div {
+      margin-bottom: 20px;
     }
 
-    /* Simple arrow using content */
-    .sidebar-toggle-icon::after {
-      content: "◀";
+    .project-form {
+      margin-bottom: 1rem;
+    }
+
+    .sidebar label {
+      color: ddd;
       display: block;
-      transition: transform 0.3s ease;
+      margin-bottom: 4px;
+      margin-top: 5px;
     }
 
-    .sidebar.collapsed .sidebar-toggle-icon::after {
-      content: "▶";
+    .sidebar input[type="text"],
+    .sidebar textarea,
+    .sidebar select {
+      background-color: #333;
+      color: white;
+      border: 1px solid #555;
+      border-radius: 4px;
+      width: 90%;
+      padding: 8px;
+      margin-bottom: 5px;
+      /* Space below each input */
+    }
+
+    .sidebar div:has(input[type="range"]) {
+      margin-top: 15px;
+      margin-bottom: 15px;
+    }
+
+    #save-project {
+      margin-top: 25px;
     }
 
     .chat-container {
@@ -95,14 +116,12 @@
       display: flex;
       flex-direction: column;
       padding: 1rem;
-      padding-left: 320px;
       height: 100vh;
       box-sizing: border-box;
-      transition: padding-left 0.3s ease;
-    }
-
-    .chat-container.sidebar-collapsed {
-      padding-left: 70px;
+      max-width: 80%;
+      margin: 0 auto;
+      /* Center the chat container */
+      position: relative;
     }
 
     /* Chat messages take all available space */
@@ -114,38 +133,67 @@
       border-radius: 4px;
       margin-bottom: 1rem;
       /* Start from the top of the viewport */
-      padding-top: 40px;
+      padding-top: 20px;
       /* Add padding at the top to account for header */
+      background-color: white;
     }
 
     /* Chat input stays at the bottom */
+    /* Floating chat input box */
     .chat-input {
       display: flex;
       margin-top: auto;
-      /* Push to bottom */
-      padding-bottom: 1rem;
+      padding: 10px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      bottom: 0px;
+      z-index: 0;
+      margin-bottom: 0px;
+      border: 1px solid #e0e0e0;
     }
 
     .chat-input textarea {
       flex: 1;
-      padding: 0.5rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      padding: 12px;
+      /* border: 1px solid #ddd; */
+      border: none;
+      border-radius: 8px;
       resize: none;
+      font-size: 14px;
+      /* box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); */
+      transition: border-color 0.2s;
+      height: 18px;
+      min-height: 18px;
+      /* Set a minimum height */
+      max-height: 180px;
+      /* Set a maximum height to prevent it from getting too large */
+      overflow-y: auto;
+      /* Add scrollbar if content exceeds max-height */
+      line-height: 1.2;
+    }
+
+    .chat-input textarea:focus {
+      outline: none;
+      /* border-color: #3498db; */
+      /* box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05), 0 0 0 3px rgba(52, 152, 219, 0.1); */
     }
 
     .chat-input button {
-      padding: 0.5rem 1rem;
+      padding: 10px 20px;
       background-color: #3498db;
       color: white;
       border: none;
-      border-radius: 4px;
-      margin-left: 0.5rem;
+      border-radius: 8px;
+      margin-left: 10px;
       cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.2s;
     }
 
-    .project-form {
-      margin-bottom: 1rem;
+    .chat-input button:hover {
+      background-color: #2980b9;
     }
 
     .message {
@@ -248,7 +296,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0));
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.1));
       color: white;
       padding: 0.3rem 1rem;
       height: 32px;
@@ -417,6 +465,7 @@
     </div>
   </div>
   <div class="main">
+    <div class="sidebar-trigger"></div>
     <div class="sidebar" id="sidebar">
       <h2>Project Settings</h2>
       <div class="project-form">
@@ -425,7 +474,7 @@
           <input type="text" id="project-name" name="project-name" />
         </div>
         <div>
-          <label for="board-type">Arduino Board:</label>
+          <label for="board-type">Board:</label>
           <input type="text" id="board-type" name="board-type" placeholder="e.g., Arduino Uno, ESP32, etc." />
         </div>
         <div>
@@ -514,6 +563,46 @@
       .addEventListener("click", function () {
         saveProject();
       });
+
+    // Auto-resize textarea as user types
+    document.addEventListener('DOMContentLoaded', function () {
+      const textarea = document.getElementById('user-input');
+
+      // Function to adjust height
+      function adjustHeight() {
+        // Reset height to auto to get the correct scrollHeight
+        textarea.style.height = 'auto';
+
+        // Set new height based on content
+        textarea.style.height = textarea.scrollHeight + 'px';
+      }
+
+      // Function to reset height to default
+      function resetHeight() {
+        textarea.style.height = '18px'; // Match the initial min-height from CSS
+      }
+
+      // Modify the sendMessage function to reset height
+      const originalSendMessage = window.sendMessage;
+      window.sendMessage = function () {
+        // Call the original sendMessage function
+        if (originalSendMessage) {
+          originalSendMessage();
+        }
+
+        // Reset textarea height after sending
+        resetHeight();
+      };
+
+      // Adjust on input
+      textarea.addEventListener('input', adjustHeight);
+
+      // Also adjust when the textarea gets focus
+      textarea.addEventListener('focus', adjustHeight);
+
+      // Initial adjustment
+      adjustHeight();
+    });
 
     // Sidebar toggle functionality
     document.addEventListener('DOMContentLoaded', function () {
