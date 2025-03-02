@@ -7,17 +7,17 @@
   <title>BoardBoost - Microcontroller Coding Assistant</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  
+
   <!-- External CSS -->
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
-  
+
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  
+
   <!-- markdown-it for rendering markdown in messages -->
   <script src="https://cdn.jsdelivr.net/npm/markdown-it@12.0.6/dist/markdown-it.min.js"></script>
-  
+
   <!-- highlight.js for code syntax highlighting -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
@@ -41,7 +41,7 @@
       {% endif %}
     </div>
   </div>
-  
+
   <div class="main">
     <div class="projects-sidebar-trigger"></div>
     <div class="projects-sidebar" id="projects-sidebar">
@@ -52,56 +52,66 @@
         <div class="loading-projects">Loading your projects...</div>
       </div>
     </div>
-    
+
     <div class="sidebar-trigger"></div>
     <div class="sidebar" id="sidebar">
-      <h2>Project Settings</h2>
+      <div class="sidebar-header">
+        <h2>Project Settings</h2>
+        <button id="save-project">Save</button>
+      </div>
       <div class="project-form">
+        <!-- Project name - most important field -->
         <div>
           <label for="project-name">Project Name:</label>
           <input type="text" id="project-name" name="project-name" />
         </div>
+
+        <!-- Board type - next most important -->
         <div>
           <label for="board-type">Board:</label>
-          <input type="text" id="board-type" name="board-type" placeholder="e.g., Arduino Uno, ESP32, etc." />
+          <input type="text" id="board-type" name="board-type" placeholder="e.g., Arduino Uno, ESP32" />
         </div>
+
+        <!-- Components with compact placeholder -->
         <div>
           <label for="components-text">Components:</label>
-          <textarea id="components-text" name="components-text"
-            placeholder="List your components (e.g., LEDs, sensors, motors)"></textarea>
+          <textarea id="components-text" name="components-text" placeholder="LEDs, sensors, motors, etc."></textarea>
         </div>
+
+        <!-- Libraries with compact placeholder -->
         <div>
           <label for="libraries-text">Libraries:</label>
           <textarea id="libraries-text" name="libraries-text"
-            placeholder="List the libraries your project uses"></textarea>
+            placeholder="Library names, e.g., Servo, Wire, etc."></textarea>
         </div>
 
-        <!-- model selection dropdowns -->
+        <!-- Model selections with inline layout -->
         <div>
-          <label for="query-model">AI Model for Queries:</label>
+          <label for="query-model">AI Model (Queries):</label>
           <select id="query-model" name="query-model">
             <option value="">Use Default</option>
           </select>
         </div>
+
         <div>
-          <label for="summary-model">AI Model for Summaries:</label>
+          <label for="summary-model">AI Model (Summaries):</label>
           <select id="summary-model" name="summary-model">
             <option value="">Use Default</option>
           </select>
         </div>
 
+        <!-- History window with more compact label -->
         <div>
-          <label for="history-window">Conversation History Window Size:</label>
+          <label for="history-window">History Size: <span id="history-window-value">10 messages</span></label>
           <input type="range" id="history-window" name="history-window" min="1" max="20" value="10" class="slider" />
-          <span id="history-window-value">10 messages</span>
         </div>
-        <button id="save-project">Save Project</button>
       </div>
+
       <button class="sidebar-toggle" id="sidebar-toggle">
         <div class="sidebar-toggle-icon"></div>
       </button>
     </div>
-    
+
     <div class="chat-container" id="chat-container">
       <div class="chat-messages" id="chat-messages">
         <div class="message assistant-message">

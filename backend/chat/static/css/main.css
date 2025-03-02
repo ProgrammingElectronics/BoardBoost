@@ -4,654 +4,748 @@
 
 /* Base styles */
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: #1E1E2E;
-  color: #EFEFEF;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-  line-height: 1.5;
+    font-family: 'Inter', sans-serif;
+    background-color: #1E1E2E;
+    color: #EFEFEF;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    line-height: 1.5;
 }
 
 /* Header styling - Using BoardBoost branding */
 .header {
-  background-color: #282838;
-  padding: 0 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 60px;
-  position: fixed;
-  width: 100%;
-  top: 0;
-  left: 0;
-  z-index: 100;
-  box-sizing: border-box;
+    background-color: #282838;
+    padding: 0 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 60px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    box-sizing: border-box;
 }
 
 .logo {
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
 }
 
 .logo h1 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #EFEFEF;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #EFEFEF;
 }
 
 .logo-img {
-  height: 24px;
-  width: 24px;
-  margin-right: 10px;
+    height: 24px;
+    width: 24px;
+    margin-right: 10px;
 }
 
 /* Header navigation */
 .header-nav {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
 }
 
 .user-welcome {
-  color: #B8B8C0;
-  font-size: 14px;
+    color: #B8B8C0;
+    font-size: 14px;
 }
 
 #tokens-remaining {
-  color: #8C8C98;
-  font-size: 13px;
-  background-color: rgba(30, 30, 46, 0.5);
-  padding: 4px 8px;
-  border-radius: 4px;
+    color: #8C8C98;
+    font-size: 13px;
+    background-color: rgba(30, 30, 46, 0.5);
+    padding: 4px 8px;
+    border-radius: 4px;
 }
 
 .logout-button,
 .login-button,
 .signup-button,
 .settings-button {
-  background-color: #1E1E2E;
-  color: #EFEFEF;
-  text-decoration: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  transition: all 0.2s ease-in-out;
+    background-color: #1E1E2E;
+    color: #EFEFEF;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s ease-in-out;
 }
 
 .login-button {
-  background-color: transparent;
-  border: 1px solid #6C7FE8;
+    background-color: transparent;
+    border: 1px solid #6C7FE8;
 }
 
 .signup-button {
-  background-color: #6C7FE8;
+    background-color: #6C7FE8;
 }
 
 .logout-button:hover,
 .login-button:hover,
 .signup-button:hover,
 .settings-button:hover {
-  background-color: #6C7FE8;
-  color: white;
-  transform: translateY(-1px);
+    background-color: #6C7FE8;
+    color: white;
+    transform: translateY(-1px);
 }
 
 /* Main layout */
 .main {
-  display: flex;
-  flex: 1;
-  height: calc(100vh - 60px);
-  margin-top: 60px;
-  overflow: hidden;
-  position: relative;
-  background-color: #1E1E2E;
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 60px);
+    margin-top: 60px;
+    overflow: hidden;
+    position: relative;
+    background-color: #1E1E2E;
 }
 
 /* Left floating sidebar for projects */
 .projects-sidebar {
-  width: 225px;
-  background-color: rgba(40, 40, 56, 0.95);
-  color: #EFEFEF;
-  padding: 1rem;
-  overflow-y: auto;
-  height: 100%;
-  position: fixed;
-  left: 0;
-  top: 60px;
-  bottom: 0;
-  z-index: 10;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  opacity: 0;
-  transform: translateX(-100%);
-  box-shadow: 3px 0 15px rgba(0, 0, 0, 0.3);
-  pointer-events: none;
+    width: 225px;
+    background-color: rgba(40, 40, 56, 0.95);
+    color: #EFEFEF;
+    padding: 1rem;
+    overflow-y: auto;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 60px;
+    bottom: 0;
+    z-index: 10;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 0;
+    transform: translateX(-100%);
+    box-shadow: 3px 0 15px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
 }
 
 /* Trigger area for the projects sidebar */
 .projects-sidebar-trigger {
-  position: fixed;
-  top: 60px;
-  left: 0;
-  width: 20px;
-  height: calc(100% - 60px);
-  z-index: 9;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 20px;
+    height: calc(100% - 60px);
+    z-index: 9;
 }
 
 /* Show the projects sidebar on hover */
 .projects-sidebar-trigger:hover+.projects-sidebar,
 .projects-sidebar:hover {
-  opacity: 1;
-  transform: translateX(0);
-  pointer-events: auto;
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
 }
 
 /* Style the projects list */
 .projects-list {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .projects-sidebar h2 {
-  color: #EFEFEF;
-  font-size: 18px;
-  margin-top: 0;
-  margin-bottom: 16px;
+    color: #EFEFEF;
+    font-size: 18px;
+    margin-top: 0;
+    margin-bottom: 16px;
 }
 
 .project-item {
-  padding: 10px;
-  margin-bottom: 8px;
-  background-color: rgba(50, 50, 50, 0.5);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+    padding: 10px;
+    margin-bottom: 8px;
+    background-color: rgba(50, 50, 50, 0.5);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
 .project-item:hover {
-  background-color: rgba(70, 70, 70, 0.8);
+    background-color: rgba(70, 70, 70, 0.8);
 }
 
 .project-item.active {
-  background-color: #6C7FE8;
-  font-weight: bold;
+    background-color: #6C7FE8;
+    font-weight: bold;
 }
 
 .project-name {
-  font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .project-date {
-  font-size: 11px;
-  color: #B8B8C0;
-  margin-top: 3px;
+    font-size: 11px;
+    color: #B8B8C0;
+    margin-top: 3px;
 }
 
 /* New project button */
 .new-project-button {
-  width: 100%;
-  padding: 10px;
-  background-color: #6C7FE8;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 5px;
-  margin-bottom: 15px;
-  transition: background-color 0.2s;
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
+    width: 100%;
+    padding: 10px;
+    background-color: #6C7FE8;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    transition: background-color 0.2s;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
 }
 
 .new-project-button:hover {
-  background-color: #5B6ED7;
-  transform: translateY(-1px);
+    background-color: #5B6ED7;
+    transform: translateY(-1px);
 }
 
 .loading-projects {
-  color: #8C8C98;
-  font-style: italic;
-  text-align: center;
-  margin-top: 20px;
+    color: #8C8C98;
+    font-style: italic;
+    text-align: center;
+    margin-top: 20px;
 }
 
 /* Floating sidebar that appears on hover */
 .sidebar {
-  width: 225px;
-  background-color: rgba(40, 40, 56, 0.95);
-  color: #EFEFEF;
-  padding: 1rem;
-  overflow-y: auto;
-  height: 100%;
-  position: fixed;
-  right: 0;
-  top: 60px;
-  bottom: 0;
-  z-index: 10;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  opacity: 0;
-  transform: translateX(100%);
-  box-shadow: -3px 0 15px rgba(0, 0, 0, 0.3);
-  pointer-events: none;
+    width: 225px;
+    background-color: rgba(40, 40, 56, 0.95);
+    color: #EFEFEF;
+    padding: 1rem;
+    height: 100%;
+    position: fixed;
+    right: 0;
+    top: 60px;
+    bottom: 0;
+    z-index: 10;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 0;
+    transform: translateX(100%);
+    box-shadow: -3px 0 15px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Responsive area on the left side of the screen that detects hover */
 .sidebar-trigger {
-  position: fixed;
-  top: 60px;
-  right: 0;
-  width: 20px;
-  height: calc(100% - 60px);
-  z-index: 9;
+    position: fixed;
+    top: 60px;
+    right: 0;
+    width: 20px;
+    height: calc(100% - 60px);
+    z-index: 9;
 }
 
 /* When the trigger area is hovered, show the sidebar */
 .sidebar-trigger:hover+.sidebar,
 .sidebar:hover {
-  opacity: 1;
-  transform: translateX(0);
-  pointer-events: auto;
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
 }
 
-.sidebar h2 {
-  color: #EFEFEF;
-  font-size: 18px;
-  margin-top: 0;
-  margin-bottom: 16px;
+/* Header with title and save button */
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    /* Reduced from 16px */
+    flex-shrink: 0;
+}
+
+.sidebar-header h2 {
+    color: #EFEFEF;
+    font-size: 18px;
+    margin: 0;
+    font-weight: 600;
 }
 
 .sidebar .project-form>div {
-  margin-bottom: 20px;
+    margin-bottom: 3px;
 }
 
+/* Custom scrollbar for the sidebar */
+.project-form::-webkit-scrollbar {
+    width: 6px;
+}
+
+.project-form::-webkit-scrollbar-track {
+    background: rgba(30, 30, 46, 0.5);
+    border-radius: 10px;
+}
+
+.project-form::-webkit-scrollbar-thumb {
+    background: rgba(108, 127, 232, 0.3);
+    border-radius: 10px;
+}
+
+.project-form::-webkit-scrollbar-thumb:hover {
+    background: rgba(108, 127, 232, 0.5);
+}
+
+
+/* Project form container - make it scrollable */
 .project-form {
-  margin-bottom: 1rem;
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 8px;
+    display: flex;
+    flex-direction: column;
+    /* gap: 10px; */
+    /* Use gap for consistent spacing */
 }
 
+/* Compact label styles */
 .sidebar label {
-  color: #B8B8C0;
-  display: block;
-  margin-bottom: 4px;
-  margin-top: 5px;
-  font-size: 14px;
+    color: #B8B8C0;
+    display: block;
+    margin-bottom: 3px;
+    /* Reduced from 4px */
+    margin-top: 0;
+    font-size: 13px;
+    /* Smaller font */
+    font-weight: 500;
 }
 
 .sidebar input[type="text"],
-.sidebar textarea,
 .sidebar select {
-  background-color: #1E1E2E;
-  color: #EFEFEF;
-  border: 1px solid #3D3D4D;
-  border-radius: 4px;
-  width: 90%;
-  padding: 8px;
-  margin-bottom: 5px;
-  font-family: 'Inter', sans-serif;
+    background-color: #1E1E2E;
+    color: #EFEFEF;
+    border: 1px solid #3D3D4D;
+    border-radius: 4px;
+    width: 90%;
+    padding: 6px 8px;
+    /* Reduced padding */
+    margin-bottom: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    /* Smaller font */
+    height: 28px;
+    /* Explicitly set height */
+}
+
+/* Make textareas smaller */
+.sidebar textarea {
+    background-color: #1E1E2E;
+    color: #EFEFEF;
+    border: 1px solid #3D3D4D;
+    border-radius: 4px;
+    width: 90%;
+    padding: 6px 8px;
+    margin-bottom: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    resize: vertical;
+    height: 48px;
+    /* Shorter default height */
+    min-height: 32px;
+    /* Allow shrinking but not too much */
+    max-height: 120px;
+    /* Limit expansion */
 }
 
 .sidebar input[type="text"]:focus,
 .sidebar textarea:focus,
 .sidebar select:focus {
-  outline: none;
-  border-color: #6C7FE8;
-  box-shadow: 0 0 0 2px rgba(108, 127, 232, 0.25);
+    outline: none;
+    border-color: #6C7FE8;
+    box-shadow: 0 0 0 2px rgba(108, 127, 232, 0.25);
 }
 
+/* Range slider container */
 .sidebar div:has(input[type="range"]) {
-  margin-top: 15px;
-  margin-bottom: 15px;
+    margin-top: 8px;
+    margin-bottom: 50px;
 }
 
+/* Styling for the range slider */
+.sidebar input[type="range"] {
+    width: 90%;
+    margin-top: 5px;
+}
+
+/* Styling for the range value display */
+#history-window-value {
+    font-size: 12px;
+    color: #8C8C98;
+    margin-left: 5px;
+}
+
+/* Make sure sidebar toggle is outside the scrollable area */
+.sidebar-toggle {
+    flex-shrink: 0;
+    margin-top: auto;
+    background: transparent;
+    border: none;
+    color: #EFEFEF;
+    cursor: pointer;
+}
+
+/* Save button - positioned in the header */
 #save-project {
-  margin-top: 25px;
-  padding: 8px 16px;
-  background-color: #6C7FE8;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 14px;
-  transition: all 0.2s ease-in-out;
-  font-family: 'Inter', sans-serif;
+    padding: 5px 10px;
+    background-color: #6C7FE8;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s ease-in-out;
+    font-family: 'Inter', sans-serif;
 }
 
 #save-project:hover {
-  background-color: #5B6ED7;
-  transform: translateY(-1px);
+    background-color: #5B6ED7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(108, 127, 232, 0.25);
 }
 
 .chat-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  height: 100%;
-  box-sizing: border-box;
-  max-width: 80%;
-  margin: 0 auto;
-  position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    height: 100%;
+    box-sizing: border-box;
+    max-width: 80%;
+    margin: 0 auto;
+    position: relative;
 }
 
 /* Chat messages take all available space */
 .chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding-top: 20px;
-  border: none;
-  border-radius: 4px;
-  margin: 0;
-  background-color: #1E1E2E;
+    flex: 1;
+    overflow-y: auto;
+    padding-top: 20px;
+    border: none;
+    border-radius: 4px;
+    margin: 0;
+    background-color: #1E1E2E;
 }
 
 /* Chat input stays at the bottom */
 /* Floating chat input box */
 .chat-input {
-  display: flex;
-  align-items: flex-end;
-  margin-top: auto;
-  padding: 10px;
-  background-color: #282838;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  bottom: 16px;
-  z-index: 0;
-  margin-bottom: 16px;
-  border: 1px solid #3D3D4D;
-  gap: 10px;
+    display: flex;
+    align-items: flex-end;
+    margin-top: auto;
+    padding: 10px;
+    background-color: #282838;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    bottom: 16px;
+    z-index: 0;
+    margin-bottom: 16px;
+    border: 1px solid #3D3D4D;
+    gap: 10px;
 }
 
 .chat-input textarea {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  resize: none;
-  font-size: 14px;
-  transition: border-color 0.2s;
-  height: 18px;
-  min-height: 18px;
-  max-height: 180px;
-  overflow-y: auto;
-  line-height: 1.2;
-  background-color: #1E1E2E;
-  color: #EFEFEF;
-  font-family: 'Inter', sans-serif;
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    resize: none;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    height: 18px;
+    min-height: 18px;
+    max-height: 180px;
+    overflow-y: auto;
+    line-height: 1.2;
+    background-color: #1E1E2E;
+    color: #EFEFEF;
+    font-family: 'Inter', sans-serif;
 }
 
 .chat-input textarea:focus {
-  outline: none;
+    outline: none;
 }
 
 .chat-input button {
-  padding: 10px 20px;
-  background-color: #6C7FE8;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s ease-in-out;
-  align-self: flex-end;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0;
-  font-family: 'Inter', sans-serif;
+    padding: 10px 20px;
+    background-color: #6C7FE8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+    align-self: flex-end;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0;
+    font-family: 'Inter', sans-serif;
 }
 
 .chat-input button:hover {
-  background-color: #5B6ED7;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(108, 127, 232, 0.25);
+    background-color: #5B6ED7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(108, 127, 232, 0.25);
 }
 
 /* Scrollbar styling */
 .chat-messages::-webkit-scrollbar {
-  width: 10px;
-  background: rgba(30, 30, 46, 0.5);
+    width: 10px;
+    background: rgba(30, 30, 46, 0.5);
 }
 
 .chat-messages::-webkit-scrollbar-track {
-  background: rgba(30, 30, 46, 0.5);
-  border-radius: 10px;
+    background: rgba(30, 30, 46, 0.5);
+    border-radius: 10px;
 }
 
 .chat-messages::-webkit-scrollbar-thumb {
-  background: rgba(108, 127, 232, 0.3);
-  border-radius: 10px;
-  border: 2px solid transparent;
-  background-clip: content-box;
+    background: rgba(108, 127, 232, 0.3);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
 }
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
-  background: rgba(108, 127, 232, 0.5);
-  border-radius: 10px;
-  background-clip: content-box;
+    background: rgba(108, 127, 232, 0.5);
+    border-radius: 10px;
+    background-clip: content-box;
 }
 
 /* Firefox scrollbar styles */
 .chat-messages {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(108, 127, 232, 0.3) rgba(30, 30, 46, 0.5);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(108, 127, 232, 0.3) rgba(30, 30, 46, 0.5);
 }
 
 /* Message styling */
 .message {
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  border-radius: 8px;
-  line-height: 1.5;
-  max-width: 85%;
-  word-wrap: break-word;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    line-height: 1.5;
+    max-width: 85%;
+    word-wrap: break-word;
 }
 
 .user-message {
-  color: #EFEFEF;
-  background-color: #3D3D4D;
-  text-align: right;
-  margin-left: auto;
+    color: #EFEFEF;
+    background-color: #3D3D4D;
+    text-align: right;
+    margin-left: auto;
 }
 
 .assistant-message {
-  background-color: #282838;
-  margin-right: auto;
+    background-color: #282838;
+    margin-right: auto;
 }
 
 .message-content {
-  overflow-x: auto;
+    overflow-x: auto;
 }
 
 /* Style for code blocks */
 .message pre {
-  background-color: #1E1E2E;
-  border: 1px solid #3D3D4D;
-  border-radius: 6px;
-  padding: 0.5rem;
-  overflow-x: auto;
-  margin: 0.25rem 0;
-  color: #EFEFEF;
+    background-color: #1E1E2E;
+    border: 1px solid #3D3D4D;
+    border-radius: 6px;
+    padding: 0.5rem;
+    overflow-x: auto;
+    margin: 0.25rem 0;
+    color: #EFEFEF;
 }
 
 .message pre code {
-  font-family: 'JetBrains Mono', 'Courier New', Courier, monospace;
-  font-size: 0.9rem;
-  padding: 0;
-  margin: 0;
-  display: block;
-  line-height: 1.4;
+    font-family: 'JetBrains Mono', 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    padding: 0;
+    margin: 0;
+    display: block;
+    line-height: 1.4;
 }
 
 /* Style for inline code */
 .message p code {
-  background-color: #1E1E2E;
-  color: #e0e0e0;
-  padding: 0.2rem 0.4rem;
-  border-radius: 3px;
-  font-size: 0.9rem;
-  font-family: 'JetBrains Mono', monospace;
+    background-color: #1E1E2E;
+    color: #e0e0e0;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.9rem;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 /* Style for lists */
 .message ul,
 .message ol {
-  padding-left: 1.5rem;
-  margin: 0.5rem 0;
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
 }
 
 /* Style for tables */
 .message table {
-  border-collapse: collapse;
-  width: 100%;
-  margin: 0.5rem 0;
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0.5rem 0;
 }
 
 .message th,
 .message td {
-  border: 1px solid #3D3D4D;
-  padding: 0.5rem;
-  text-align: left;
+    border: 1px solid #3D3D4D;
+    padding: 0.5rem;
+    text-align: left;
 }
 
 .message th {
-  background-color: #282838;
+    background-color: #282838;
 }
 
 /* Style for blockquotes */
 .message blockquote {
-  border-left: 4px solid #6C7FE8;
-  padding-left: 1rem;
-  margin-left: 0;
-  color: #B8B8C0;
+    border-left: 4px solid #6C7FE8;
+    padding-left: 1rem;
+    margin-left: 0;
+    color: #B8B8C0;
 }
 
 /* Styles for code block copy button */
 .copy-code-button {
-  position: absolute !important;
-  top: 10px !important;
-  right: 10px !important;
-  z-index: 10 !important;
-  background: #282838 !important;
-  border: 1px solid rgba(108, 127, 232, 0.3) !important;
-  border-radius: 4px !important;
-  cursor: pointer !important;
-  padding: 5px 10px !important;
-  color: #EFEFEF !important;
-  font-size: 14px !important;
-  opacity: 1 !important;
-  transition: all 0.3s ease !important;
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    z-index: 10 !important;
+    background: #282838 !important;
+    border: 1px solid rgba(108, 127, 232, 0.3) !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    padding: 5px 10px !important;
+    color: #EFEFEF !important;
+    font-size: 14px !important;
+    opacity: 1 !important;
+    transition: all 0.3s ease !important;
 }
 
 .message pre {
-  position: relative !important;
+    position: relative !important;
 }
 
 .message pre:hover .copy-code-button {
-  opacity: 1;
+    opacity: 1;
 }
 
 .copy-code-button:hover {
-  background-color: #3D3D4D !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    background-color: #3D3D4D !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
 .copy-code-button svg {
-  width: 20px;
-  height: 20px;
-  stroke-width: 2;
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
 }
 
 /* Typing indicator styles */
 .typing-indicator {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem;
-  background-color: #282838;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  width: fit-content;
-  max-width: 85%;
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: #282838;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    width: fit-content;
+    max-width: 85%;
 }
 
 .typing-indicator span {
-  height: 8px;
-  width: 8px;
-  margin: 0 1px;
-  background-color: #6C7FE8;
-  border-radius: 50%;
-  display: inline-block;
-  opacity: 0.4;
+    height: 8px;
+    width: 8px;
+    margin: 0 1px;
+    background-color: #6C7FE8;
+    border-radius: 50%;
+    display: inline-block;
+    opacity: 0.4;
 }
 
 .typing-indicator span:nth-child(1) {
-  animation: pulse 1s infinite;
+    animation: pulse 1s infinite;
 }
 
 .typing-indicator span:nth-child(2) {
-  animation: pulse 1s infinite 0.2s;
+    animation: pulse 1s infinite 0.2s;
 }
 
 .typing-indicator span:nth-child(3) {
-  animation: pulse 1s infinite 0.4s;
+    animation: pulse 1s infinite 0.4s;
 }
 
 @keyframes pulse {
-  0% {
-    opacity: 0.4;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
-  100% {
-    opacity: 0.4;
-    transform: scale(1);
-  }
+    0% {
+        opacity: 0.4;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+
+    100% {
+        opacity: 0.4;
+        transform: scale(1);
+    }
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
+    animation: fadeIn 0.5s ease-out forwards;
 }
 
 /* Token info styling */
 .token-info {
-  text-align: center;
-  color: #8C8C98;
-  font-size: 12px;
-  margin: 5px 0 15px;
-  font-style: italic;
+    text-align: center;
+    color: #8C8C98;
+    font-size: 12px;
+    margin: 5px 0 15px;
+    font-style: italic;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .chat-container {
-    max-width: 100%;
-    padding: 0 10px;
-  }
-  
-  .message {
-    max-width: 95%;
-  }
+    .chat-container {
+        max-width: 100%;
+        padding: 0 10px;
+    }
+
+    .message {
+        max-width: 95%;
+    }
 }

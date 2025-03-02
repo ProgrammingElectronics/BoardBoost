@@ -34,9 +34,54 @@ def logout_view(request):
 
 ### API ViewSets ############################################
 class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all()
+    """
+    ViewSet for viewing and editing projects.
+    """
     serializer_class = ProjectSerializer
-
+    permission_classes = [IsAuthenticated]
+    queryset = Project.objects.all()
+    
+    def get_queryset(self):
+        """
+        This view should return a list of all projects
+        for the currently authenticated user.
+        """
+        user = self.request.user
+        return Project.objects.filter(user=user).order_by('-updated_at')
+    
+    def create(self, request, *args, **kwargs):
+        """
+        Custom create method to ensure user is set
+        """
+        # Get the data from the request
+        data = request.data.copy()
+        # Add the user to the data
+        data['user'] = request.user.id
+        
+        serializer = self.get_serializer(data=data)
+        if serializer.is_valid():
+            # Save the serializer with the user
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def update(self, request, *args, **kwargs):
+        """
+        Custom update method to ensure user remains the same
+        """
+        instance = self.get_object()
+        data = request.data.copy()
+        # Make sure user doesn't change
+        data['user'] = instance.user.id
+        
+        serializer = self.get_serializer(instance, data=data, partial=kwargs.get('partial', False))
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+            
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()

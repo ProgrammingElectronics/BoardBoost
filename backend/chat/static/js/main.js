@@ -56,6 +56,69 @@ const md = window.markdownit({
         return ''; // Use external default escaping
     }
 });
+// Add this to the top of your main.js file or as a separate utility
+
+// Enhanced error handling and logging
+window.debugMode = true;  // Set to false in production
+
+// Enhanced logging function
+function logDebug(message, data) {
+    if (window.debugMode) {
+        if (data) {
+            console.log(`[DEBUG] ${message}`, data);
+        } else {
+            console.log(`[DEBUG] ${message}`);
+        }
+    }
+}
+
+// Function to parse and display error responses
+async function handleFetchError(response) {
+    logDebug(`Error response with status ${response.status}`);
+
+    // Try to get response as text
+    const text = await response.text();
+    logDebug("Error response text:", text);
+
+    // Try to parse as JSON if possible
+    let errorMessage = `Server Error (${response.status})`;
+
+    try {
+        const errorJson = JSON.parse(text);
+        logDebug("Parsed error JSON:", errorJson);
+
+        // Format error messages from the API
+        if (typeof errorJson === 'object') {
+            const errorParts = [];
+
+            // Handle both array and object formats of errors
+            Object.keys(errorJson).forEach(key => {
+                const value = errorJson[key];
+                if (Array.isArray(value)) {
+                    errorParts.push(`${key}: ${value.join(', ')}`);
+                } else if (typeof value === 'string') {
+                    errorParts.push(`${key}: ${value}`);
+                } else if (typeof value === 'object') {
+                    errorParts.push(`${key}: ${JSON.stringify(value)}`);
+                }
+            });
+
+            if (errorParts.length > 0) {
+                errorMessage = errorParts.join('\n');
+            }
+        } else if (typeof errorJson === 'string') {
+            errorMessage = errorJson;
+        }
+    } catch (e) {
+        // Not JSON, use text directly if it's not too long
+        if (text && text.length < 100) {
+            errorMessage = text;
+        }
+    }
+
+    throw new Error(errorMessage);
+}
+
 
 // Document ready function
 document.addEventListener('DOMContentLoaded', function () {
@@ -294,7 +357,12 @@ function setupSidebarToggle() {
 // Function to load user's projects
 function loadUserProjects() {
     fetch('/api/projects/')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to load projects');
+            }
+            return response.json();
+        })
         .then(data => {
             const projectsList = document.getElementById('projects-list');
             if (!projectsList) return;
@@ -302,61 +370,62 @@ function loadUserProjects() {
             // Clear loading message
             projectsList.innerHTML = '';
 
-            if (data.length === 0) {
-                projectsList.innerHTML = '<div class="no-projects">No projects yet. Create one to get started!</div>';
-                return;
-            }
+            // Check if we received an array (expected) and it has projects
+            if (Array.isArray(data) && data.length > 0) {
+                // Sort projects by last updated (newest first)
+                data.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 
-            // Sort projects by last updated (newest first)
-            data.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+                // Add each project to the list
+                data.forEach(project => {
+                    const projectItem = document.createElement('div');
+                    projectItem.classList.add('project-item');
+                    if (currentProjectId === project.id) {
+                        projectItem.classList.add('active');
+                    }
 
-            // Add each project to the list
-            data.forEach(project => {
-                const projectItem = document.createElement('div');
-                projectItem.classList.add('project-item');
-                if (currentProjectId === project.id) {
-                    projectItem.classList.add('active');
-                }
-
-                const projectDate = new Date(project.updated_at);
-                const formattedDate = projectDate.toLocaleDateString(undefined, {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                });
-
-                projectItem.innerHTML = `
-            <div class="project-name">${project.name}</div>
-            <div class="project-date">Last updated: ${formattedDate}</div>
-          `;
-
-                projectItem.addEventListener('click', () => {
-                    // Set this as the active project
-                    document.querySelectorAll('.project-item').forEach(item => {
-                        item.classList.remove('active');
+                    const projectDate = new Date(project.updated_at);
+                    const formattedDate = projectDate.toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
                     });
-                    projectItem.classList.add('active');
 
-                    // Load the project and its conversation
-                    loadProject(project.id);
+                    projectItem.innerHTML = `
+              <div class="project-name">${project.name}</div>
+              <div class="project-date">Last updated: ${formattedDate}</div>
+            `;
 
-                    // Reset conversation
-                    currentConversationId = null;
+                    projectItem.addEventListener('click', () => {
+                        // Set this as the active project
+                        document.querySelectorAll('.project-item').forEach(item => {
+                            item.classList.remove('active');
+                        });
+                        projectItem.classList.add('active');
 
-                    // Clear chat messages except for the welcome message
-                    const chatMessages = document.getElementById('chat-messages');
-                    chatMessages.innerHTML = '';
+                        // Load the project and its conversation
+                        loadProject(project.id);
 
-                    // Add welcome message for the project
-                    const welcomeMessage = `I'm ready to help with your "${project.name}" project! ` +
-                        `${project.board_type ? 'I see you\'re using ' + project.board_type + '.' : ''} ` +
-                        'What would you like to discuss?';
+                        // Reset conversation
+                        currentConversationId = null;
 
-                    addMessage(welcomeMessage, 'assistant');
+                        // Clear chat messages except for the welcome message
+                        const chatMessages = document.getElementById('chat-messages');
+                        chatMessages.innerHTML = '';
+
+                        // Add welcome message for the project
+                        const welcomeMessage = `I'm ready to help with your "${project.name}" project! ` +
+                            `${project.board_type ? 'I see you\'re using ' + project.board_type + '.' : ''} ` +
+                            'What would you like to discuss?';
+
+                        addMessage(welcomeMessage, 'assistant');
+                    });
+
+                    projectsList.appendChild(projectItem);
                 });
-
-                projectsList.appendChild(projectItem);
-            });
+            } else {
+                // No projects or empty response
+                projectsList.innerHTML = '<div class="no-projects">No projects yet. Create one to get started!</div>';
+            }
         })
         .catch(error => {
             console.error('Error loading projects:', error);
@@ -494,13 +563,24 @@ function loadModelChoices() {
 // Function to save a project
 function saveProject() {
     const projectName = document.getElementById("project-name").value;
-    const boardType = document.getElementById("board-type").value;
-    const componentsText = document.getElementById("components-text").value;
-    const librariesText = document.getElementById("libraries-text").value;
+    const boardType = document.getElementById("board-type").value || ""; // Empty string instead of undefined
+    const componentsText = document.getElementById("components-text").value || "";
+    const librariesText = document.getElementById("libraries-text").value || "";
 
     // Get model selections
-    const queryModel = document.getElementById("query-model").value;
-    const summaryModel = document.getElementById("summary-model").value;
+    const queryModel = document.getElementById("query-model").value || null;
+    const summaryModel = document.getElementById("summary-model").value || null;
+
+    // Make sure history window size is a number
+    let historyWindow = 10;
+    try {
+        historyWindow = parseInt(document.getElementById("history-window").value, 10);
+        if (isNaN(historyWindow) || historyWindow < 1) {
+            historyWindow = 10; // Default fallback
+        }
+    } catch (e) {
+        logDebug("Error parsing history window size:", e);
+    }
 
     if (!projectName) {
         alert("Please enter a project name");
@@ -512,17 +592,21 @@ function saveProject() {
         board_type: boardType,
         components_text: componentsText,
         libraries_text: librariesText,
-        description: `Arduino project using ${boardType}`,
+        description: boardType ? `Arduino project using ${boardType}` : "Arduino project",
         query_model: queryModel,
         summary_model: summaryModel,
-        history_window_size: document.getElementById("history-window").value,
+        history_window_size: historyWindow
     };
+
+    logDebug("Sending project data:", projectData);
 
     // If we already have a project, update it; otherwise create a new one
     const method = currentProjectId ? "PUT" : "POST";
     const url = currentProjectId
         ? `/api/projects/${currentProjectId}/`
         : "/api/projects/";
+
+    logDebug(`Making ${method} request to ${url}`);
 
     fetch(url, {
         method: method,
@@ -533,12 +617,15 @@ function saveProject() {
         body: JSON.stringify(projectData),
     })
         .then((response) => {
+            logDebug("Response status:", response.status);
+
             if (!response.ok) {
-                throw new Error("Network response was not ok");
+                return handleFetchError(response);
             }
             return response.json();
         })
         .then((data) => {
+            logDebug("Success response:", data);
             currentProjectId = data.id;
 
             alert("Project saved successfully!");
@@ -553,7 +640,7 @@ function saveProject() {
         })
         .catch((error) => {
             console.error("Error saving project:", error);
-            alert("Failed to save project. Please try again.");
+            alert(`Failed to save project: ${error.message}`);
         });
 }
 
