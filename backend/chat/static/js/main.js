@@ -453,7 +453,7 @@ function createNewProject() {
     chatMessages.innerHTML = '';
 
     // Add welcome message for new project
-    addMessage('Let\'s start a new project! Please enter your project details in the settings panel on the right, then save your project.', 'assistant');
+    addMessage('Let\'s start a new project! If you\'d like you can enter some optional project details in the Project Settings panel (mouse to the right of the screen to expand it). This will give me some context every time I reply to your queries', 'assistant');
 
     // Update active project in the list
     document.querySelectorAll('.project-item').forEach(item => {
