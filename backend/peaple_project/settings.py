@@ -36,6 +36,19 @@ OPENAI_API_KEY = env("OPENAI_API_KEY")
 DEBUG = env("DEBUG")
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 
+# Recaptcha keys
+if DEBUG:
+    RECAPTCHA_PUBLIC_KEY = (
+        "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"  # Google test key for development
+    )
+    RECAPTCHA_PRIVATE_KEY = (
+        "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"  # Google test key for development
+    )
+else:
+    RECAPTCHA_PUBLIC_KEY = env("RECAPTCHA_PUBLIC_KEY")
+    RECAPTCHA_PRIVATE_KEY = env("RECAPTCHA_PRIVATE_KEY")
+
+
 ALLOWED_HOSTS = []
 
 LOGIN_URL = "/login/"
@@ -55,6 +68,7 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "chat",
     "rest_framework",
+    "captcha",
 ]
 
 MIDDLEWARE = [
