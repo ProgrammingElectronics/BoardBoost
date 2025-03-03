@@ -38,6 +38,7 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 # Recaptcha keys
 if DEBUG:
+    SILENCED_SYSTEM_CHECKS = ["django_recaptcha.recaptcha_test_key_error"]
     RECAPTCHA_PUBLIC_KEY = (
         "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"  # Google test key for development
     )
@@ -68,7 +69,7 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "chat",
     "rest_framework",
-    "captcha",
+    "django_recaptcha",
 ]
 
 MIDDLEWARE = [

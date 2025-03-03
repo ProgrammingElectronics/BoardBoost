@@ -1,12 +1,12 @@
 /* BoardBoost Authentication Pages Styling */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap");
 
 /* Base styles */
 body {
-  background-color: #1E1E2E;
-  color: #EFEFEF;
-  font-family: 'Inter', sans-serif;
+  background-color: #1e1e2e;
+  color: #efefef;
+  font-family: "Inter", sans-serif;
   line-height: 1.5;
   margin: 0;
   padding: 0;
@@ -19,16 +19,27 @@ body {
 
 /* Fixed positioning for background effects to ensure they cover the entire viewport */
 body::before {
-  content: '';
+  content: "";
   position: fixed;
   width: 300%;
   height: 300%;
   top: -100%;
   left: -100%;
-  background:
-    radial-gradient(circle at 30% 50%, rgba(108, 127, 232, 0.08) 0%, rgba(108, 127, 232, 0) 35%),
-    radial-gradient(circle at 70% 80%, rgba(38, 192, 211, 0.08) 0%, rgba(38, 192, 211, 0) 35%),
-    radial-gradient(circle at 50% 30%, rgba(240, 97, 109, 0.08) 0%, rgba(240, 97, 109, 0) 40%);
+  background: radial-gradient(
+      circle at 30% 50%,
+      rgba(108, 127, 232, 0.08) 0%,
+      rgba(108, 127, 232, 0) 35%
+    ),
+    radial-gradient(
+      circle at 70% 80%,
+      rgba(38, 192, 211, 0.08) 0%,
+      rgba(38, 192, 211, 0) 35%
+    ),
+    radial-gradient(
+      circle at 50% 30%,
+      rgba(240, 97, 109, 0.08) 0%,
+      rgba(240, 97, 109, 0) 40%
+    );
   z-index: -2;
   /* Lower z-index to ensure it's behind everything */
   animation: gentleGradient 25s ease infinite;
@@ -37,14 +48,17 @@ body::before {
 }
 
 body::after {
-  content: '';
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-image:
-    linear-gradient(90deg, rgba(108, 127, 232, 0.04) 1px, transparent 1px),
+  background-image: linear-gradient(
+      90deg,
+      rgba(108, 127, 232, 0.04) 1px,
+      transparent 1px
+    ),
     linear-gradient(0deg, rgba(108, 127, 232, 0.04) 1px, transparent 1px);
   background-size: 20px 20px;
   z-index: -1;
@@ -105,7 +119,7 @@ body::after {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
-  color: #EFEFEF;
+  color: #efefef;
 }
 
 .logo-img {
@@ -122,12 +136,12 @@ body::after {
 }
 
 .user-welcome {
-  color: #B8B8C0;
+  color: #b8b8c0;
   font-size: 14px;
 }
 
 #tokens-remaining {
-  color: #8C8C98;
+  color: #8c8c98;
   font-size: 13px;
   background-color: rgba(30, 30, 46, 0.5);
   padding: 4px 8px;
@@ -138,8 +152,8 @@ body::after {
 .login-button,
 .signup-button,
 .settings-button {
-  background-color: #1E1E2E;
-  color: #EFEFEF;
+  background-color: #1e1e2e;
+  color: #efefef;
   text-decoration: none;
   padding: 6px 12px;
   border-radius: 4px;
@@ -149,18 +163,18 @@ body::after {
 
 .login-button {
   background-color: transparent;
-  border: 1px solid #6C7FE8;
+  border: 1px solid #6c7fe8;
 }
 
 .signup-button {
-  background-color: #6C7FE8;
+  background-color: #6c7fe8;
 }
 
 .logout-button:hover,
 .login-button:hover,
 .signup-button:hover,
 .settings-button:hover {
-  background-color: #6C7FE8;
+  background-color: #6c7fe8;
   color: white;
   transform: translateY(-1px);
 }
@@ -232,13 +246,13 @@ body::after {
 .auth-container.signup .helptext {
   display: block;
   font-size: 11px;
-  color: #8C8C98;
+  color: #8c8c98;
   margin-top: 1px;
   line-height: 1.3;
 }
 
 /* Remove excess margin on specific fields that might have help text */
-.auth-container.signup input+small+.helptext {
+.auth-container.signup input + small + .helptext {
   margin-top: -2px;
 }
 
@@ -272,18 +286,18 @@ body::after {
 
 /* Styled top border for container */
 .auth-container::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #6C7FE8, #26C0D3, #F0616D);
+  background: linear-gradient(90deg, #6c7fe8, #26c0d3, #f0616d);
 }
 
 .auth-container h2 {
   text-align: center;
-  color: #EFEFEF;
+  color: #efefef;
   margin-bottom: 20px;
   font-size: 20px;
   font-weight: 600;
@@ -300,7 +314,7 @@ body::after {
 }
 
 .auth-container label {
-  color: #B8B8C0;
+  color: #b8b8c0;
   margin-bottom: 6px;
   font-weight: 500;
   display: block;
@@ -313,12 +327,12 @@ body::after {
   width: 100%;
   padding: 10px 14px;
   margin-bottom: 6px;
-  background-color: #1E1E2E;
-  border: 1px solid #3D3D4D;
+  background-color: #1e1e2e;
+  border: 1px solid #3d3d4d;
   border-radius: 6px;
-  color: #EFEFEF;
+  color: #efefef;
   transition: all 0.2s ease-in-out;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 14px;
   box-sizing: border-box;
 }
@@ -327,12 +341,12 @@ body::after {
 .auth-container input[type="password"]:focus,
 .auth-container input[type="email"]:focus {
   outline: none;
-  border-color: #6C7FE8;
+  border-color: #6c7fe8;
   box-shadow: 0 0 0 2px rgba(108, 127, 232, 0.25);
 }
 
 .auth-container small {
-  color: #8C8C98;
+  color: #8c8c98;
   font-size: 12px;
   margin-top: 2px;
   display: block;
@@ -341,8 +355,8 @@ body::after {
 .auth-container button {
   width: 100%;
   padding: 10px 14px;
-  background-color: #6C7FE8;
-  color: #FFFFFF;
+  background-color: #6c7fe8;
+  color: #ffffff;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -350,11 +364,11 @@ body::after {
   font-size: 14px;
   transition: all 0.2s ease-in-out;
   margin-top: 6px;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .auth-container button:hover {
-  background-color: #5B6ED7;
+  background-color: #5b6ed7;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(108, 127, 232, 0.25);
 }
@@ -367,25 +381,25 @@ body::after {
 .auth-container p {
   text-align: center;
   margin-top: 18px;
-  color: #B8B8C0;
+  color: #b8b8c0;
   font-size: 14px;
 }
 
 .auth-container a {
-  color: #26C0D3;
+  color: #26c0d3;
   text-decoration: none;
   transition: all 0.2s ease-in-out;
   font-weight: 500;
 }
 
 .auth-container a:hover {
-  color: #6C7FE8;
+  color: #6c7fe8;
   text-decoration: underline;
 }
 
 /* Error messages */
 .auth-container .errorlist {
-  color: #E84A5F;
+  color: #e84a5f;
   list-style-type: none;
   padding: 0;
   margin-bottom: 14px;
@@ -396,17 +410,26 @@ body::after {
   background-color: rgba(232, 74, 95, 0.1);
   padding: 8px 10px;
   border-radius: 4px;
-  border-left: 3px solid #E84A5F;
+  border-left: 3px solid #e84a5f;
   margin-bottom: 3px;
 }
 
+.g-recaptcha {
+  margin: 0px 0px;
+}
+
+/* Center the captcha */
+.g-recaptcha > div {
+  margin: 0 auto;
+}
+
 .user-welcome {
-  color: #B8B8C0;
+  color: #b8b8c0;
   margin-right: auto;
 }
 
 #tokens-remaining {
-  color: #8C8C98;
+  color: #8c8c98;
   font-size: 13px;
 }
 
@@ -414,8 +437,8 @@ body::after {
 .login-button,
 .signup-button,
 .settings-button {
-  background-color: #1E1E2E;
-  color: #EFEFEF;
+  background-color: #1e1e2e;
+  color: #efefef;
   text-decoration: none;
   padding: 6px 12px;
   border-radius: 4px;
@@ -427,7 +450,7 @@ body::after {
 .login-button:hover,
 .signup-button:hover,
 .settings-button:hover {
-  background-color: #6C7FE8;
+  background-color: #6c7fe8;
   color: white;
 }
 
