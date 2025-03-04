@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.conf import settings
 
 
 class UserProfile(models.Model):
@@ -10,32 +11,28 @@ class UserProfile(models.Model):
     tokens_remaining = models.IntegerField(default=10000)  # 10,000 tokens per day
     last_token_reset = models.DateTimeField(default=timezone.now)
 
-        # Model choices
+    # Model choices
     QUERY_MODEL_CHOICES = [
-        ('gpt-3.5-turbo', 'GPT-3.5 Turbo'),
-        ('gpt-4', 'GPT-4'),
-        ('gpt-4o', 'GPT-4o'),
-        ('gpt-4o-mini', 'GPT-4o Mini'),
+        ("gpt-3.5-turbo", "GPT-3.5 Turbo"),
+        ("gpt-4", "GPT-4"),
+        ("gpt-4o", "GPT-4o"),
+        ("gpt-4o-mini", "GPT-4o Mini"),
     ]
 
     SUMMARY_MODEL_CHOICES = [
-        ('gpt-3.5-turbo', 'GPT-3.5 Turbo'),
-        ('gpt-4', 'GPT-4'),
-        ('gpt-4o', 'GPT-4o'),
-        ('gpt-4o-mini', 'GPT-4o Mini'),
+        ("gpt-3.5-turbo", "GPT-3.5 Turbo"),
+        ("gpt-4", "GPT-4"),
+        ("gpt-4o", "GPT-4o"),
+        ("gpt-4o-mini", "GPT-4o Mini"),
     ]
-    
+
     # Global model preferences
     default_query_model = models.CharField(
-        max_length=50,
-        choices=QUERY_MODEL_CHOICES,
-        default='gpt-3.5-turbo'
+        max_length=50, choices=QUERY_MODEL_CHOICES, default="gpt-3.5-turbo"
     )
-    
+
     default_summary_model = models.CharField(
-        max_length=50,
-        choices=SUMMARY_MODEL_CHOICES,
-        default='gpt-3.5-turbo'
+        max_length=50, choices=SUMMARY_MODEL_CHOICES, default="gpt-3.5-turbo"
     )
 
     def __str__(self):
@@ -70,7 +67,7 @@ class Project(models.Model):
     """Model to store the project"""
 
     name = models.CharField(max_length=100)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='projects')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="projects")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -83,23 +80,17 @@ class Project(models.Model):
     description = models.TextField(blank=True)
     history_window_size = models.IntegerField(default=10)
 
-        # Use the same model choices as UserProfile
+    # Use the same model choices as UserProfile
     QUERY_MODEL_CHOICES = UserProfile.QUERY_MODEL_CHOICES
     SUMMARY_MODEL_CHOICES = UserProfile.SUMMARY_MODEL_CHOICES
-    
+
     # Project-specific model preferences (null means use user defaults)
     query_model = models.CharField(
-        max_length=50,
-        choices=QUERY_MODEL_CHOICES,
-        blank=True,
-        null=True
+        max_length=50, choices=QUERY_MODEL_CHOICES, blank=True, null=True
     )
-    
+
     summary_model = models.CharField(
-        max_length=50,
-        choices=SUMMARY_MODEL_CHOICES,
-        blank=True,
-        null=True
+        max_length=50, choices=SUMMARY_MODEL_CHOICES, blank=True, null=True
     )
 
     def __str__(self):
@@ -163,3 +154,18 @@ class MessageEmbedding(models.Model):
 
     def __str__(self):
         return f"Embedding for message {self.message.id}"
+
+
+class SiteSettings(models.Model):
+    registered_users_count = models.IntegerField(default=0)
+    max_beta_users = models.IntegerField(default=settings.MAX_BETA_USERS)
+    beta_registration_open = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Site Settings"
+        verbose_name_plural = "Site Settings"
+
+    def __str__(self):
+        return (
+            f"Site Settings ({self.registered_users_count}/{self.max_beta_users} users)"
+        )

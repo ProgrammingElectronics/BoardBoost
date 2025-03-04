@@ -1,5 +1,5 @@
 """
-URL configuration for peaple_project project.
+URL configuration for boardboost_project project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
@@ -27,5 +27,5 @@ urlpatterns = [
     path("login/", auth_views.LoginView.as_view(), name="login"),
     path("logout/", logout_view, name="logout"),
     path("signup/", SignUpView.as_view(), name="signup"),
-    path('settings/', user_settings, name='user_settings'),
+    path("settings/", user_settings, name="user_settings"),
 ]

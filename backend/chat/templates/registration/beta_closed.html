@@ -1,0 +1,60 @@
+<!-- In chat/templates/chat/beta_closed.html -->
+{% extends "chat/base.html" %} {% block content %}
+<div class="auth-container">
+  <h2>Beta Program Full</h2>
+  <p>
+    Thank you for your interest in BoardBoost! Our beta testing program is
+    currently at capacity.
+  </p>
+
+  <div class="waitlist-box">
+    <h3>Join the Waitlist</h3>
+    <p>
+      We're working on expanding our capacity. Join our waitlist to be notified
+      when spots open up:
+    </p>
+
+    <a href="https://protojo.com/waitlist" class="waitlist-button"
+      >Join Waitlist</a
+    >
+  </div>
+
+  <p class="login-link">
+    Already have an account? <a href="{% url 'login' %}">Log in</a>
+  </p>
+</div>
+
+<style>
+  .waitlist-box {
+    background-color: rgba(108, 127, 232, 0.1);
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    border: 1px solid rgba(108, 127, 232, 0.3);
+    text-align: center;
+  }
+
+  .waitlist-box h3 {
+    margin-top: 0;
+    color: #6c7fe8;
+  }
+
+  .waitlist-button {
+    display: inline-block;
+    background-color: #6c7fe8;
+    color: white;
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-weight: 500;
+    margin-top: 10px;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .waitlist-button:hover {
+    background-color: #5b6ed7;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+</style>
+{% endblock %}

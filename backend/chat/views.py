@@ -16,12 +16,15 @@ from .serializers import (
 from .ai_service import generate_response
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def get_model_choices(request):
-    return Response({
-        'query_models': UserProfile.QUERY_MODEL_CHOICES,
-        'summary_models': UserProfile.SUMMARY_MODEL_CHOICES
-    })
+    return Response(
+        {
+            "query_models": UserProfile.QUERY_MODEL_CHOICES,
+            "summary_models": UserProfile.SUMMARY_MODEL_CHOICES,
+        }
+    )
+
 
 def index(request):
     return render(request, "chat/index.html")
@@ -32,23 +35,30 @@ def logout_view(request):
     return redirect("login")
 
 
+def beta_closed(request):
+    """View for when beta registration is closed"""
+    # return render(request, "chat/beta_closed.html")
+    return render(request, "registration/beta_closed.html")
+
+
 ### API ViewSets ############################################
 class ProjectViewSet(viewsets.ModelViewSet):
     """
     ViewSet for viewing and editing projects.
     """
+
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated]
     queryset = Project.objects.all()
-    
+
     def get_queryset(self):
         """
         This view should return a list of all projects
         for the currently authenticated user.
         """
         user = self.request.user
-        return Project.objects.filter(user=user).order_by('-updated_at')
-    
+        return Project.objects.filter(user=user).order_by("-updated_at")
+
     def create(self, request, *args, **kwargs):
         """
         Custom create method to ensure user is set
@@ -56,16 +66,16 @@ class ProjectViewSet(viewsets.ModelViewSet):
         # Get the data from the request
         data = request.data.copy()
         # Add the user to the data
-        data['user'] = request.user.id
-        
+        data["user"] = request.user.id
+
         serializer = self.get_serializer(data=data)
         if serializer.is_valid():
             # Save the serializer with the user
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def update(self, request, *args, **kwargs):
         """
         Custom update method to ensure user remains the same
@@ -73,15 +83,17 @@ class ProjectViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         data = request.data.copy()
         # Make sure user doesn't change
-        data['user'] = instance.user.id
-        
-        serializer = self.get_serializer(instance, data=data, partial=kwargs.get('partial', False))
+        data["user"] = instance.user.id
+
+        serializer = self.get_serializer(
+            instance, data=data, partial=kwargs.get("partial", False)
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-            
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
@@ -93,41 +105,37 @@ class ConversationViewSet(viewsets.ModelViewSet):
 @permission_classes([IsAuthenticated])
 def send_message(request):
     """Send a message - requires login and token availability"""
-    if request.method == 'POST':
+    if request.method == "POST":
         # Check if user has tokens remaining
         profile = request.user.userprofile
-        
+
         # Reset tokens if needed
         profile.reset_tokens_if_needed()
-        
+
         # Extract data from request
-        content = request.data.get('content')
-        project_id = request.data.get('project_id')
-        
+        content = request.data.get("content")
+        project_id = request.data.get("project_id")
+
         # Validate inputs
         if not content:
             return Response(
-                {'error': 'Message content is required'}, 
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Message content is required"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-            
+
         # Get or create project
         if not project_id:
             # Create a default project if none specified
-            project = Project.objects.create(
-                name="Default Project",
-                user=request.user
-            )
+            project = Project.objects.create(name="Default Project", user=request.user)
             project_id = project.id
         else:
             try:
                 project = Project.objects.get(id=project_id)
             except Project.DoesNotExist:
                 return Response(
-                    {'error': 'Project not found'}, 
-                    status=status.HTTP_404_NOT_FOUND
+                    {"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND
                 )
-        
+
         # Get or create the SINGLE conversation for this project
         conversation, created = Conversation.objects.get_or_create(project=project)
 
@@ -149,8 +157,10 @@ def send_message(request):
         )
 
         # Generate response with token usage information
-        assistant_response, tokens_used = generate_response(content, conversation.id, request.user)
-        
+        assistant_response, tokens_used = generate_response(
+            content, conversation.id, request.user
+        )
+
         # Update user's token balance
         profile.tokens_remaining -= tokens_used
         if profile.tokens_remaining < 0:
@@ -175,25 +185,30 @@ def send_message(request):
         )
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def project_messages(request, project_id):
     """Get all messages for a project's conversation"""
     try:
         project = Project.objects.get(id=project_id)
-        
+
         # Get the project's conversation (or create it if it doesn't exist)
         conversation, created = Conversation.objects.get_or_create(project=project)
-        
+
         # Get all messages for this conversation
-        messages = Message.objects.filter(conversation=conversation).order_by('timestamp')
-        
-        return Response({
-            'conversation_id': conversation.id,
-            'messages': MessageSerializer(messages, many=True).data
-        })
+        messages = Message.objects.filter(conversation=conversation).order_by(
+            "timestamp"
+        )
+
+        return Response(
+            {
+                "conversation_id": conversation.id,
+                "messages": MessageSerializer(messages, many=True).data,
+            }
+        )
     except Project.DoesNotExist:
-        return Response({'error': 'Project not found'}, status=404)
+        return Response({"error": "Project not found"}, status=404)
+
 
 ## Login ################################################
 @login_required
@@ -214,19 +229,23 @@ def index(request):
 @login_required
 def user_settings(request):
     profile = request.user.userprofile
-    
-    if request.method == 'POST':
+
+    if request.method == "POST":
         # Update user settings
-        profile.default_query_model = request.POST.get('default_query_model')
-        profile.default_summary_model = request.POST.get('default_summary_model')
+        profile.default_query_model = request.POST.get("default_query_model")
+        profile.default_summary_model = request.POST.get("default_summary_model")
         profile.save()
-        
-        messages.success(request, 'Settings updated successfully!')
-        return redirect('user_settings')
-    
+
+        messages.success(request, "Settings updated successfully!")
+        return redirect("user_settings")
+
     # For GET requests, just display the settings form
-    return render(request, 'chat/settings.html', {
-        'profile': profile,
-        'query_models': UserProfile.QUERY_MODEL_CHOICES,
-        'summary_models': UserProfile.SUMMARY_MODEL_CHOICES,
-    })
+    return render(
+        request,
+        "chat/settings.html",
+        {
+            "profile": profile,
+            "query_models": UserProfile.QUERY_MODEL_CHOICES,
+            "summary_models": UserProfile.SUMMARY_MODEL_CHOICES,
+        },
+    )
