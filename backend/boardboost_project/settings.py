@@ -24,10 +24,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
     # Set default values
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    SECRET_KEY=(
+        str,
+        "django-insecure-t-5q0isfrg-h-9zaus3&nys0)h8bn(ko2_k=jnk4#=)1tptavm",
+    ),
+    ALLOWED_HOSTS=(list, []),
 )
 
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+environ.Env.read_env(os.path.join(BASE_DIR, "../.env"))
 
 # API Keys
 OPENAI_API_KEY = env("OPENAI_API_KEY")
@@ -53,7 +58,11 @@ else:
     RECAPTCHA_PRIVATE_KEY = env("RECAPTCHA_PRIVATE_KEY")
 
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
+# Allow specified hosts
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
+if not ALLOWED_HOSTS and not DEBUG:
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
@@ -153,8 +162,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [
-    BASE_DIR / "chat" / "static",
+    os.path.join(BASE_DIR, "chat", "static"),
 ]
 
 # Default primary key field type
