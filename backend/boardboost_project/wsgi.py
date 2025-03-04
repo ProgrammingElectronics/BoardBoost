@@ -1,5 +1,5 @@
 """
-WSGI config for peaple_project project.
+WSGI config for boardboost_project project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'peaple_project.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "boardboost_project.settings")
 
 application = get_wsgi_application()
