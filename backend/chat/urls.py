@@ -19,9 +19,5 @@ urlpatterns = [
         views.project_messages,
         name="project_messages",
     ),
-    # path(
-    #     "login/",
-    #     auth_views.LoginView.as_view(form_class=CustomAuthenticationForm),
-    #     name="login",
-    # ),
+    path("beta-closed/", views.beta_closed, name="beta_closed"),
 ]

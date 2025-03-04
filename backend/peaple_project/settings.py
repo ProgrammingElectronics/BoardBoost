@@ -32,6 +32,9 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 # API Keys
 OPENAI_API_KEY = env("OPENAI_API_KEY")
 
+# Beta Limit
+MAX_BETA_USERS = env("MAX_BETA_USERS", default=2)
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
 SECRET_KEY = env("DJANGO_SECRET_KEY")
@@ -80,6 +83,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "chat.middleware.BetaRegistrationMiddleware",
 ]
 
 ROOT_URLCONF = "peaple_project.urls"
