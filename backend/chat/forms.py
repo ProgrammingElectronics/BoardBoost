@@ -7,7 +7,7 @@ from django_recaptcha.widgets import ReCaptchaV2Checkbox
 
 
 class CustomUserCreationForm(UserCreationForm):
-    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox, required=false)
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox, required=False)
 
     class Meta:
         model = User
