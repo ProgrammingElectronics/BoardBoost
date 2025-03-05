@@ -28,5 +28,4 @@ USER appuser
 EXPOSE 8000
 
 # Command to run
-RUN python backend/manage.py collectstatic --noinput
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "boardboost_project.wsgi:application"]
