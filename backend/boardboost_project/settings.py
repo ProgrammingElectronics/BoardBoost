@@ -144,12 +144,21 @@ WSGI_APPLICATION = "boardboost_project.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+
+# Database configuration
+if env("DATABASE_URL", default=None):
+    # If DATABASE_URL is provided, use it (Digital Ocean PostgreSQL)
+    DATABASES = {
+        "default": env.db(),
     }
-}
+else:
+    # Fallback to SQLite if no DATABASE_URL is provided
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 
 # Password validation
