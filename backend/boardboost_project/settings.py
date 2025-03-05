@@ -29,9 +29,18 @@ env = environ.Env(
         "django-insecure-t-5q0isfrg-h-9zaus3&nys0)h8bn(ko2_k=jnk4#=)1tptavm",
     ),
     ALLOWED_HOSTS=(list, []),
+    APP_DOMAIN=(str, None),
 )
 
-environ.Env.read_env(os.path.join(BASE_DIR, "../.env"))
+try:
+    environ.Env.read_env(os.path.join(BASE_DIR, "../.env"))
+except Exception:
+    # Try one more location that might work in App Platform
+    try:
+        environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+    except Exception:
+        # Continue without .env file in production
+        pass
 
 # API Keys
 OPENAI_API_KEY = env("OPENAI_API_KEY")
@@ -53,15 +62,33 @@ if DEBUG:
         "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"  # Google test key for development
     )
 else:
-    RECAPTCHA_PUBLIC_KEY = env("RECAPTCHA_PUBLIC_KEY")
-    RECAPTCHA_PRIVATE_KEY = env("RECAPTCHA_PRIVATE_KEY")
+    RECAPTCHA_PUBLIC_KEY = env("RECAPTCHA_PUBLIC_KEY", default="")
+    RECAPTCHA_PRIVATE_KEY = env("RECAPTCHA_PRIVATE_KEY", default="")
 
 
-# ALLOWED_HOSTS = []
-# Allow specified hosts
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
-if not ALLOWED_HOSTS and not DEBUG:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+# Fix ALLOWED_HOSTS to handle Digital Ocean App Platform
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
+
+# Always include basic localhost entries
+if "localhost" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("localhost")
+if "127.0.0.1" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("127.0.0.1")
+
+# Add App Platform domain if it exists
+app_domain = env("APP_DOMAIN", default=None)
+if app_domain:
+    ALLOWED_HOSTS.append(app_domain)
+
+# Add the known Digital Ocean domain
+ALLOWED_HOSTS.append("boardboost-fb5ug.ondigitalocean.app")
+
+# Add CSRF trusted origins support for HTTPS
+CSRF_TRUSTED_ORIGINS = []
+for host in ALLOWED_HOSTS:
+    if host not in ["localhost", "127.0.0.1"]:
+        CSRF_TRUSTED_ORIGINS.append(f"https://{host}")
+
 
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
@@ -69,7 +96,6 @@ LOGOUT_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "login"  # Redirect to login page after logout
 
 # Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
