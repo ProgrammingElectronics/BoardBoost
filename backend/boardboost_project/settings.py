@@ -65,6 +65,7 @@ else:
     RECAPTCHA_PUBLIC_KEY = env("RECAPTCHA_PUBLIC_KEY", default="")
     RECAPTCHA_PRIVATE_KEY = env("RECAPTCHA_PRIVATE_KEY", default="")
 
+RECAPTCHA_REQUIRED_SCORE = 0.85  # Threshold score for v3 (0.0 to 1.0)
 
 # Fix ALLOWED_HOSTS to handle Digital Ocean App Platform
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
