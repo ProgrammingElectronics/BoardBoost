@@ -1,0 +1,19 @@
+name: boardboost
+services:
+  - name: web
+    github:
+      branch: main
+      repo: ProgrammingElectronics/BoardBoost
+    build_command: pip install -r backend/requirements.txt && cd backend && python manage.py collectstatic --noinput
+    run_command: cd backend && python manage.py migrate && gunicorn boardboost_project.wsgi:application --bind 0.0.0.0:8000
+    routes:
+      - path: /
+    
+static_sites:
+  - name: static
+    github:
+      branch: main
+      repo: ProgrammingElectronics/BoardBoost
+    source_dir: backend/staticfiles
+    routes:
+      - path: /static
