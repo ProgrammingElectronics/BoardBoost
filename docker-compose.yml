@@ -1,0 +1,36 @@
+services:
+  web:
+    build: .
+    container_name: boardboost-web
+    volumes:
+      - static_volume:/app/staticfiles
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput --clear &&
+             gunicorn boardboost_project.wsgi:application --bind 0.0.0.0:8000"
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:1.21-alpine
+    container_name: boardboost-nginx
+    volumes:
+      - static_volume:/usr/share/nginx/html/static
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  static_volume:
