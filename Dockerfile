@@ -29,4 +29,3 @@ EXPOSE 8000
 
 # Command to run
 CMD sh -c "python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:8000 boardboost_project.wsgi:application"
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "boardboost_project.wsgi:application"]
