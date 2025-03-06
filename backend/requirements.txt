@@ -27,3 +27,4 @@ sqlparse==0.5.3
 tqdm==4.67.1
 typing_extensions==4.12.2
 psycopg2-binary==2.9.5
+whitenoise==6.9.0
