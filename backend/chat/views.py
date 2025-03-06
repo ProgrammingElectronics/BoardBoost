@@ -37,7 +37,6 @@ def logout_view(request):
 
 def beta_closed(request):
     """View for when beta registration is closed"""
-    # return render(request, "chat/beta_closed.html")
     return render(request, "registration/beta_closed.html")
 
 

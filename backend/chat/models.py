@@ -8,7 +8,7 @@ from django.conf import settings
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    tokens_remaining = models.IntegerField(default=10000)  # 10,000 tokens per day
+    tokens_remaining = models.IntegerField(default=100000)  # 10,000 tokens per day
     last_token_reset = models.DateTimeField(default=timezone.now)
 
     # Model choices
@@ -43,7 +43,7 @@ class UserProfile(models.Model):
         now = timezone.now()
         # Check if the current date is different from last reset date
         if now.date() > self.last_token_reset.date():
-            self.tokens_remaining = 10000  # Reset to daily limit
+            self.tokens_remaining = 100000  # Reset to daily limit
             self.last_token_reset = now
             self.save()
             return True

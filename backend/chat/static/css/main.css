@@ -338,8 +338,6 @@ body::after {
   padding-right: 8px;
   display: flex;
   flex-direction: column;
-  /* gap: 10px; */
-  /* Use gap for consistent spacing */
 }
 
 /* Compact label styles */
@@ -347,10 +345,8 @@ body::after {
   color: #b8b8c0;
   display: block;
   margin-bottom: 3px;
-  /* Reduced from 4px */
   margin-top: 0;
   font-size: 13px;
-  /* Smaller font */
   font-weight: 500;
 }
 
@@ -362,13 +358,10 @@ body::after {
   border-radius: 4px;
   width: 90%;
   padding: 6px 8px;
-  /* Reduced padding */
   margin-bottom: 0;
   font-family: "Inter", sans-serif;
   font-size: 13px;
-  /* Smaller font */
   height: 28px;
-  /* Explicitly set height */
 }
 
 /* Make textareas smaller */
@@ -384,11 +377,8 @@ body::after {
   font-size: 13px;
   resize: vertical;
   height: 48px;
-  /* Shorter default height */
   min-height: 32px;
-  /* Allow shrinking but not too much */
   max-height: 120px;
-  /* Limit expansion */
 }
 
 .sidebar input[type="text"]:focus,
@@ -469,23 +459,19 @@ body::after {
   border: none;
   border-radius: 4px;
   margin: 0;
-  /* background-color: #1e1e2e;
-  background-color: rgba(30, 30, 46, 0.7);
-  z-index: 2;  */
 }
 
 .chat-input {
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
   margin-top: auto;
   padding: 10px;
-  border-radius: 14px 14px 0 0;
+  background-color: #282838;
+  border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   position: sticky;
   z-index: 0;
   gap: 10px;
-  border: none;
-  position: relative;
 }
 
 /* Create gradient border with ::before */
@@ -514,13 +500,22 @@ body::after {
   z-index: -1;
 }
 
+.input-actions-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
 .chat-input textarea {
-  flex: 1;
+  width: 90%;
   padding: 12px;
   border: none;
+  border-radius: 8px;
   resize: none;
   font-size: 14px;
-  /* Adjust min-height in JS setupTextareaAutoResize() */
+  transition: border-color 0.2s;
+  height: 30px;
+  min-height: 30px;
   max-height: 180px;
   overflow-y: auto;
   line-height: 1.2;
@@ -533,22 +528,87 @@ body::after {
   outline: none;
 }
 
+.chat-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 10px;
+  align-self: flex-end;
+}
+
+.file-upload-container {
+  display: flex;
+  align-items: center;
+}
+
+.file-upload-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: #1e1e2e;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.file-upload-label:hover {
+  background-color: #3d3d4d;
+  transform: translateY(-1px);
+}
+
+.file-upload-label svg {
+  color: #6c7fe8;
+}
+
+#file-preview-container {
+  width: 100%;
+  margin-top: 1px;
+  margin-bottom: 10px;
+}
+
+.file-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(108, 127, 232, 0.1);
+  border: 1px solid rgba(108, 127, 232, 0.3);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 5px;
+  font-size: 13px;
+}
+
+.file-preview span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove-file {
+  background: none;
+  border: none;
+  color: #6c7fe8;
+  cursor: pointer;
+  padding: 0 0 0 10px;
+  font-size: 18px;
+  line-height: 1;
+}
+
 .chat-input button {
   padding: 10px 20px;
   background-color: #6c7fe8;
-  /* background-color: #e86c76; */
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s ease-in-out;
-  align-self: flex-end;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0;
   font-family: "Inter", sans-serif;
 }
 
@@ -607,7 +667,6 @@ body::after {
 }
 
 .assistant-message {
-  /* background-color: #282838; */
   background-color: rgba(40, 40, 56, 0.9); /* More opaque for readability */
   margin-right: auto;
 }
