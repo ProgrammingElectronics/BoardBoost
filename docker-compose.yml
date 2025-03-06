@@ -20,6 +20,7 @@ services:
     container_name: boardboost-nginx
     volumes:
       - static_volume:/usr/share/nginx/html/static
+      - ./nginx/conf.d:/etc/nginx/conf.d
     ports:
       - "80:80"
     depends_on:
