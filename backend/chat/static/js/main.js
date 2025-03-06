@@ -287,22 +287,69 @@ function addMessage(content, sender) {
 }
 
 // Function to set up auto-resize for textarea
+// function setupTextareaAutoResize() {
+//     const textarea = document.getElementById('user-input');
+//     if (!textarea) return;
+
+//     // Function to adjust height
+//     function adjustHeight() {
+//         // Reset height to auto to get the correct scrollHeight
+//         textarea.style.height = 'auto';
+
+//         // Set new height based on content
+//         textarea.style.height = textarea.scrollHeight + 'px';
+//     }
+
+//     // Function to reset height to default
+//     function resetHeight() {
+//         textarea.style.height = '48px';
+//     }
+
+//     // Adjust on input
+//     textarea.addEventListener('input', adjustHeight);
+
+//     // Also adjust when the textarea gets focus
+//     textarea.addEventListener('focus', adjustHeight);
+
+//     // Initial adjustment
+//     adjustHeight();
+
+//     // Store the original function to reset height after sending
+//     const originalSendMessage = window.sendMessage;
+//     window.sendMessage = function () {
+//         // Call the original sendMessage function if it exists
+//         if (originalSendMessage) {
+//             originalSendMessage();
+//         } else {
+//             // Otherwise call our implementation
+//             sendMessage();
+//         }
+
+//         // Reset textarea height after sending
+//         resetHeight();
+//     };
+// }
+
 function setupTextareaAutoResize() {
     const textarea = document.getElementById('user-input');
     if (!textarea) return;
 
+    // Default height should match your CSS value
+    const defaultHeight = '65px';
+    
     // Function to adjust height
     function adjustHeight() {
         // Reset height to auto to get the correct scrollHeight
         textarea.style.height = 'auto';
 
         // Set new height based on content
-        textarea.style.height = textarea.scrollHeight + 'px';
+        const newHeight = Math.max(textarea.scrollHeight, parseInt(defaultHeight));
+        textarea.style.height = newHeight + 'px';
     }
 
     // Function to reset height to default
     function resetHeight() {
-        textarea.style.height = '18px'; // Match the initial min-height from CSS
+        textarea.style.height = defaultHeight;
     }
 
     // Adjust on input
@@ -314,19 +361,17 @@ function setupTextareaAutoResize() {
     // Initial adjustment
     adjustHeight();
 
-    // Store the original function to reset height after sending
+    // The key is to make sure we're explicitly calling resetHeight after sendMessage
     const originalSendMessage = window.sendMessage;
-    window.sendMessage = function () {
-        // Call the original sendMessage function if it exists
-        if (originalSendMessage) {
-            originalSendMessage();
-        } else {
-            // Otherwise call our implementation
-            sendMessage();
+    window.sendMessage = function() {
+        // Call the original sendMessage function
+        if (typeof originalSendMessage === 'function') {
+            originalSendMessage.apply(this, arguments);
         }
 
-        // Reset textarea height after sending
-        resetHeight();
+        // Reset textarea height AFTER the message has been sent
+        // Use setTimeout to ensure this happens after the value is cleared
+        setTimeout(resetHeight, 0);
     };
 }
 

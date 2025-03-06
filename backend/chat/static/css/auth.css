@@ -97,7 +97,6 @@ body::after {
 }
 
 /* Header styling */
-/* Header styling */
 .header {
   background-color: #282838;
   padding: 0 16px;
@@ -108,6 +107,16 @@ body::after {
   height: 60px;
   position: relative;
   z-index: 10;
+}
+
+.header::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #6c7fe8, #26c0d3, #f0616d);
 }
 
 .logo {
