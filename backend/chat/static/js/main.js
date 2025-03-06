@@ -299,7 +299,7 @@ function setupTextareaAutoResize() {
   if (!textarea) return;
 
   // Default height should match your CSS value
-  const defaultHeight = "20px";
+  const defaultHeight = "60px";
 
   // Function to adjust height
   function adjustHeight() {

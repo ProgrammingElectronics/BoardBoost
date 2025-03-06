@@ -514,8 +514,6 @@ body::after {
   resize: none;
   font-size: 14px;
   transition: border-color 0.2s;
-  height: 30px;
-  min-height: 30px;
   max-height: 180px;
   overflow-y: auto;
   line-height: 1.2;
