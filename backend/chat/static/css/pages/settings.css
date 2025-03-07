@@ -1,0 +1,220 @@
+/* Settings page specific styles */
+
+/* Overall form styling */
+form {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  background-color: #282838;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Setting groups */
+.setting-group {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #3d3d4d;
+}
+
+.setting-group h3 {
+  color: #efefef;
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.setting-description {
+  color: #b8b8c0;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+/* Form groups */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #efefef;
+}
+
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #3d3d4d;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #1e1e2e;
+  color: #efefef;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #6c7fe8;
+  box-shadow: 0 0 0 2px rgba(108, 127, 232, 0.25);
+}
+
+.model-info {
+  margin-top: 5px;
+  font-size: 14px;
+  color: #8c8c98;
+}
+
+/* Button group styling */
+.button-group {
+  display: flex;
+  gap: 15px;
+}
+
+/* Save button (keeping your existing styles) */
+.save-button {
+  background-color: #6c7fe8;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.save-button:hover {
+  background-color: #5b6ed7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(108, 127, 232, 0.25);
+}
+
+/* Back button styling */
+.back-button {
+  background-color: #3d3d4d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-button:hover {
+  background-color: #4d4d5d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .button-group {
+    flex-direction: column;
+  }
+
+  .save-button,
+  .back-button {
+    width: 100%;
+  }
+}
+
+/* Save button */
+/* .save-button {
+  background-color: #6c7fe8;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.save-button:hover {
+  background-color: #5b6ed7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(108, 127, 232, 0.25);
+} */
+
+/* Notification messages */
+.messages {
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.message-alert {
+  padding: 12px 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.message-alert.success {
+  background-color: rgba(46, 204, 113, 0.15);
+  border-left: 4px solid #2ecc71;
+  color: #2ecc71;
+}
+
+.message-alert.error {
+  background-color: rgba(231, 76, 60, 0.15);
+  border-left: 4px solid #e74c3c;
+  color: #e74c3c;
+}
+
+/* Token information display */
+.token-info {
+  max-width: 800px;
+  margin: 30px auto;
+  background-color: #282838;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.token-info h3 {
+  margin-top: 0;
+  color: #efefef;
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.token-info p {
+  margin-bottom: 10px;
+  color: #b8b8c0;
+}
+
+.token-info strong {
+  color: #6c7fe8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 840px) {
+  form,
+  .token-info,
+  .messages {
+    margin: 20px;
+    width: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  form,
+  .token-info {
+    padding: 15px;
+  }
+
+  .form-group select {
+    font-size: 14px;
+  }
+
+  .save-button {
+    width: 100%;
+  }
+}

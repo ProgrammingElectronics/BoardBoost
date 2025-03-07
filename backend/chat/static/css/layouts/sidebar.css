@@ -1,0 +1,306 @@
+/* Sidebar specific styles */
+
+/* Projects sidebar (left side) */
+.projects-sidebar {
+  width: 225px;
+  background-color: rgba(40, 40, 56, 0.95);
+  color: var(--color-text);
+  padding: 1rem;
+  overflow-y: auto;
+  height: 100%;
+  position: fixed;
+  left: 0;
+  top: 60px;
+  bottom: 0;
+  z-index: 10;
+  transition: opacity var(--transition-speed), transform var(--transition-speed);
+  opacity: 0;
+  transform: translateX(-100%);
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+}
+
+/* Trigger area for the projects sidebar */
+.projects-sidebar-trigger {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 20px;
+  height: calc(100% - 60px);
+  z-index: 9;
+}
+
+/* Show the projects sidebar on hover */
+.projects-sidebar-trigger:hover + .projects-sidebar,
+.projects-sidebar:hover {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Style the projects list */
+.projects-list {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.projects-sidebar h2 {
+  color: var(--color-text);
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.project-item {
+  padding: 10px;
+  margin-bottom: 8px;
+  background-color: rgba(50, 50, 50, 0.5);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-speed);
+}
+
+.project-item:hover {
+  background-color: rgba(70, 70, 70, 0.8);
+}
+
+.project-item.active {
+  background-color: var(--color-primary);
+  font-weight: bold;
+}
+
+.project-name {
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-date {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+}
+
+/* New project button */
+.new-project-button {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  transition: background-color var(--transition-speed);
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+}
+
+.new-project-button:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+.loading-projects {
+  color: var(--color-text-dim);
+  font-style: italic;
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* Settings sidebar (right side) */
+.sidebar {
+  width: 225px;
+  background-color: rgba(40, 40, 56, 0.95);
+  color: var(--color-text);
+  padding: 1rem;
+  height: 100%;
+  position: fixed;
+  right: 0;
+  top: 60px;
+  bottom: 0;
+  z-index: 10;
+  transition: opacity var(--transition-speed), transform var(--transition-speed);
+  opacity: 0;
+  transform: translateX(100%);
+  box-shadow: -3px 0 15px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive area on the right side of the screen that detects hover */
+.sidebar-trigger {
+  position: fixed;
+  top: 60px;
+  right: 0;
+  width: 20px;
+  height: calc(100% - 60px);
+  z-index: 9;
+}
+
+/* When the trigger area is hovered, show the sidebar */
+.sidebar-trigger:hover + .sidebar,
+.sidebar:hover {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Header with title and save button */
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.sidebar-header h2 {
+  color: var(--color-text);
+  font-size: 18px;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Project form container - make it scrollable */
+.project-form {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom scrollbar for the sidebar */
+.project-form::-webkit-scrollbar {
+  width: 6px;
+}
+
+.project-form::-webkit-scrollbar-track {
+  background: rgba(30, 30, 46, 0.5);
+  border-radius: 10px;
+}
+
+.project-form::-webkit-scrollbar-thumb {
+  background: rgba(108, 127, 232, 0.3);
+  border-radius: 10px;
+}
+
+.project-form::-webkit-scrollbar-thumb:hover {
+  background: rgba(108, 127, 232, 0.5);
+}
+
+/* Compact label styles */
+.sidebar label {
+  color: var(--color-text-muted);
+  display: block;
+  margin-bottom: 3px;
+  margin-top: 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.sidebar input[type="text"],
+.sidebar select {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-light);
+  border-radius: var(--border-radius-sm);
+  width: 90%;
+  padding: 6px 8px;
+  margin-bottom: 0;
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  height: 28px;
+}
+
+/* Make textareas smaller */
+.sidebar textarea {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-light);
+  border-radius: var(--border-radius-sm);
+  width: 90%;
+  padding: 6px 8px;
+  margin-bottom: 0;
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  resize: vertical;
+  height: 48px;
+  min-height: 32px;
+  max-height: 120px;
+}
+
+.sidebar input[type="text"]:focus,
+.sidebar textarea:focus,
+.sidebar select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(108, 127, 232, 0.25);
+}
+
+/* Range slider container */
+.sidebar div:has(input[type="range"]) {
+  margin-top: 8px;
+  margin-bottom: 50px;
+}
+
+/* Styling for the range slider */
+.sidebar input[type="range"] {
+  width: 90%;
+  margin-top: 5px;
+}
+
+/* Styling for the range value display */
+#history-window-value {
+  font-size: 12px;
+  color: var(--color-text-dim);
+  margin-left: 5px;
+}
+
+/* Make sure sidebar toggle is outside the scrollable area */
+.sidebar-toggle {
+  flex-shrink: 0;
+  margin-top: auto;
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+/* Save button - positioned in the header */
+#save-project {
+  padding: 5px 10px;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all var(--transition-speed);
+  font-family: "Inter", sans-serif;
+}
+
+#save-project:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(108, 127, 232, 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar,
+  .projects-sidebar {
+    width: 200px;
+  }
+
+  .sidebar label,
+  .sidebar input,
+  .sidebar select {
+    font-size: 12px;
+  }
+}
