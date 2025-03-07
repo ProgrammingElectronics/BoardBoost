@@ -1,5 +1,5 @@
-{% load static %} {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/auth.css' %}" />
+{% extends "chat/base.html" %} {% load static %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}" />
 {% endblock %} {% block content %}
 <div class="auth-container signup">
   <h2>Sign Up</h2>
