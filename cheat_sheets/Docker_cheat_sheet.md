@@ -1,5 +1,17 @@
 # Docker Cheat Sheet
 
+## This project
+
+````bash
+# Create migrations
+docker exec -it boardboost-web python manage.py makemigrations
+
+# Run migrations
+docker exec -it boardboost-web python manage.py migrate
+
+# Collect static files
+docker exec -it boardboost-web python manage.py collectstatic
+
 ## Basic Commands
 
 ```bash
@@ -26,7 +38,7 @@ docker pull <image_name>:<tag>
 
 # Run a container
 docker run <image_name>
-```
+````
 
 ## Docker Compose
 
