@@ -677,7 +677,8 @@ body::after {
 .message pre {
   background-color: #3d3d4d;
   border: 1px solid #1e1e2e;
-  border-radius: 6px;
+  /* border-radius: 10px; */
+  border-radius: 0.5rem;
   padding: 0.1rem;
   overflow-x: auto;
   margin: 0.25rem 0;
@@ -685,6 +686,7 @@ body::after {
 }
 
 .message pre code {
+  background-color: #282b34;
   font-family: "JetBrains Mono", "Courier New", Courier, monospace;
   font-size: 0.9rem;
   padding: 0;
