@@ -2,6 +2,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    {% block extra_css %} {% endblock %}
+    <link rel="stylesheet" href="{% static 'css/serial-controls.css' %}" />
     <link rel="stylesheet" href="{% static 'css/auth.css' %}" />
     <title>{% block title %} BoardBoost{% endblock %}</title>
     <!-- <title>BoardBoost - Microcontroller Coding Assistant</title> -->
@@ -15,7 +17,6 @@
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    {% block extra_css %} {% endblock %}
   </head>
 
   <body>
@@ -28,8 +29,10 @@
         />
         <h1>BoardBoost</h1>
       </div>
+      <!-- INSERT CUT HERE below-->
       <div class="header-nav">
         {% if user.is_authenticated %}
+
         <span class="user-welcome">Welcome, {{ user.username }}!</span>
         <span id="tokens-remaining"
           >{{ tokens_remaining|intcomma }} tokens</span
@@ -41,6 +44,8 @@
         <a href="{% url 'signup' %}" class="signup-button">Sign Up</a>
         {% endif %}
       </div>
+
+      <!-- INSERT CUT HERE above -->
     </div>
 
     <div class="content">{% block content %}{% endblock %}</div>

@@ -1,0 +1,251 @@
+/* New Serial Monitor Styles */
+
+/* Serial toggle button */
+.serial-toggle-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.serial-toggle-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  color: #9e9ea4;
+}
+
+.serial-toggle-button:hover {
+  background-color: rgba(108, 127, 232, 0.1);
+  color: #6c7fe8;
+}
+
+.serial-toggle-button.active {
+  color: #6c7fe8;
+  background-color: rgba(108, 127, 232, 0.1);
+}
+
+/* Serial monitor container */
+.serial-monitor-container {
+  display: none;
+  width: 100%;
+  /* margin-top: 10px; */
+  background-color: #282838;
+  border-radius: 8px;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #3d3d4d;
+  transition: height 0.3s ease;
+  position: relative;
+  z-index: 10;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.serial-monitor-container.visible {
+  display: flex;
+  height: 300px;
+}
+
+.serial-monitor-header {
+  background-color: #3d3d4d;
+  padding: 8px 12px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+
+.serial-monitor-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #efefef;
+}
+
+.serial-monitor-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.serial-monitor-button {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: none;
+  background-color: #282838;
+  color: #efefef;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.serial-monitor-button:hover {
+  background-color: #6c7fe8;
+}
+
+#serial-monitor-close:hover {
+  background-color: #f44336;
+}
+
+.serial-monitor-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 8px;
+  gap: 8px;
+}
+
+.serial-monitor-output {
+  flex: 1;
+  overflow-y: auto;
+  background-color: #1e1e2e;
+  border-radius: 4px;
+  padding: 8px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #efefef;
+}
+
+.serial-monitor-input-area {
+  display: flex;
+  gap: 8px;
+}
+
+.serial-monitor-input {
+  flex: 1;
+  background-color: #1e1e2e;
+  border: 1px solid #3d3d4d;
+  border-radius: 4px;
+  padding: 8px 10px;
+  color: #efefef;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+}
+
+.serial-monitor-input:focus {
+  outline: none;
+  border-color: #6c7fe8;
+  box-shadow: 0 0 0 2px rgba(108, 127, 232, 0.25);
+}
+
+.serial-monitor-send-button {
+  background-color: #6c7fe8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.serial-monitor-send-button:hover {
+  background-color: #5b6ed7;
+}
+
+.serial-monitor-footer {
+  padding: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #3d3d4d;
+  background-color: #282838;
+  font-size: 12px;
+  color: #b8b8c0;
+}
+
+.serial-monitor-options {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.serial-monitor-options select {
+  background-color: #1e1e2e;
+  color: #efefef;
+  border: 1px solid #3d3d4d;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.serial-monitor-status {
+  font-size: 12px;
+}
+
+#serial-monitor-status-text.connected {
+  color: #4caf50;
+}
+
+#serial-monitor-status-text.error {
+  color: #f44336;
+}
+
+/* Serial output styling */
+.serial-output-receive {
+  color: #81d4fa;
+}
+
+.serial-output-send {
+  color: #ffd54f;
+}
+
+.serial-output-system {
+  color: #b8b8c0;
+  font-style: italic;
+}
+
+/* Adjustments to the chat container to accommodate the serial monitor */
+.chat-input {
+  position: relative;
+  width: 100%;
+}
+
+#file-preview-container {
+  margin-bottom: 10px;
+}
+
+/* Make sure the serial monitor is properly positioned in the flow */
+/* .chat-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+} */
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.chat-input,
+.serial-monitor-container,
+.input-actions-row,
+.serial-monitor-body,
+.serial-monitor-input-area {
+  box-sizing: border-box;
+}
+
+/* Ensure the serial monitor container is positioned below the chat input */
+.serial-monitor-container.visible {
+  display: flex;
+  height: 300px;
+  position: relative;
+  /* width: 100%;
+  margin-left: 0;
+  margin-right: 0; */
+}

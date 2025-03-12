@@ -8,6 +8,8 @@
 
     <!-- External CSS -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/serial-controls.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/serial-monitor.css' %}" />
 
     <!-- Fonts -->
     <link
@@ -41,6 +43,16 @@
         <h1>BoardBoost</h1>
       </div>
       <div class="header-nav">
+        <div class="serial-controls">
+          <button id="serial-port-button" class="serial-port-button">Access Serial Port</button>
+          <select id="baud-rate-selector" class="baud-rate-selector">
+            <option value="9600">9600 baud</option>
+            <option value="19200">19200 baud</option>
+            <option value="38400">38400 baud</option>
+            <option value="57600">57600 baud</option>
+            <option value="115200">115200 baud</option>
+          </select>
+        </div>
         {% if user.is_authenticated %}
         <span class="user-welcome">Welcome, {{ user.username }}!</span>
         <span id="tokens-remaining"
@@ -169,14 +181,63 @@
               </label>
               <input type="file" id="file-upload" accept=".txt,.ino,.h,.c,.cpp,.hpp,.pde,.json,.xml,.md,.S,.py,.hex,.csv,.properties" style="display: none;" />
             </div>
+              <!-- New serial monitor toggle button -->
+            <div class="serial-toggle-container">
+              <button id="serial-monitor-toggle" class="serial-toggle-button" title="Toggle Serial Monitor">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+              </button>
+            </div>
             <button id="send-button">Send</button>
           </div>
         </div>
       </div>
       <div id="file-preview-container"></div>
+      <!-- Serial Monitor Window -->
+      <div id="serial-monitor-container" class="serial-monitor-container">
+        <div class="serial-monitor-header">
+          <span class="serial-monitor-title">Serial Monitor</span>
+          <div class="serial-monitor-controls">
+            <button id="serial-monitor-clear" class="serial-monitor-button">Clear</button>
+            <button id="serial-monitor-close" class="serial-monitor-button">×</button>
+          </div>
+        </div>
+        <div class="serial-monitor-body">
+          <div id="serial-monitor-output" class="serial-monitor-output"></div>
+          <div class="serial-monitor-input-area">
+            <input type="text" id="serial-monitor-input" class="serial-monitor-input" placeholder="Type a message to send..." />
+            <button id="serial-monitor-send" class="serial-monitor-send-button">Send</button>
+          </div>
+        </div>
+        <div class="serial-monitor-footer">
+          <div class="serial-monitor-status">
+            <span id="serial-monitor-status-text">Disconnected</span>
+          </div>
+          <div class="serial-monitor-options">
+            <label>
+              <input type="checkbox" id="serial-monitor-autoscroll" checked />
+              Auto-scroll
+            </label>
+            <select id="serial-monitor-line-ending">
+              <option value="none">No line ending</option>
+              <option value="newline" selected>Newline</option>
+              <option value="carriage">Carriage return</option>
+              <option value="both">Both NL & CR</option>
+            </select>
+          </div>
+        </div>
+      </div>
     </div>
 
+
+      <!-- WebSerial JS -->
+    {% if user.is_authenticated %}
+    <!-- <script src="{% static 'js/test-serial.js' %}"></script> -->
+    {% endif %}
     <!-- External JS -->
     <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/webserial.js' %}"></script>
+    <script src="{% static 'js/serial-monitor.js' %}"></script>
   </body>
 </html>
