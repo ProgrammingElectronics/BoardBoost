@@ -170,7 +170,6 @@ function updateSerialButtonText(portInfo) {
   serialPortButton.textContent = portInfo;
 }
 
-// Disconnect from the serial port
 async function disconnectFromSerial(
   updateButton = true,
   removeErrorClass = true
