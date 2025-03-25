@@ -1,3 +1,6 @@
+from django.http import HttpResponse, JsonResponse
+from .arduino_cli_service import ArduinoCliService
+import base64
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib import messages
@@ -14,6 +17,11 @@ from .serializers import (
     MessageSerializer,
 )
 from .ai_service import generate_response
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_POST
+from .arduino_create_agent_signature import sign_arduino_command
 
 
 @api_view(["GET"])
@@ -248,3 +256,94 @@ def user_settings(request):
             "summary_models": UserProfile.SUMMARY_MODEL_CHOICES,
         },
     )
+
+
+# Compilation view
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def compile_arduino_code(request):
+    """Compile Arduino code and return the binary file"""
+    try:
+        # Extract data from request
+        code = request.data.get("code")
+        board_fqbn = request.data.get("board_fqbn")
+        upload_method = request.data.get(
+            "upload_method", "download"
+        )  # 'download' or 'webserial'
+
+        # Validate inputs
+        if not code:
+            return Response(
+                {"error": "Code is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not board_fqbn:
+            return Response(
+                {"error": "Board FQBN is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Compile the code
+        result = ArduinoCliService.compile_sketch(code, board_fqbn)
+
+        # Handle different return types based on upload method
+        if upload_method == "webserial":
+            # For WebSerial upload, return JSON with binary data
+            webserial_data = ArduinoCliService.prepare_for_webserial_upload(
+                result["data"], board_fqbn
+            )
+            return JsonResponse(webserial_data)
+        else:
+            # For direct download, return the binary file
+            response = HttpResponse(
+                result["data"], content_type="application/octet-stream"
+            )
+            response["Content-Disposition"] = (
+                f"attachment; filename={result['filename']}"
+            )
+            response["Content-Length"] = result["size"]
+            return response
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# Board List View
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_arduino_boards(request):
+    """Get list of available Arduino boards"""
+    try:
+        boards = ArduinoCliService.get_installed_boards()
+        return Response(boards)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+## Arduino Create Agent Signature ###################################
+@require_POST
+@ensure_csrf_cookie
+def sign_arduino_command_view(request):
+    """
+    API endpoint that signs an Arduino command with the private key.
+
+    Expects JSON with a 'commandline' field.
+    Returns JSON with a 'signature' field.
+    """
+    try:
+        # Parse the request body
+        data = json.loads(request.body)
+        commandline = data.get("commandline")
+
+        if not commandline:
+            return JsonResponse({"error": "Commandline is required"}, status=400)
+
+        # Sign the commandline
+        signature = sign_arduino_command(commandline)
+
+        # Return the signature
+        return JsonResponse({"signature": signature})
+
+    except ValueError as e:
+        return JsonResponse({"error": str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": "Failed to sign command"}, status=500)

@@ -51,6 +51,7 @@ MAX_BETA_USERS = env("MAX_BETA_USERS", default=2)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
 SECRET_KEY = env("DJANGO_SECRET_KEY")
+# ARDUINO_CREATE_AGENT_PRIVATE_KEY = env("ARDUINO_CREATE_AGENT_PRIVATE_KEY")
 
 # Recaptcha keys
 if DEBUG:
@@ -61,6 +62,7 @@ if DEBUG:
     RECAPTCHA_PRIVATE_KEY = (
         "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"  # Google test key for development
     )
+
 else:
     RECAPTCHA_PUBLIC_KEY = env("RECAPTCHA_PUBLIC_KEY", default="")
     RECAPTCHA_PRIVATE_KEY = env("RECAPTCHA_PRIVATE_KEY", default="")
@@ -107,12 +109,14 @@ INSTALLED_APPS = [
     "chat",
     "rest_framework",
     "django_recaptcha",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -120,6 +124,14 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "chat.middleware.BetaRegistrationMiddleware",
 ]
+
+# Allow all origins just for the Arduino API endpoint
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8991",
+    "http://localhost:8990",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "boardboost_project.urls"
 
