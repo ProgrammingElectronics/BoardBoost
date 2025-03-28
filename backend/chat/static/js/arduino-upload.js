@@ -991,284 +991,6 @@ function compileArduinoCode(code, codeBlock) {
     });
 }
 
-/**
- * Upload via Arduino Create Agent using direct HTTP upload
- */
-
-/**
- * Upload via Arduino Create Agent using direct HTTP upload
- */
-// async function uploadWithAgent(codeBlock) {
-//   // Check if we have compiled binary
-//   if (!currentBinaryInfo) {
-//     alert("Please compile the code first.");
-//     return;
-//   }
-
-//   // Check if upload is already in progress
-//   if (compileUploadInProgress) {
-//     alert("A compilation or upload is already in progress. Please wait.");
-//     return;
-//   }
-
-//   // Check if the agent is available
-//   if (!agentAvailable || !agentInfo || !agentInfo.http) {
-//     showAgentRequiredDialog(codeBlock);
-//     return;
-//   }
-
-//   try {
-//     // Force refresh ports using WebSocket
-//     const ports = await refreshSerialPorts();
-//     console.log("Refreshed ports for upload:", ports);
-
-//     // Update the selector
-//     createVisiblePortSelector(ports);
-//   } catch (error) {
-//     console.error("Error refreshing ports for upload:", error);
-//   }
-
-//   // Check if we have any ports now
-//   if (!detectedSerialPorts || detectedSerialPorts.length === 0) {
-//     alert(
-//       "No serial ports detected. Please connect your Arduino board and refresh the port list."
-//     );
-//     return;
-//   }
-
-//   // Get the selected port from our visible selector
-//   let selectedPort = null;
-//   const portSelector = document.getElementById("agent-port-selector");
-
-//   if (portSelector && portSelector.value) {
-//     selectedPort = portSelector.value;
-//     console.log(`Using selected port from visible selector: ${selectedPort}`);
-//   } else if (detectedSerialPorts.length === 1) {
-//     // If only one port, use it
-//     selectedPort = detectedSerialPorts[0].Name;
-//     console.log(`Auto-selected port: ${selectedPort}`);
-//   } else {
-//     // Show selection dialog
-//     const portOptions = detectedSerialPorts
-//       .map(
-//         (port) =>
-//           `${port.Name} (${port.VendorID || ""}:${port.ProductID || ""})`
-//       )
-//       .join("\n");
-
-//     const portInput = prompt(
-//       `Multiple ports detected. Please select one:\n\n${portOptions}`,
-//       detectedSerialPorts[0].Name
-//     );
-
-//     if (!portInput) return; // User cancelled
-
-//     // Extract port name if full description was copied
-//     selectedPort = portInput.trim();
-//     if (selectedPort.includes(" (")) {
-//       selectedPort = selectedPort.split(" (")[0].trim();
-//     }
-
-//     // Validate port exists
-//     const portExists = detectedSerialPorts.some((p) => p.Name === selectedPort);
-//     if (!portExists) {
-//       alert(`Invalid port: ${selectedPort}`);
-//       return;
-//     }
-//   }
-
-//   // Set the upload in progress flag
-//   compileUploadInProgress = true;
-//   currentCodeBlock = codeBlock;
-
-//   // Update status
-//   updateCompileStatus(
-//     "uploading",
-//     "Preparing to upload via Arduino Create Agent...",
-//     codeBlock
-//   );
-
-//   // Disable buttons during upload
-//   const compileButton = codeBlock.querySelector(".arduino-compile-button");
-//   const uploadButton = codeBlock.querySelector(".arduino-upload-button");
-//   const downloadSourceButton = codeBlock.querySelector(
-//     ".arduino-download-source-button"
-//   );
-
-//   if (compileButton) compileButton.disabled = true;
-//   if (uploadButton) uploadButton.disabled = true;
-//   if (downloadSourceButton) downloadSourceButton.disabled = true;
-
-//   // Get board FQBN
-//   const boardFQBN = document.getElementById("board-fqbn").value;
-
-//   try {
-//     // Prepare for upload status messages
-//     await setupUploadListener();
-
-//     // Prepare upload payload according to documentation
-//     const uploadTimestamp = new Date().getTime();
-//     const filename = `sketch_${uploadTimestamp}.hex`;
-
-//     // This is the critical part that needs fixing
-//     const uploadData = {
-//       board: boardFQBN,
-//       port: selectedPort,
-//       filename: filename,
-//       hex: currentBinaryInfo.binary, // Base64 encoded binary
-//       data: currentBinaryInfo.binary, // Include data field as well as mentioned in docs
-//       network: false,
-
-//       // Add a generated/calculated signature (this is a simplified approach)
-//       signature: generateSignature(
-//         boardFQBN,
-//         selectedPort,
-//         currentBinaryInfo.binary
-//       ),
-
-//       // The commandline should come from the server or be constructed properly
-//       commandline:
-//         currentBinaryInfo.commandline ||
-//         generateDefaultCommandline(boardFQBN, selectedPort, filename),
-
-//       extra: {
-//         auth: {
-//           username: null,
-//           password: null,
-//           private_key: null,
-//           port: null,
-//         },
-//         use_1200bps_touch: true,
-//         wait_for_upload_port: true,
-//       },
-//       extrafiles: [],
-//     };
-
-//     console.log("Uploading sketch to Arduino Create Agent...");
-//     updateCompileStatus(
-//       "uploading",
-//       "Sending sketch to Arduino Create Agent...",
-//       codeBlock
-//     );
-
-//     // Make the HTTP POST request to the agent for upload
-//     const uploadResponse = await fetch(`${agentInfo.http}`, {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify(uploadData),
-//     });
-
-//     if (!uploadResponse.ok) {
-//       const errorText = await uploadResponse.text();
-//       throw new Error(`Upload failed: ${errorText}`);
-//     }
-
-//     // The upload has started - success messages will come via the WebSocket
-//     console.log("Upload started successfully");
-//   } catch (error) {
-//     console.error("Upload error:", error);
-//     updateCompileStatus("error", `Upload failed: ${error.message}`, codeBlock);
-//     resetButtons();
-//   }
-
-//   // Helper function to setup WebSocket listener for upload messages
-//   async function setupUploadListener() {
-//     return new Promise((resolve) => {
-//       if (!agentSocket) {
-//         throw new Error("Agent WebSocket not connected");
-//       }
-
-//       // Listen for upload status messages
-//       const messageHandler = (message) => {
-//         console.log("Upload status:", message);
-
-//         if (message && typeof message === "object") {
-//           // Handle different message formats
-//           if (message.Msg) {
-//             updateCompileStatus("uploading", message.Msg, codeBlock);
-//           }
-
-//           // Check for completion
-//           if (message.ProgrammerStatus === "Done" || message.Flash === "Ok") {
-//             updateCompileStatus(
-//               "success",
-//               "Upload completed successfully!",
-//               codeBlock
-//             );
-//             resetButtons();
-
-//             // Remove the listener
-//             agentSocket.off("message", messageHandler);
-//           }
-
-//           // Check for errors
-//           if (message.Error || message.ProgrammerStatus === "Error") {
-//             updateCompileStatus(
-//               "error",
-//               `Upload failed: ${
-//                 message.Msg || message.Error || "Unknown error"
-//               }`,
-//               codeBlock
-//             );
-//             resetButtons();
-
-//             // Remove the listener
-//             agentSocket.off("message", messageHandler);
-//           }
-//         }
-//       };
-
-//       // Add the listener
-//       agentSocket.on("message", messageHandler);
-
-//       // Also listen for 'command' event which might contain upload messages
-//       agentSocket.on("command", (command) => {
-//         console.log("Agent command:", command);
-
-//         // Process command message similar to message handler
-//         if (command && typeof command === "object") {
-//           if (command.Msg) {
-//             updateCompileStatus("uploading", command.Msg, codeBlock);
-//           }
-
-//           if (command.ProgrammerStatus === "Done" || command.Flash === "Ok") {
-//             updateCompileStatus(
-//               "success",
-//               "Upload completed successfully!",
-//               codeBlock
-//             );
-//             resetButtons();
-//           }
-
-//           if (command.Error || command.ProgrammerStatus === "Error") {
-//             updateCompileStatus(
-//               "error",
-//               `Upload failed: ${
-//                 command.Msg || command.Error || "Unknown error"
-//               }`,
-//               codeBlock
-//             );
-//             resetButtons();
-//           }
-//         }
-//       });
-
-//       // Resolve immediately to continue with upload
-//       resolve();
-//     });
-//   }
-
-//   // Helper function to re-enable buttons
-//   function resetButtons() {
-//     if (compileButton) compileButton.disabled = false;
-//     if (uploadButton) uploadButton.disabled = false;
-//     if (downloadSourceButton) downloadSourceButton.disabled = false;
-//     compileUploadInProgress = false;
-//   }
-// }
-
 // Add these helper functions
 /**
  * Upload via Arduino Create Agent using direct HTTP upload
@@ -1563,46 +1285,33 @@ async function uploadWithAgent(codeBlock) {
  * Generate a default commandline for upload
  */
 function generateDefaultCommandline(board, port, filename) {
-  // This is a simplified approach - in production this should come from the server
-  // Different boards need different command lines
   if (board.includes("arduino:avr:uno")) {
     return `"{runtime.tools.avrdude.path}/bin/avrdude" "-C{runtime.tools.avrdude.path}/etc/avrdude.conf" -v -patmega328p -carduino -P${port} -b115200 -D "-Uflash:w:${filename}:i"`;
   } else if (board.includes("arduino:avr:leonardo")) {
     return `"{runtime.tools.avrdude.path}/bin/avrdude" "-C{runtime.tools.avrdude.path}/etc/avrdude.conf" -v -patmega32u4 -cavr109 -P${port} -b57600 -D "-Uflash:w:${filename}:i"`;
+  } else if (board.includes("esp32")) {
+    // For ESP32 boards, different tool
+    return `"{runtime.tools.esptool_py.path}/esptool" --chip esp32 --port ${port} --baud 921600 write_flash -z 0x10000 "${filename}"`;
   } else {
-    // Generic commandline
+    // Generic fallback
     return `"{runtime.tools.avrdude.path}/bin/avrdude" "-C{runtime.tools.avrdude.path}/etc/avrdude.conf" -v -P${port} -D "-Uflash:w:${filename}:i"`;
   }
 }
 
 // function generateDefaultCommandline(board, port, filename) {
+//   // This is a simplified approach - in production this should come from the server
+
+//   const avrdudePathInContainer = "/usr/bin/avrdude";
+
+//   // Different boards need different command lines
 //   if (board.includes("arduino:avr:uno")) {
-//     return `\\"{runtime.tools.avrdude.path}/bin/avrdude\\" \\"-C{runtime.tools.avrdude.path}/etc/avrdude.conf\\" -v -patmega328p -carduino -P${port} -b115200 -D \\"-Uflash:w:${filename}:i\\"`;
+//     return `"${avrdudePathInContainer}" "-C/usr/etc/avrdude.conf" -v -patmega328p -carduino -P${port} -b115200 -D "-Uflash:w:${filename}:i"`;
 //   } else if (board.includes("arduino:avr:leonardo")) {
-//     return `\\"{runtime.tools.avrdude.path}/bin/avrdude\\" \\"-C{runtime.tools.avrdude.path}/etc/avrdude.conf\\" -v -patmega32u4 -cavr109 -P${port} -b57600 -D \\"-Uflash:w:${filename}:i\\"`;
+//     return `"${avrdudePathInContainer}/bin/avrdude" "-C{runtime.tools.avrdude.path}/etc/avrdude.conf" -v -patmega32u4 -cavr109 -P${port} -b57600 -D "-Uflash:w:${filename}:i"`;
 //   } else {
 //     // Generic commandline
-//     return `\\"{runtime.tools.avrdude.path}/bin/avrdude\\" \\"-C{runtime.tools.avrdude.path}/etc/avrdude.conf\\" -v -P${port} -D \\"-Uflash:w:${filename}:i\\"`;
+//     return `"${avrdudePathInContainer}/bin/avrdude" "-C{runtime.tools.avrdude.path}/etc/avrdude.conf" -v -P${port} -D "-Uflash:w:${filename}:i"`;
 //   }
-// }
-
-// /**
-//  * Generate a signature for the upload
-//  * Note: In production, this should use a proper signing algorithm with a private key
-//  */
-// function generateSignature(board, port, binary) {
-//   // This is a simplified approach - in production you'd use a proper signature algorithm
-//   // The agent expects a signature created with a private key
-
-//   // For testing purposes, we'll generate a simple hash-like value
-//   // This won't work with a properly secured agent but might work with development agents
-//   const str = `${board}:${port}:${binary.substring(0, 20)}`;
-//   let hash = 0;
-//   for (let i = 0; i < str.length; i++) {
-//     hash = (hash << 5) - hash + str.charCodeAt(i);
-//     hash |= 0; // Convert to 32bit integer
-//   }
-//   return hash.toString(16) + "temporary";
 // }
 
 /**
