@@ -1,0 +1,423 @@
+/* Arduino Create Agent integration styles */
+
+/* ============================================
+   Agent Status Indicator
+   ============================================ */
+.agent-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background-color: rgba(30, 30, 46, 0.8);
+  color: #b8b8c0;
+  margin-right: 10px;
+  border: 1px solid rgba(108, 127, 232, 0.2);
+}
+
+.agent-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.agent-status-dot.connected {
+  background-color: #4caf50;
+  box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
+}
+
+.agent-status-dot.disconnected {
+  background-color: #f44336;
+  box-shadow: 0 0 6px rgba(244, 67, 54, 0.6);
+}
+
+.agent-status-text {
+  color: #b8b8c0;
+}
+
+.agent-status.connected .agent-status-text {
+  color: #efefef;
+}
+
+.agent-status.connected:hover {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.agent-status.disconnected:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+/* ============================================
+     Arduino IDE-like Buttons
+     ============================================ */
+.arduino-buttons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 8px;
+  padding: 8px 10px;
+  background-color: rgba(40, 40, 56, 0.7);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Common button styles */
+.arduino-compile-button,
+.arduino-upload-button,
+.arduino-download-button,
+.arduino-download-source-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 2px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  color: white;
+}
+
+/* Verify button - green like Arduino IDE */
+.arduino-compile-button {
+  background-color: #00979c;
+  border: 1px solid #008184;
+}
+
+.arduino-compile-button:hover {
+  background-color: #008184;
+  transform: translateY(-1px);
+}
+
+/* Upload button - with agent indicator states */
+.arduino-upload-button {
+  background-color: #00979c;
+  border: 1px solid #008184;
+}
+
+.arduino-upload-button.agent-available {
+  background-color: #00979c;
+  border: 1px solid #008184;
+}
+
+.arduino-upload-button.agent-unavailable {
+  background-color: #607d8b;
+  border: 1px solid #546e7a;
+  opacity: 0.8;
+}
+
+.arduino-upload-button:hover {
+  background-color: #008184;
+  transform: translateY(-1px);
+}
+
+/* Download binary button - different color to distinguish it */
+.arduino-download-button {
+  background-color: #5c6bc0;
+  border: 1px solid #3f51b5;
+}
+
+.arduino-download-button:hover {
+  background-color: #3f51b5;
+  transform: translateY(-1px);
+}
+
+/* Download source button */
+.arduino-download-source-button {
+  background-color: #4caf50;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  margin-left: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.arduino-download-source-button:hover {
+  background-color: #3d8b40;
+  transform: translateY(-1px);
+}
+
+/* Disabled button states */
+.arduino-compile-button:disabled,
+.arduino-upload-button:disabled,
+.arduino-download-button:disabled,
+.arduino-download-source-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Status indicator styling */
+.arduino-status {
+  margin-left: auto;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.arduino-status.compiling,
+.arduino-status.uploading {
+  color: #ffc107;
+}
+
+.arduino-status.compiled,
+.arduino-status.success {
+  color: #4caf50;
+}
+
+.arduino-status.error {
+  color: #f44336;
+}
+
+/* ============================================
+     Arduino Agent Dialog
+     ============================================ */
+.agent-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.agent-dialog-content {
+  background-color: #282838;
+  border-radius: 8px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  width: 600px;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: dialogFadeIn 0.3s ease;
+}
+
+.agent-dialog-header {
+  background-color: #3d3d4d;
+  padding: 15px 20px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #3d3d4d;
+}
+
+.agent-dialog-header h3 {
+  margin: 0;
+  color: #efefef;
+  font-size: 18px;
+}
+
+.agent-dialog-close {
+  background: transparent;
+  border: none;
+  color: #b8b8c0;
+  font-size: 24px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.agent-dialog-body {
+  padding: 20px;
+  color: #efefef;
+}
+
+.agent-dialog-body p {
+  margin-bottom: 16px;
+}
+
+.agent-steps {
+  background-color: rgba(30, 30, 46, 0.6);
+  padding: 15px;
+  border-radius: 6px;
+  margin: 15px 0;
+}
+
+.agent-steps h4 {
+  margin-top: 0;
+  color: #efefef;
+}
+
+.agent-steps ol {
+  padding-left: 20px;
+}
+
+.agent-steps li {
+  margin-bottom: 10px;
+}
+
+.agent-steps code {
+  background-color: #1e1e2e;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.9em;
+}
+
+.agent-steps a {
+  color: #6c7fe8;
+  text-decoration: none;
+}
+
+.agent-steps a:hover {
+  text-decoration: underline;
+}
+
+.agent-dialog-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.agent-dialog-buttons button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+/* Download binary button in dialog */
+.agent-download-button,
+.agent-download-binary {
+  background-color: #6c7fe8;
+  color: white;
+}
+
+.agent-download-button:hover,
+.agent-download-binary:hover {
+  background-color: #5b6ed7;
+  transform: translateY(-1px);
+}
+
+/* Download source button in dialog */
+.agent-download-source {
+  background-color: #3d3d4d;
+  color: #efefef;
+}
+
+.agent-download-source:hover {
+  background-color: #4d4d5d;
+  transform: translateY(-1px);
+}
+
+/* Manual upload button in dialog */
+.agent-manual-upload {
+  background-color: transparent !important;
+  border: 1px solid #6c7fe8 !important;
+  color: #6c7fe8;
+}
+
+.agent-manual-upload:hover {
+  background-color: rgba(108, 127, 232, 0.1) !important;
+  transform: translateY(-1px);
+}
+
+/* ============================================
+     Port Management
+     ============================================ */
+.port-selector-container {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.port-selector-container label {
+  font-size: 13px;
+  color: #b8b8c0;
+}
+
+.port-selector {
+  background-color: #1e1e2e;
+  color: #efefef;
+  border: 1px solid #3d3d4d;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-family: "Inter", sans-serif;
+}
+
+.refresh-ports-button {
+  background-color: transparent;
+  border: 1px solid #3d3d4d;
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #b8b8c0;
+  transition: all 0.2s ease;
+  margin-left: 5px;
+  font-weight: bold;
+}
+
+.refresh-ports-button:hover {
+  background-color: rgba(108, 127, 232, 0.1);
+  color: #6c7fe8;
+  transform: translateY(-1px);
+}
+
+.refresh-ports-button:active {
+  transform: translateY(1px);
+}
+
+.refresh-ports-button.refreshing {
+  animation: spin 1s linear infinite;
+}
+
+/* ============================================
+     Animations & Keyframes
+     ============================================ */
+@keyframes dialogFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes uploading-pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.uploading-indicator {
+  animation: uploading-pulse 1.5s infinite;
+}

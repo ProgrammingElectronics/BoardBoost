@@ -1,5 +1,9 @@
 # Docker Cheat Sheet
 
+## If you are debugging a build, and the steps have already been cached, add --no-cache to your build to rerun the steps and redisplay the output:
+
+docker build --progress=plain --no-cache
+
 ## This project
 
 ````bash

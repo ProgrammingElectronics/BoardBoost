@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}" />
     <link rel="stylesheet" href="{% static 'css/serial-controls.css' %}" />
     <link rel="stylesheet" href="{% static 'css/serial-monitor.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/arduino-agent.css' %}" />
 
     <!-- Fonts -->
     <link
@@ -102,6 +103,21 @@
               name="board-type"
               placeholder="e.g., Arduino Uno, ESP32"
             />
+          </div>
+          
+          <!-- Board fqbn - next most important -->
+          <div>
+            <label for="board-fqbn">Board FQBN:</label>
+            <select id="board-fqbn" name="board-fqbn">
+              <option value="">Select Board</option>
+              <option value="arduino:avr:uno">Arduino Uno</option>
+              <option value="arduino:avr:nano">Arduino Nano</option>
+              <option value="arduino:avr:mega">Arduino Mega</option>
+              <option value="arduino:avr:leonardo">Arduino Leonardo</option>
+              <option value="arduino:avr:micro">Arduino Micro</option>
+              <option value="esp32:esp32:esp32">ESP32</option>
+              <option value="arduino:samd:nano_33_iot">Arduino Nano 33 IoT</option>
+            </select>
           </div>
 
           <!-- Components with compact placeholder -->
@@ -236,8 +252,11 @@
     <!-- <script src="{% static 'js/test-serial.js' %}"></script> -->
     {% endif %}
     <!-- External JS -->
+    <!-- In your index.html, add this before your other JavaScript files -->
+    <script src="{% static 'js/arduino-upload.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/webserial.js' %}"></script>
     <script src="{% static 'js/serial-monitor.js' %}"></script>
+    <script src="{% static 'js/board-loader.js' %}"></script>
   </body>
 </html>

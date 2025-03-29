@@ -1,0 +1,109 @@
+/* Arduino compile/upload buttons styling */
+.arduino-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background-color: rgba(40, 40, 56, 0.7);
+  border-radius: 4px;
+}
+
+.arduino-compile-button,
+.arduino-upload-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: #212133;
+  color: #b8b8c0;
+  border: 1px solid #3d3d4d;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.arduino-compile-button:hover,
+.arduino-upload-button:hover {
+  background-color: #3d3d4d;
+  color: #efefef;
+  transform: translateY(-1px);
+}
+
+.arduino-compile-button:disabled,
+.arduino-upload-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.arduino-status {
+  margin-left: auto;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.arduino-status.compiling,
+.arduino-status.uploading {
+  color: #f0c05a;
+}
+
+.arduino-status.compiled,
+.arduino-status.success {
+  color: #40c057;
+}
+
+.arduino-status.error {
+  color: #fa5252;
+}
+
+/* Arduino upload instructions */
+.arduino-upload-instructions {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: rgba(40, 40, 56, 0.7);
+  border-left: 3px solid #6c7fe8;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.arduino-upload-instructions h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #efefef;
+}
+
+.arduino-upload-instructions ol {
+  margin-left: 20px;
+  padding-left: 0;
+}
+
+.arduino-upload-instructions li {
+  margin-bottom: 5px;
+}
+
+.arduino-upload-instructions pre {
+  background-color: #1e1e2e;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+  overflow-x: auto;
+}
+
+/* Add animation for the upload process */
+@keyframes uploading-pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.uploading-indicator {
+  animation: uploading-pulse 1.5s infinite;
+}
