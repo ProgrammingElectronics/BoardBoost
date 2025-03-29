@@ -11,6 +11,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "board_type",
+            "board_fqbn",
             "components_text",
             "libraries_text",
             "description",
@@ -19,7 +20,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             "query_model",
             "summary_model",
             "history_window_size",
-            "user",  # Include user field
+            "user",
         ]
         # User is read-only, will be set in the view
         read_only_fields = ["id", "created_at", "updated_at", "user"]

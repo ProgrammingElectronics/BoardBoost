@@ -72,7 +72,8 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # New text fields for project details
+    # Fields for project details
+    board_fqbn = models.CharField(max_length=100, blank=True, null=True)
     board_type = models.CharField(max_length=100, blank=True)
     components_text = models.TextField(blank=True)
     libraries_text = models.TextField(blank=True)

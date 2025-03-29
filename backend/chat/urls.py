@@ -20,4 +20,11 @@ urlpatterns = [
         name="project_messages",
     ),
     path("beta-closed/", views.beta_closed, name="beta_closed"),
+    path("api/compile-arduino/", views.compile_arduino_code, name="compile_arduino"),
+    path("api/arduino-boards/", views.get_arduino_boards, name="arduino_boards"),
+    path(
+        "api/sign-arduino-command/",
+        views.sign_arduino_command_view,
+        name="sign_arduino_command",
+    ),
 ]
