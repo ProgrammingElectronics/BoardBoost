@@ -6,7 +6,6 @@ services:
       - ./backend:/app
       - static_volume:/app/staticfiles
       - ~/.arduino15:/root/.arduino15
-      - ./private_key.pem:/app/private_key.pem
     devices:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
       - "/dev/ttyACM0:/dev/ttyACM0"

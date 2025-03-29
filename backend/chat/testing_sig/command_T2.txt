@@ -1,1 +1,0 @@
-"{runtime.tools.avrdude.path}/bin/avrdude" "-C{runtime.tools.avrdude.path}/etc/avrdude.conf" -v -patmega328p -carduino -P/dev/cu.usbserial-14610 -b115200 -D "-Uflash:w:sketch_1742567898027.hex:i"
