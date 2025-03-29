@@ -738,8 +738,7 @@ body::after {
   color: #b8b8c0;
 }
 
-/* Styles for code block copy button */
-.copy-code-button {
+.code-button {
   position: absolute !important;
   top: 10px !important;
   right: 10px !important;
@@ -753,6 +752,25 @@ body::after {
   font-size: 14px !important;
   opacity: 1 !important;
   transition: all 0.3s ease !important;
+}
+
+.copy-code-button {
+  top: 10px !important;
+  right: 10px !important;
+}
+
+.download-code-button {
+  top: 10px !important;
+  right: 55px !important; /* Reduced from 50px to create less gap */
+}
+
+.message pre:hover .code-button {
+  opacity: 1;
+}
+
+.code-button:hover {
+  background-color: #3d3d4d !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
 .message pre {
@@ -769,6 +787,12 @@ body::after {
 }
 
 .copy-code-button svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+}
+
+.code-button svg {
   width: 20px;
   height: 20px;
   stroke-width: 2;
