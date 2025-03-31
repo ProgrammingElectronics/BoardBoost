@@ -26,8 +26,8 @@ def sign_arduino_command(commandline, private_key_path="private_25MAR25.pem"):
         commandline.encode("utf-8"), padding.PKCS1v15(), hashes.SHA256()
     )
 
-    # hex_signature = binascii.hexlify(signature).decode("ascii")
-    # print(f"Signature: {hex_signature}")
+    hex_signature = binascii.hexlify(signature).decode("ascii")
+    print(f"Signature: {hex_signature}")
 
     # Convert the binary signature to hex format
     return binascii.hexlify(signature).decode("ascii")
