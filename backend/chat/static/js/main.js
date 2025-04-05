@@ -2,21 +2,6 @@
 let currentConversationId = null;
 let currentProjectId = null;
 
-// SVG icon for download functionality
-const DOWNLOAD_ICON = `
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
-     viewBox="0 0 24 24" 
-     fill="none" 
-     stroke="currentColor" 
-     stroke-width="2" 
-     stroke-linecap="round" 
-     stroke-linejoin="round">
-  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-  <polyline points="7 10 12 15 17 10"></polyline>
-  <line x1="12" y1="15" x2="12" y2="3"></line>
-</svg>
-`;
-
 // SVG icons for copy functionality
 const COPY_ICON = `
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
@@ -71,7 +56,6 @@ const md = window.markdownit({
     return ""; // Use external default escaping
   },
 });
-// Add this to the top of your main.js file or as a separate utility
 
 // Enhanced error handling and logging
 window.debugMode = true; // Set to false in production
@@ -146,8 +130,7 @@ document.addEventListener("DOMContentLoaded", function () {
   loadModelChoices();
 
   // Add copy buttons to code blocks
-  // addCopyButtons();
-  addCodeButtons();
+  addCopyButtons();
 
   // Set up sidebar toggle
   setupSidebarToggle();
@@ -205,22 +188,15 @@ function setupEventListeners() {
   }
 }
 
-// Add copy and download buttons to code blocks
-function addCodeButtons() {
+// Add copy buttons to code blocks
+function addCopyButtons() {
   const codeBlocks = document.querySelectorAll(".message pre");
 
   codeBlocks.forEach((codeBlock) => {
     if (codeBlock.querySelector(".copy-code-button")) return;
 
-    // Create wrapper for the code block
-    const codeBlockWrapper = document.createElement("div");
-    codeBlockWrapper.style.position = "relative";
-    codeBlock.parentNode.insertBefore(codeBlockWrapper, codeBlock);
-    codeBlockWrapper.appendChild(codeBlock);
-
-    // Create copy button
     const copyButton = document.createElement("button");
-    copyButton.classList.add("copy-code-button", "code-button");
+    copyButton.classList.add("copy-code-button");
     copyButton.innerHTML = COPY_ICON;
     copyButton.title = "Copy code";
 
@@ -242,86 +218,13 @@ function addCodeButtons() {
         });
     });
 
-    // Create download button
-    const downloadButton = document.createElement("button");
-    downloadButton.classList.add("download-code-button", "code-button");
-    downloadButton.innerHTML = DOWNLOAD_ICON;
-    downloadButton.title = "Download code as .ino file";
-
-    downloadButton.addEventListener("click", () => {
-      const code = codeBlock.textContent;
-
-      // Get project name for filename
-      let fileName = "arduino_code.ino";
-      const projectNameElement = document.getElementById("project-name");
-      if (projectNameElement && projectNameElement.value) {
-        // Replace spaces and special characters with underscores
-        fileName =
-          projectNameElement.value.replace(/[^a-z0-9]/gi, "_").toLowerCase() +
-          ".ino";
-      }
-
-      // Create a blob with the code
-      const blob = new Blob([code], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-
-      // Create a temporary link element and trigger the download
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-
-      // Clean up
-      setTimeout(() => {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      }, 0);
-    });
-
-    // Add buttons to wrapper
+    const codeBlockWrapper = document.createElement("div");
+    codeBlockWrapper.style.position = "relative";
+    codeBlock.parentNode.insertBefore(codeBlockWrapper, codeBlock);
+    codeBlockWrapper.appendChild(codeBlock);
     codeBlockWrapper.appendChild(copyButton);
-    codeBlockWrapper.appendChild(downloadButton);
   });
 }
-
-// Add copy buttons to code blocks
-// function addCopyButtons() {
-//   const codeBlocks = document.querySelectorAll(".message pre");
-
-//   codeBlocks.forEach((codeBlock) => {
-//     if (codeBlock.querySelector(".copy-code-button")) return;
-
-//     const copyButton = document.createElement("button");
-//     copyButton.classList.add("copy-code-button");
-//     copyButton.innerHTML = COPY_ICON;
-//     copyButton.title = "Copy code";
-
-//     copyButton.addEventListener("click", () => {
-//       const code = codeBlock.textContent;
-
-//       navigator.clipboard
-//         .writeText(code)
-//         .then(() => {
-//           copyButton.innerHTML = CHECK_ICON;
-
-//           setTimeout(() => {
-//             copyButton.innerHTML = COPY_ICON;
-//           }, 2000);
-//         })
-//         .catch((err) => {
-//           console.error("Failed to copy code: ", err);
-//           copyButton.innerHTML = ERROR_ICON;
-//         });
-//     });
-
-//     const codeBlockWrapper = document.createElement("div");
-//     codeBlockWrapper.style.position = "relative";
-//     codeBlock.parentNode.insertBefore(codeBlockWrapper, codeBlock);
-//     codeBlockWrapper.appendChild(codeBlock);
-//     codeBlockWrapper.appendChild(copyButton);
-//   });
-// }
 
 // Helper function to add messages to the chat UI with markdown support
 function addMessage(content, sender) {
@@ -382,8 +285,7 @@ function addMessage(content, sender) {
       chatMessages.scrollTop = scrollPosition;
 
       // Add copy buttons to new code blocks
-      // addCopyButtons();
-      addCodeButtons();
+      addCopyButtons();
     }, 10); // Small delay to ensure DOM is updated
   } else {
     // For user messages, scroll to the bottom as usual
@@ -640,7 +542,6 @@ function loadProjectMessages(projectId) {
     })
     .catch((error) => console.error("Error loading messages:", error));
 }
-
 function loadModelChoices() {
   fetch("/api/model-choices/")
     .then((response) => response.json())
@@ -653,7 +554,6 @@ function loadModelChoices() {
       while (queryModelSelect.options.length > 1) {
         queryModelSelect.remove(1);
       }
-
       // Add new options
       data.query_models.forEach(([value, name]) => {
         const option = document.createElement("option");
