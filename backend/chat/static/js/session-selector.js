@@ -1,8 +1,7 @@
 // Session selector functionality
-
 // Global variables for session management
 let currentSessionId = null;
-let selectedSessionType = "chat"; // Default mode
+
 let sessionTypes = [
   {
     type: "chat",

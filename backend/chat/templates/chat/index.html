@@ -197,11 +197,11 @@
       </div>
   
 
-      <div class="chat-container">
-        <div class="chat-header">
-          <div id="mode-indicator" class="mode-indicator">
-            <span class="mode-icon">💬</span>
-            <span class="mode-name">Chat Mode</span>
+      <div class="chat-container" id="chat-container">
+        <div class="chat-messages" id="chat-messages">
+          <div class="message assistant-message">
+            Hello! I'm BoardBoost, your microcontroller coding assistant. How
+            can I help you today?
           </div>
         </div>
       <div class="chat-input">
@@ -272,8 +272,8 @@
     {% endif %}
     <!-- External JS -->
     <!-- In your index.html, add this before your other JavaScript files -->
-    <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/session-selector.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/webserial.js' %}"></script>
     <script src="{% static 'js/serial-monitor.js' %}"></script>
     <script src="{% static 'js/board-loader.js' %}"></script>

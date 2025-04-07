@@ -125,7 +125,8 @@ document.addEventListener("DOMContentLoaded", function () {
   setupEventListeners();
 
   // Load projects
-  loadUserProjects();
+  // loadUserProjects();
+  loadUserSessions();
 
   // Load model choices
   loadModelChoices();
@@ -491,93 +492,168 @@ function setupSidebarToggle() {
 }
 
 // Function to load user's projects
-function loadUserProjects() {
-  fetch("/api/projects/")
+// Function to load user's sessions
+function loadUserSessions() {
+  fetch("/api/sessions/")
     .then((response) => {
       if (!response.ok) {
-        throw new Error("Failed to load projects");
+        throw new Error("Failed to load sessions");
       }
       return response.json();
     })
     .then((data) => {
-      const projectsList = document.getElementById("projects-list");
-      if (!projectsList) return;
+      const sessionsList = document.getElementById("sessions-list");
+      if (!sessionsList) return;
 
       // Clear loading message
-      projectsList.innerHTML = "";
+      sessionsList.innerHTML = "";
 
-      // Check if we received an array (expected) and it has projects
+      // Check if we received an array (expected) and it has sessions
       if (Array.isArray(data) && data.length > 0) {
-        // Sort projects by last updated (newest first)
+        // Sort sessions by last updated (newest first)
         data.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 
-        // Add each project to the list
-        data.forEach((project) => {
-          const projectItem = document.createElement("div");
-          projectItem.classList.add("project-item");
-          if (currentProjectId === project.id) {
-            projectItem.classList.add("active");
+        // Add each session to the list
+        data.forEach((session) => {
+          const sessionItem = document.createElement("div");
+          sessionItem.classList.add("session-item");
+          if (currentSessionId === session.id) {
+            sessionItem.classList.add("active");
           }
 
-          const projectDate = new Date(project.updated_at);
-          const formattedDate = projectDate.toLocaleDateString(undefined, {
+          // Add session type icon
+          const sessionIcon = getSessionTypeIcon(session.session_type);
+
+          const sessionDate = new Date(session.updated_at);
+          const formattedDate = sessionDate.toLocaleDateString(undefined, {
             year: "numeric",
             month: "short",
             day: "numeric",
           });
 
-          projectItem.innerHTML = `
-              <div class="project-name">${project.name}</div>
-              <div class="project-date">Last updated: ${formattedDate}</div>
+          sessionItem.innerHTML = `
+              <div class="session-icon">${sessionIcon}</div>
+              <div class="session-details">
+                <div class="session-name">${session.name}</div>
+                <div class="session-date">Last updated: ${formattedDate}</div>
+              </div>
             `;
 
-          projectItem.addEventListener("click", () => {
-            // Set this as the active project
-            document.querySelectorAll(".project-item").forEach((item) => {
+          sessionItem.addEventListener("click", () => {
+            // Set this as the active session
+            document.querySelectorAll(".session-item").forEach((item) => {
               item.classList.remove("active");
             });
-            projectItem.classList.add("active");
+            sessionItem.classList.add("active");
 
-            // Load the project and its conversation
-            loadProject(project.id);
-
-            // Reset conversation
-            currentConversationId = null;
-
-            // Clear chat messages except for the welcome message
-            const chatMessages = document.getElementById("chat-messages");
-            chatMessages.innerHTML = "";
-
-            // Add welcome message for the project
-            const welcomeMessage =
-              `I'm ready to help with your "${project.name}" project! ` +
-              `${
-                project.board_type
-                  ? "I see you're using " + project.board_type + "."
-                  : ""
-              } ` +
-              "What would you like to discuss?";
-
-            addMessage(welcomeMessage, "assistant");
+            // Load the session and its conversation
+            loadSession(session.id);
           });
 
-          projectsList.appendChild(projectItem);
+          sessionsList.appendChild(sessionItem);
         });
       } else {
-        // No projects or empty response
-        projectsList.innerHTML =
-          '<div class="no-projects">No projects yet. Create one to get started!</div>';
+        // No sessions or empty response
+        sessionsList.innerHTML =
+          '<div class="no-sessions">No sessions yet. Create one to get started!</div>';
       }
     })
     .catch((error) => {
-      console.error("Error loading projects:", error);
-      const projectsList = document.getElementById("projects-list");
-      if (projectsList) {
-        projectsList.innerHTML =
-          '<div class="load-error">Error loading projects. Please try again.</div>';
+      console.error("Error loading sessions:", error);
+      const sessionsList = document.getElementById("sessions-list");
+      if (sessionsList) {
+        sessionsList.innerHTML =
+          '<div class="load-error">Error loading sessions. Please try again.</div>';
       }
     });
 }
+// function loadUserProjects() {
+//   fetch("/api/projects/")
+//     .then((response) => {
+//       if (!response.ok) {
+//         throw new Error("Failed to load projects");
+//       }
+//       return response.json();
+//     })
+//     .then((data) => {
+//       const projectsList = document.getElementById("projects-list");
+//       if (!projectsList) return;
+
+//       // Clear loading message
+//       projectsList.innerHTML = "";
+
+//       // Check if we received an array (expected) and it has projects
+//       if (Array.isArray(data) && data.length > 0) {
+//         // Sort projects by last updated (newest first)
+//         data.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+
+//         // Add each project to the list
+//         data.forEach((project) => {
+//           const projectItem = document.createElement("div");
+//           projectItem.classList.add("project-item");
+//           if (currentProjectId === project.id) {
+//             projectItem.classList.add("active");
+//           }
+
+//           const projectDate = new Date(project.updated_at);
+//           const formattedDate = projectDate.toLocaleDateString(undefined, {
+//             year: "numeric",
+//             month: "short",
+//             day: "numeric",
+//           });
+
+//           projectItem.innerHTML = `
+//               <div class="project-name">${project.name}</div>
+//               <div class="project-date">Last updated: ${formattedDate}</div>
+//             `;
+
+//           projectItem.addEventListener("click", () => {
+//             // Set this as the active project
+//             document.querySelectorAll(".project-item").forEach((item) => {
+//               item.classList.remove("active");
+//             });
+//             projectItem.classList.add("active");
+
+//             // Load the project and its conversation
+//             loadProject(project.id);
+
+//             // Reset conversation
+//             currentConversationId = null;
+
+//             // Clear chat messages except for the welcome message
+//             const chatMessages = document.getElementById("chat-messages");
+//             chatMessages.innerHTML = "";
+
+//             // Add welcome message for the project
+//             const welcomeMessage =
+//               `I'm ready to help with your "${project.name}" project! ` +
+//               `${
+//                 project.board_type
+//                   ? "I see you're using " + project.board_type + "."
+//                   : ""
+//               } ` +
+//               "What would you like to discuss?";
+
+//             addMessage(welcomeMessage, "assistant");
+//           });
+
+//           projectsList.appendChild(projectItem);
+//         });
+//       } else {
+//         // No projects or empty response
+//         projectsList.innerHTML =
+//           '<div class="no-projects">No projects yet. Create one to get started!</div>';
+//       }
+//     })
+//     .catch((error) => {
+//       console.error("Error loading projects:", error);
+//       const projectsList = document.getElementById("projects-list");
+//       if (projectsList) {
+//         projectsList.innerHTML =
+//           '<div class="load-error">Error loading projects. Please try again.</div>';
+//       }
+//     });
+// }
 
 // Add a function to create a new project
 function createNewProject() {
