@@ -37,6 +37,8 @@ let sessionTypes = [
 document.addEventListener("DOMContentLoaded", function () {
   // Set up event listeners
   setupSessionSelectorEvents();
+
+  setupSessionsSidebarToggle();
 });
 
 // Set up event listeners for session selector
@@ -636,4 +638,52 @@ function sendMessage() {
         "assistant"
       );
     });
+}
+
+// Set up sessions sidebar toggle
+// Set up sessions sidebar toggle
+function setupSessionsSidebarToggle() {
+  // First create the toggle button if it doesn't exist
+  if (!document.querySelector(".sessions-sidebar-toggle")) {
+    const toggleButton = document.createElement("div");
+    toggleButton.className = "sessions-sidebar-toggle";
+    toggleButton.innerHTML = '<div class="toggle-icon">◀</div>';
+    document.body.appendChild(toggleButton);
+  }
+
+  const sidebar = document.querySelector(".sessions-sidebar");
+  const chatContainer = document.querySelector(".chat-container");
+  const toggleButton = document.querySelector(".sessions-sidebar-toggle");
+
+  if (sidebar && chatContainer && toggleButton) {
+    // Set initial state based on localStorage
+    const sidebarCollapsed =
+      localStorage.getItem("sessionsSidebarCollapsed") === "true";
+    if (sidebarCollapsed) {
+      sidebar.classList.add("collapsed");
+      chatContainer.classList.add("sidebar-collapsed");
+      toggleButton.classList.add("collapsed");
+      toggleButton.querySelector(".toggle-icon").innerHTML = "▶";
+    }
+
+    // Add click event to toggle button
+    toggleButton.addEventListener("click", function () {
+      sidebar.classList.toggle("collapsed");
+      chatContainer.classList.toggle("sidebar-collapsed");
+      toggleButton.classList.toggle("collapsed");
+
+      // Change icon direction based on state
+      if (sidebar.classList.contains("collapsed")) {
+        this.querySelector(".toggle-icon").innerHTML = "▶";
+      } else {
+        this.querySelector(".toggle-icon").innerHTML = "◀";
+      }
+
+      // Save state to localStorage
+      localStorage.setItem(
+        "sessionsSidebarCollapsed",
+        sidebar.classList.contains("collapsed")
+      );
+    });
+  }
 }

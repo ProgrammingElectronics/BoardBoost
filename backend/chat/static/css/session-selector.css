@@ -1,4 +1,150 @@
-/* Session selector styling */
+/* Sessions Sidebar - Left Side */
+.sessions-sidebar {
+  width: 225px;
+  background-color: rgba(40, 40, 56, 0.95);
+  color: #efefef;
+  padding: 1rem;
+  overflow-y: auto;
+  height: 100%;
+  position: fixed;
+  left: 0;
+  top: 60px;
+  bottom: 0;
+  z-index: 10;
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+  transition: transform 0.3s ease;
+  box-shadow: 3px 0 15px rgba(0, 0, 0, 0.3);
+  border-right: 1px solid rgba(108, 127, 232, 0.2);
+}
+
+/* Sessions sidebar toggle button */
+.sessions-sidebar-toggle {
+  position: fixed;
+  top: 75px;
+  left: 225px;
+  width: 24px;
+  height: 24px;
+  background-color: rgba(40, 40, 56, 0.95);
+  color: #efefef;
+  border: 1px solid rgba(108, 127, 232, 0.2);
+  border-left: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 11;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 3px 0 5px rgba(0, 0, 0, 0.1);
+  transition: left 0.3s ease;
+}
+
+/* Add styles for collapsed state */
+.sessions-sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
+.sessions-sidebar-toggle.collapsed {
+  left: 0;
+}
+
+/* Toggle icon styling */
+.sessions-sidebar-toggle .toggle-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Hide the sidebar trigger */
+.sessions-sidebar-trigger {
+  display: none;
+}
+
+/* Left sidebar session list */
+.sessions-list {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.sessions-sidebar h2 {
+  color: #efefef;
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.session-item {
+  padding: 10px;
+  margin-bottom: 8px;
+  background-color: rgba(50, 50, 50, 0.5);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.session-item:hover {
+  background-color: rgba(70, 70, 70, 0.8);
+}
+
+.session-item.active {
+  background-color: #6c7fe8;
+  font-weight: bold;
+}
+
+.session-icon {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.session-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.session-name {
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-date {
+  font-size: 11px;
+  color: #b8b8c0;
+  margin-top: 3px;
+}
+
+/* New session button */
+.new-session-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #6c7fe8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  transition: background-color 0.2s, transform 0.2s;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.new-session-button:hover {
+  background-color: #5b6ed7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(108, 127, 232, 0.25);
+}
+
+.new-session-button svg,
+.new-session-button span {
+  margin-right: 6px;
+}
 
 /* Modal backdrop */
 .modal-backdrop {
@@ -131,174 +277,22 @@
   line-height: 1.4;
 }
 
-/* Sidebar session type selector */
-.session-type-selector {
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(108, 127, 232, 0.2);
-}
-
-.session-type-selector label {
-  color: #b8b8c0;
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  display: block;
-}
-
-.session-type-selector select {
-  width: 90%;
-  padding: 8px 10px;
-  background-color: #1e1e2e;
-  color: #efefef;
-  border: 1px solid #3d3d4d;
-  border-radius: 4px;
-  font-size: 13px;
-  font-family: "Inter", sans-serif;
-}
-
-.session-type-selector select:focus {
-  outline: none;
-  border-color: #6c7fe8;
-  box-shadow: 0 0 0 2px rgba(108, 127, 232, 0.25);
-}
-
-/* Left sidebar session list */
-.sessions-list {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-}
-
-.sessions-sidebar h2 {
-  color: #efefef;
-  font-size: 18px;
-  margin-top: 0;
-  margin-bottom: 16px;
-}
-
-.session-item {
-  padding: 10px;
-  margin-bottom: 8px;
-  background-color: rgba(50, 50, 50, 0.5);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  display: flex;
-  align-items: center;
-}
-
-.session-item:hover {
-  background-color: rgba(70, 70, 70, 0.8);
-}
-
-.session-item.active {
-  background-color: #6c7fe8;
-  font-weight: bold;
-}
-
-.session-icon {
-  margin-right: 10px;
-  font-size: 18px;
-}
-
-.session-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.session-name {
-  font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.session-date {
-  font-size: 11px;
-  color: #b8b8c0;
-  margin-top: 3px;
-}
-
-/* New session button */
-.new-session-button {
-  width: 100%;
-  padding: 10px;
-  background-color: #6c7fe8;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 5px;
-  margin-bottom: 15px;
-  transition: background-color 0.2s, transform 0.2s;
-  font-family: "Inter", sans-serif;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.new-session-button:hover {
-  background-color: #5b6ed7;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(108, 127, 232, 0.25);
-}
-
-.new-session-button svg,
-.new-session-button span {
-  margin-right: 6px;
-}
-
-/* Session specific fields in sidebar */
-.session-specific-field {
-  margin-bottom: 12px;
-}
-
-.widget-field,
-.library-field,
-.topic-field {
-  display: none;
-}
-
-/* Mode indicator in the chat header */
-.mode-indicator {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  background-color: rgba(108, 127, 232, 0.1);
-  border-radius: 20px;
-  font-size: 13px;
-  margin-bottom: 16px;
-}
-
-.mode-indicator .mode-icon {
-  margin-right: 6px;
-  font-size: 16px;
-}
-
-.mode-indicator .mode-name {
-  font-weight: 500;
-}
-
-/* Mode-specific styling for messages */
-.chat-mode .assistant-message {
-  border-left: 3px solid #6c7fe8; /* Blue for chat mode */
-}
-
-.widget-mode .assistant-message {
-  border-left: 3px solid #f0616d; /* Red for widget mode */
-}
-
-.library-mode .assistant-message {
-  border-left: 3px solid #26c0d3; /* Cyan for library mode */
-}
-
-.topic-mode .assistant-message {
-  border-left: 3px solid #f7b731; /* Yellow for topic mode */
-}
-
-/* Responsive styling */
+/* Responsive adjustments */
 @media (max-width: 768px) {
+  .sessions-sidebar {
+    width: 180px;
+  }
+
+  .sessions-sidebar-toggle {
+    left: 180px;
+  }
+
+  .chat-container {
+    margin-left: 180px;
+    max-width: 100%;
+    padding: 0 10px;
+  }
+
   .session-selector-modal {
     width: 95%;
     max-height: 80vh;
@@ -312,5 +306,53 @@
     width: 40px;
     height: 40px;
     font-size: 24px;
+  }
+}
+
+/* Add this to your session-selector.css file to fix the centering issue */
+
+/* Override chat container styles to ensure proper centering */
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  height: 100%;
+  box-sizing: border-box;
+  width: calc(100% - 450px); /* Adjust width to account for sidebars */
+  max-width: 1000px; /* Set a reasonable max-width */
+  margin: 0 auto 0 225px; /* Left margin for sidebar, auto right margin for centering */
+  position: relative;
+  z-index: 1;
+  transition: margin 0.3s ease, width 0.3s ease;
+}
+
+/* Adjust when sidebar is collapsed */
+.chat-container.sidebar-collapsed {
+  width: calc(100% - 225px); /* Only account for right sidebar */
+  margin: 0 auto; /* Center when left sidebar is collapsed */
+}
+
+/* For screens that can't fit both sidebars and enough space for chat */
+@media (max-width: 1200px) {
+  .chat-container {
+    width: calc(100% - 325px);
+  }
+
+  .chat-container.sidebar-collapsed {
+    width: calc(100% - 100px);
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .chat-container {
+    width: calc(100% - 200px);
+    margin: 0 auto 0 180px;
+  }
+
+  .chat-container.sidebar-collapsed {
+    width: calc(100% - 20px);
+    margin: 0 auto;
   }
 }
