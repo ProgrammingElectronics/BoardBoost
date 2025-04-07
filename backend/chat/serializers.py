@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from .models import Project, Conversation, Message
+from .models import Session, Conversation, Message
 
 
-class ProjectSerializer(serializers.ModelSerializer):
+class SessionSerializer(serializers.ModelSerializer):
     """Serializer for the Project model"""
 
     class Meta:
-        model = Project
+        model = Session
         fields = [
             "id",
             "name",

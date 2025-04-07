@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import Project, Conversation, Message, SiteSettings
+from .models import Session, Conversation, Message, SiteSettings
 
-admin.site.register(Project)
+admin.site.register(Session)
 admin.site.register(Conversation)
 admin.site.register(Message)
 

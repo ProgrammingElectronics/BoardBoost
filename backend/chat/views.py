@@ -10,18 +10,18 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .ai_service import generate_response
-from .models import Project, Conversation, Message, MessageEmbedding, UserProfile
+from .models import Session, Conversation, Message, MessageEmbedding, UserProfile
 from .serializers import (
-    ProjectSerializer,
+    SessionSerializer,
     ConversationSerializer,
     MessageSerializer,
 )
-from .ai_service import generate_response
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 from .arduino_create_agent_signature import sign_arduino_command
+from .ai_mode_factory import get_mode_handler, get_welcome_message
 
 
 @api_view(["GET"])
@@ -32,6 +32,39 @@ def get_model_choices(request):
             "summary_models": UserProfile.SUMMARY_MODEL_CHOICES,
         }
     )
+
+
+@api_view(["GET"])
+def get_session_types(request):
+    """Get the available session types with descriptions"""
+    session_types = [
+        {
+            "type": "chat",
+            "name": "Chat Mode",
+            "symbol": "💬",
+            "description": "Standard chat interface for getting help with Arduino programming.",
+        },
+        {
+            "type": "widget",
+            "name": "Widget Mode",
+            "symbol": "🔧",
+            "description": "Focused session for creating a complete project with guidance.",
+        },
+        {
+            "type": "library",
+            "name": "Learn a Library Mode",
+            "symbol": "📚",
+            "description": "Interactive session focused on mastering a specific Arduino library.",
+        },
+        {
+            "type": "topic",
+            "name": "Learn a Topic Mode",
+            "symbol": "🎓",
+            "description": "Educational session to learn about a specific Arduino programming concept.",
+        },
+    ]
+
+    return Response(session_types)
 
 
 def index(request):
@@ -49,22 +82,22 @@ def beta_closed(request):
 
 
 ### API ViewSets ############################################
-class ProjectViewSet(viewsets.ModelViewSet):
+class SessionViewSet(viewsets.ModelViewSet):
     """
-    ViewSet for viewing and editing projects.
+    ViewSet for viewing and editing sessions.
     """
 
-    serializer_class = ProjectSerializer
+    serializer_class = SessionSerializer
     permission_classes = [IsAuthenticated]
-    queryset = Project.objects.all()
+    queryset = Session.objects.all()
 
     def get_queryset(self):
         """
-        This view should return a list of all projects
+        This view should return a list of all sessions
         for the currently authenticated user.
         """
         user = self.request.user
-        return Project.objects.filter(user=user).order_by("-updated_at")
+        return Session.objects.filter(user=user).order_by("-updated_at")
 
     def create(self, request, *args, **kwargs):
         """
@@ -121,7 +154,7 @@ def send_message(request):
 
         # Extract data from request
         content = request.data.get("content")
-        project_id = request.data.get("project_id")
+        session_id = request.data.get("session_id")
 
         # Validate inputs
         if not content:
@@ -130,21 +163,23 @@ def send_message(request):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Get or create project
-        if not project_id:
-            # Create a default project if none specified
-            project = Project.objects.create(name="Default Project", user=request.user)
-            project_id = project.id
+        # Get or create session
+        if not session_id:
+            # Create a default session if none specified
+            session = Session.objects.create(
+                name="Default Session", user=request.user, session_type="chat"
+            )
+            session_id = session.id
         else:
             try:
-                project = Project.objects.get(id=project_id)
-            except Project.DoesNotExist:
+                session = Session.objects.get(id=session_id)
+            except Session.DoesNotExist:
                 return Response(
-                    {"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND
+                    {"error": "Session not found"}, status=status.HTTP_404_NOT_FOUND
                 )
 
-        # Get or create the SINGLE conversation for this project
-        conversation, created = Conversation.objects.get_or_create(project=project)
+        # Get or create the SINGLE conversation for this session
+        conversation, created = Conversation.objects.get_or_create(session=session)
 
         # Estimate token count based on message length (approximately 4 chars per token)
         estimated_message_tokens = len(content) // 4 + 1
@@ -183,7 +218,8 @@ def send_message(request):
         return Response(
             {
                 "conversation_id": conversation.id,
-                "project_id": conversation.project.id,
+                "session_id": session.id,
+                "session_type": session.session_type,
                 "user_message": MessageSerializer(user_message).data,
                 "assistant_message": MessageSerializer(assistant_message).data,
                 "tokens_used": tokens_used,
@@ -194,13 +230,13 @@ def send_message(request):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def project_messages(request, project_id):
-    """Get all messages for a project's conversation"""
+def session_messages(request, session_id):
+    """Get all messages for a session's conversation"""
     try:
-        project = Project.objects.get(id=project_id)
+        session = Session.objects.get(id=session_id)
 
-        # Get the project's conversation (or create it if it doesn't exist)
-        conversation, created = Conversation.objects.get_or_create(project=project)
+        # Get the session's conversation (or create it if it doesn't exist)
+        conversation, created = Conversation.objects.get_or_create(session=session)
 
         # Get all messages for this conversation
         messages = Message.objects.filter(conversation=conversation).order_by(
@@ -213,8 +249,8 @@ def project_messages(request, project_id):
                 "messages": MessageSerializer(messages, many=True).data,
             }
         )
-    except Project.DoesNotExist:
-        return Response({"error": "Project not found"}, status=404)
+    except Session.DoesNotExist:
+        return Response({"error": "Session not found"}, status=404)
 
 
 ## Login ################################################
@@ -241,6 +277,9 @@ def user_settings(request):
         # Update user settings
         profile.default_query_model = request.POST.get("default_query_model")
         profile.default_summary_model = request.POST.get("default_summary_model")
+        # Add default provider if it's in the form
+        if "default_provider" in request.POST:
+            profile.default_provider = request.POST.get("default_provider")
         profile.save()
 
         messages.success(request, "Settings updated successfully!")
@@ -254,6 +293,11 @@ def user_settings(request):
             "profile": profile,
             "query_models": UserProfile.QUERY_MODEL_CHOICES,
             "summary_models": UserProfile.SUMMARY_MODEL_CHOICES,
+            "providers": (
+                UserProfile.PROVIDER_CHOICES
+                if hasattr(UserProfile, "PROVIDER_CHOICES")
+                else []
+            ),
         },
     )
 

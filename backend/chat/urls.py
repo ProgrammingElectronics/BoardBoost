@@ -6,7 +6,7 @@ from . import views
 from django.contrib.auth import views as auth_views
 
 router = DefaultRouter()
-router.register("projects", views.ProjectViewSet)
+router.register("sessions", views.SessionViewSet)
 router.register("conversations", views.ConversationViewSet)
 
 urlpatterns = [
@@ -14,10 +14,11 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path("api/send-message/", views.send_message, name="send_message"),
     path("api/model-choices/", views.get_model_choices, name="model-choices"),
+    path("api/session-types/", views.get_session_types, name="session_types"),
     path(
-        "api/projects/<int:project_id>/messages/",
-        views.project_messages,
-        name="project_messages",
+        "api/sessions/<int:session_id>/messages/",
+        views.session_messages,
+        name="session_messages",
     ),
     path("beta-closed/", views.beta_closed, name="beta_closed"),
     path("api/compile-arduino/", views.compile_arduino_code, name="compile_arduino"),

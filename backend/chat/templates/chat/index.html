@@ -8,6 +8,7 @@
 
     <!-- External CSS -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/session-selector.css' %}" />
     <link rel="stylesheet" href="{% static 'css/serial-controls.css' %}" />
     <link rel="stylesheet" href="{% static 'css/serial-monitor.css' %}" />
     <!-- <link rel="stylesheet" href="{% static 'css/arduino-agent.css' %}" /> -->
@@ -69,120 +70,138 @@
     </div>
 
     <div class="main">
-      <div class="projects-sidebar-trigger"></div>
-      <div class="projects-sidebar" id="projects-sidebar">
-        <h2>Your Projects</h2>
-        <button id="new-project-button" class="new-project-button">
-          + New Project
+      <div class="sessions-sidebar-trigger"></div>
+      <div class="sessions-sidebar">
+        <h2>Your Sessions</h2>
+        <button id="new-session-button" class="new-session-button">
+          <span>+</span> New Session
         </button>
-        <div class="projects-list" id="projects-list">
-          <!-- Projects will be loaded here dynamically -->
-          <div class="loading-projects">Loading your projects...</div>
+        <div id="sessions-list" class="sessions-list">
+          <div class="loading-sessions">Loading your sessions...</div>
         </div>
       </div>
 
+      <!-- Right sidebar for session settings -->
       <div class="sidebar-trigger"></div>
-      <div class="sidebar" id="sidebar">
+      <div id="sidebar" class="sidebar">
         <div class="sidebar-header">
-          <h2>Project Settings</h2>
-          <button id="save-project">Save</button>
+          <h2>Session Settings</h2>
+          <button id="save-session" class="save-button">Save</button>
         </div>
-        <div class="project-form">
-          <!-- Project name - most important field -->
-          <div>
-            <label for="project-name">Project Name:</label>
-            <input type="text" id="project-name" name="project-name" />
-          </div>
-
-          <!-- Board type - next most important -->
-          <div>
-            <label for="board-type">Board:</label>
-            <input
-              type="text"
-              id="board-type"
-              name="board-type"
-              placeholder="e.g., Arduino Uno, ESP32"
-            />
+        <div class="session-form">
+          <!-- Session Type Selector -->
+          <div class="session-type-selector">
+            <label for="session-type">Session Mode:</label>
+            <select id="session-type" name="session-type">
+              <option value="chat">💬 Chat Mode</option>
+              <option value="widget">🔧 Widget Mode</option>
+              <option value="library">📚 Library Learning</option>
+              <option value="topic">🎓 Topic Learning</option>
+            </select>
           </div>
           
-          <!-- Board fqbn - next most important -->
-          <div>
-            <label for="board-fqbn">Board FQBN:</label>
-            <select id="board-fqbn" name="board-fqbn">
-              <option value="">Select Board</option>
-              <option value="arduino:avr:uno">Arduino Uno</option>
-              <option value="arduino:avr:nano">Arduino Nano</option>
-              <option value="arduino:avr:mega">Arduino Mega</option>
-              <option value="arduino:avr:leonardo">Arduino Leonardo</option>
-              <option value="arduino:avr:micro">Arduino Micro</option>
-              <option value="esp32:esp32:esp32">ESP32</option>
-              <option value="arduino:samd:nano_33_iot">Arduino Nano 33 IoT</option>
+          <!-- Common fields for all session types -->
+          <div class="common-field">
+            <label for="session-name">Session Name:</label>
+            <input type="text" id="session-name" name="session-name" placeholder="My Arduino Session">
+          </div>
+          
+          <div class="common-field">
+            <label for="board-type">Arduino Board:</label>
+            <input type="text" id="board-type" name="board-type" placeholder="e.g., Uno, Nano, ESP32">
+          </div>
+          
+          <div class="common-field">
+            <label for="components-text">Components:</label>
+            <textarea id="components-text" name="components-text" placeholder="e.g., LEDs, resistors, sensors"></textarea>
+          </div>
+          
+          <div class="common-field">
+            <label for="libraries-text">Libraries:</label>
+            <textarea id="libraries-text" name="libraries-text" placeholder="e.g., Servo.h, Wire.h"></textarea>
+          </div>
+          
+          <!-- Widget mode specific fields -->
+          <div class="session-specific-field widget-field">
+            <label for="target-platform">Target Platform:</label>
+            <input type="text" id="target-platform" name="target-platform" placeholder="e.g., Arduino Uno, ESP32">
+          </div>
+          
+          <div class="session-specific-field widget-field">
+            <label for="complexity-level">Complexity Level:</label>
+            <select id="complexity-level" name="complexity-level">
+              <option value="simple">Simple</option>
+              <option value="intermediate" selected>Intermediate</option>
+              <option value="complex">Complex</option>
             </select>
           </div>
-
-          <!-- Components with compact placeholder -->
-          <div>
-            <label for="components-text">Components:</label>
-            <textarea
-              id="components-text"
-              name="components-text"
-              placeholder="LEDs, sensors, motors, etc."
-            ></textarea>
+          
+          <!-- Library mode specific fields -->
+          <div class="session-specific-field library-field">
+            <label for="library-name">Library Name:</label>
+            <input type="text" id="library-name" name="library-name" placeholder="e.g., FastLED, Servo">
           </div>
-
-          <!-- Libraries with compact placeholder -->
-          <div>
-            <label for="libraries-text">Libraries:</label>
-            <textarea
-              id="libraries-text"
-              name="libraries-text"
-              placeholder="Library names, e.g., Servo, Wire, etc."
-            ></textarea>
+          
+          <div class="session-specific-field library-field">
+            <label for="experience-level">Experience Level:</label>
+            <select id="experience-level" name="experience-level">
+              <option value="beginner" selected>Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
           </div>
-
-          <!-- Model selections with inline layout -->
-          <div>
-            <label for="query-model">AI Model (Queries):</label>
+          
+          <!-- Topic mode specific fields -->
+          <div class="session-specific-field topic-field">
+            <label for="topic-name">Topic Name:</label>
+            <input type="text" id="topic-name" name="topic-name" placeholder="e.g., PWM, I2C communication">
+          </div>
+          
+          <div class="session-specific-field topic-field">
+            <label for="experience-level">Experience Level:</label>
+            <select id="experience-level" name="experience-level">
+              <option value="beginner" selected>Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+          
+          <!-- AI settings (common to all modes) -->
+          <div class="common-field">
+            <label for="query-model">AI Model for Responses:</label>
             <select id="query-model" name="query-model">
               <option value="">Use Default</option>
+              <!-- Other options will be loaded dynamically -->
             </select>
           </div>
-
-          <div>
-            <label for="summary-model">AI Model (Summaries):</label>
+          
+          <div class="common-field">
+            <label for="summary-model">AI Model for Summaries:</label>
             <select id="summary-model" name="summary-model">
               <option value="">Use Default</option>
+              <!-- Other options will be loaded dynamically -->
             </select>
           </div>
-
-          <!-- History window with more compact label -->
-          <div>
-            <label for="history-window"
-              >History Size:
-              <span id="history-window-value">10 messages</span></label
-            >
-            <input
-              type="range"
-              id="history-window"
-              name="history-window"
-              min="1"
-              max="20"
-              value="10"
-              class="slider"
-            />
+          
+          <div class="common-field">
+            <label for="history-window">Message History Size:</label>
+            <input type="range" id="history-window" name="history-window" min="5" max="30" value="10">
+            <span id="history-window-value">10 messages</span>
           </div>
+          
+          <button class="sidebar-toggle" id="sidebar-toggle">
+            <div class="sidebar-toggle-icon"></div>
+          </button>
+        
         </div>
-
-        <button class="sidebar-toggle" id="sidebar-toggle">
-          <div class="sidebar-toggle-icon"></div>
-        </button>
       </div>
+  
 
-      <div class="chat-container" id="chat-container">
-        <div class="chat-messages" id="chat-messages">
-          <div class="message assistant-message">
-            Hello! I'm BoardBoost, your microcontroller coding assistant. How
-            can I help you today?
+      <div class="chat-container">
+        <div class="chat-header">
+          <div id="mode-indicator" class="mode-indicator">
+            <span class="mode-icon">💬</span>
+            <span class="mode-name">Chat Mode</span>
           </div>
         </div>
       <div class="chat-input">
@@ -254,6 +273,7 @@
     <!-- External JS -->
     <!-- In your index.html, add this before your other JavaScript files -->
     <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/session-selector.js' %}"></script>
     <script src="{% static 'js/webserial.js' %}"></script>
     <script src="{% static 'js/serial-monitor.js' %}"></script>
     <script src="{% static 'js/board-loader.js' %}"></script>

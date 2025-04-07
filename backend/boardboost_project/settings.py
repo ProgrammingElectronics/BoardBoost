@@ -42,8 +42,9 @@ except Exception:
         # Continue without .env file in production
         pass
 
-# API Keys
+# AI Provider API Keys
 OPENAI_API_KEY = env("OPENAI_API_KEY")
+ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY")
 
 # Beta Limit
 MAX_BETA_USERS = env("MAX_BETA_USERS", default=2)

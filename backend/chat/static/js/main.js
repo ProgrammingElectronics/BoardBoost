@@ -1,6 +1,7 @@
 // Global variables
 let currentConversationId = null;
 let currentProjectId = null;
+let selectedSessionType = "chat"; // Default mode
 
 // SVG icons for copy functionality
 const COPY_ICON = `
@@ -140,6 +141,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Set up file upload
   setupFileUpload();
+
+  // Initialize the mode indicator
+  updateModeIndicator("chat");
 });
 
 // Set up event listeners
@@ -173,19 +177,139 @@ function setupEventListeners() {
     });
   }
 
-  // Save project button
-  const saveProjectButton = document.getElementById("save-project");
-  if (saveProjectButton) {
-    saveProjectButton.addEventListener("click", function () {
-      saveProject();
+  // Save session button (renamed from save-project)
+  const saveSessionButton = document.getElementById("save-session");
+  if (saveSessionButton) {
+    saveSessionButton.addEventListener("click", function () {
+      saveSession();
     });
   }
 
-  // New project button
-  const newProjectButton = document.getElementById("new-project-button");
-  if (newProjectButton) {
-    newProjectButton.addEventListener("click", createNewProject);
+  // New session button (renamed from new-project-button)
+  const newSessionButton = document.getElementById("new-session-button");
+  if (newSessionButton) {
+    newSessionButton.addEventListener("click", openSessionSelector);
   }
+
+  // Session type selector in sidebar
+  const sessionTypeSelector = document.getElementById("session-type");
+  if (sessionTypeSelector) {
+    sessionTypeSelector.addEventListener("change", function () {
+      switchSessionType(this.value);
+    });
+  }
+}
+
+// Update the mode indicator in the chat header
+function updateModeIndicator(sessionType) {
+  const modeIndicator = document.getElementById("mode-indicator");
+  if (!modeIndicator) return;
+
+  // Remove all mode classes
+  modeIndicator.classList.remove(
+    "chat-mode",
+    "widget-mode",
+    "library-mode",
+    "topic-mode"
+  );
+  // Add the current mode class
+  modeIndicator.classList.add(`${sessionType}-mode`);
+
+  let icon = "💬"; // Default
+  let name = "Chat Mode";
+
+  switch (sessionType) {
+    case "chat":
+      icon = "💬";
+      name = "Chat Mode";
+      break;
+    case "widget":
+      icon = "🔧";
+      name = "Widget Mode";
+      break;
+    case "library":
+      icon = "📚";
+      name = "Library Learning Mode";
+      break;
+    case "topic":
+      icon = "🎓";
+      name = "Topic Learning Mode";
+      break;
+  }
+
+  const iconElement = modeIndicator.querySelector(".mode-icon");
+  const nameElement = modeIndicator.querySelector(".mode-name");
+
+  if (iconElement) iconElement.textContent = icon;
+  if (nameElement) nameElement.textContent = name;
+
+  // Also update the chat container to show mode-specific styling
+  const chatContainer = document.querySelector(".chat-container");
+  if (chatContainer) {
+    chatContainer.classList.remove(
+      "chat-mode",
+      "widget-mode",
+      "library-mode",
+      "topic-mode"
+    );
+    chatContainer.classList.add(`${sessionType}-mode`);
+  }
+}
+
+// Switch session type (called when the dropdown changes)
+function switchSessionType(newType) {
+  // If it's the same type, do nothing
+  if (newType === selectedSessionType) return;
+
+  // Update the selected type
+  selectedSessionType = newType;
+
+  // Update the mode indicator
+  updateModeIndicator(newType);
+
+  // Show the appropriate fields
+  showFieldsForSessionType(newType);
+
+  // If we have an existing session, add a message about switching modes
+  if (currentSessionId) {
+    // Get the mode name for the message
+    let modeName = "Chat Mode";
+    switch (newType) {
+      case "widget":
+        modeName = "Widget Mode";
+        break;
+      case "library":
+        modeName = "Library Learning Mode";
+        break;
+      case "topic":
+        modeName = "Topic Learning Mode";
+        break;
+    }
+
+    // Add a message about switching modes
+    addMessage(
+      `Switched to ${modeName}. The AI's behavior will adapt to this mode. Save the session to make this change permanent.`,
+      "assistant"
+    );
+  }
+}
+
+// Show fields based on session type
+function showFieldsForSessionType(sessionType) {
+  // Hide all specific fields first
+  document.querySelectorAll(".session-specific-field").forEach((field) => {
+    field.style.display = "none";
+  });
+
+  // Show common fields
+  document.querySelectorAll(".common-field").forEach((field) => {
+    field.style.display = "block";
+  });
+
+  // Show fields specific to this session type
+  document.querySelectorAll(`.${sessionType}-field`).forEach((field) => {
+    field.style.display = "block";
+  });
 }
 
 // Add copy buttons to code blocks
@@ -726,7 +850,7 @@ function sendMessage() {
   // Prepare message data
   const messageData = {
     content: message,
-    project_id: currentProjectId,
+    session_id: currentSessionId,
   };
 
   // Send message to API
@@ -849,7 +973,7 @@ function sendMessageWithFile(message, fileContent, fileName) {
   // Prepare message data
   const messageData = {
     content: combinedContent,
-    project_id: currentProjectId,
+    session_id: currentSessionId,
   };
 
   // Send message to API

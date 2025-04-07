@@ -1,61 +1,93 @@
-from openai import OpenAI
+"""
+Main AI service for handling AI interactions.
+"""
+
 from django.conf import settings
 from django.utils import timezone
 import numpy as np
-from .models import Message, Conversation, ConversationSummary, MessageEmbedding
+import logging
+from typing import Tuple, List, Dict, Any
 
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+from .models import (
+    Message,
+    Conversation,
+    ConversationSummary,
+    MessageEmbedding,
+    UserProfile,
+    Session,
+)
+from .ai_provider_factory import get_provider
+from .ai_mode_factory import get_mode_handler
 
-from openai import OpenAI
-from django.conf import settings
-from django.utils import timezone
-import numpy as np
-from .models import Message, Conversation, ConversationSummary, MessageEmbedding, UserProfile, Project
+logger = logging.getLogger(__name__)
 
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
-def get_model_for_user(user, project_id=None, is_summary=False):
+def get_model_for_user(user, session_id=None, is_summary=False):
     """
-    Determine which model to use based on user preferences and project settings.
-    
+    Determine which model to use based on user preferences and session settings.
+
     Args:
         user: The user making the request
-        project_id: Optional project ID
+        session_id: Optional session ID
         is_summary: Whether this is for a summary (True) or query (False)
-        
+
     Returns:
-        String representing the model name to use
+        Dict with provider name and model name
     """
     # Default fallback model
-    default_model = "gpt-3.5-turbo"
-    
+    default_provider = getattr(settings, "DEFAULT_AI_PROVIDER", "openai")
+    default_model = {
+        "provider": default_provider,
+        "model": (
+            "gpt-3.5-turbo"
+            if default_provider == "openai"
+            else "claude-3-sonnet-20240229"
+        ),
+    }
+
     try:
         # Get user's default preferences
         profile = UserProfile.objects.get(user=user)
-        user_default = profile.default_summary_model if is_summary else profile.default_query_model
-        
-        # If no project specified, use user default
-        if not project_id:
-            return user_default or default_model
-        
-        # Check for project-specific preference
+        user_default_provider = profile.default_provider
+        user_default_model = (
+            profile.default_summary_model if is_summary else profile.default_query_model
+        )
+
+        user_default = (
+            {
+                "provider": user_default_provider or default_provider,
+                "model": user_default_model,
+            }
+            if user_default_model
+            else default_model
+        )
+
+        # If no session specified, use user default
+        if not session_id:
+            return user_default
+
+        # Check for session-specific preference
         try:
-            project = Project.objects.get(id=project_id)
-            project_model = project.summary_model if is_summary else project.query_model
-            
-            # If project has a specific model set, use it
-            if project_model:
-                return project_model
-            
+            session = Session.objects.get(id=session_id)
+            session_provider = session.ai_provider
+            session_model = session.summary_model if is_summary else session.query_model
+
+            # If session has specific model set, use it
+            if session_model:
+                return {
+                    "provider": session_provider or user_default["provider"],
+                    "model": session_model,
+                }
+
             # Otherwise use user default
-            return user_default or default_model
-            
-        except Project.DoesNotExist:
-            return user_default or default_model
-            
+            return user_default
+
+        except Session.DoesNotExist:
+            return user_default
+
     except UserProfile.DoesNotExist:
         return default_model
-    
+
 
 def generate_conversation_summary(conversation_id, user, message_threshold=10):
     """
@@ -70,10 +102,14 @@ def generate_conversation_summary(conversation_id, user, message_threshold=10):
         ConversationSummary or None
     """
     conversation = Conversation.objects.get(id=conversation_id)
-    project_id = conversation.project_id
+    session_id = conversation.session_id
 
-    # Get the appropriate model based on user and project settings
-    model = get_model_for_user(user, project_id, is_summary=True)
+    # Get the appropriate model based on user and session settings
+    model_info = get_model_for_user(user, session_id, is_summary=True)
+    provider = get_provider(model_info["provider"])
+
+    # Get the mode handler for this session
+    mode_handler = get_mode_handler(conversation.session, conversation, user)
 
     # Get the latest summary
     latest_summary = (
@@ -109,21 +145,29 @@ def generate_conversation_summary(conversation_id, user, message_threshold=10):
     for msg in messages:
         conversation_text += f"{msg.sender}: {msg.content}\n"
 
-    # Generate a summary using OpenAI
+    # Generate a summary using the appropriate provider
     try:
-        summary_prompt = "You are an Arduino coding assistant. Summarize this conversation about Arduino programming and related topics, focusing on technical details, questions asked, and solutions provided. Keep the summary concise but include all important technical information."
+        # Get mode-specific system prompt
+        system_prompt = mode_handler.get_system_prompt()
 
-        response = client.chat.completions.create(
-            model=model,  # Use the model determined by user/project settings
-            messages=[
-                {"role": "system", "content": summary_prompt},
-                {"role": "user", "content": conversation_text},
-            ],
-            temperature=0.5,  # TODO Expose this to end user
-            max_tokens=300,  # TODO Expose this to end user
+        # Add a summary instruction to the prompt
+        summary_instruction = "Please summarize this conversation, focusing on important technical details, questions asked, and solutions provided. Keep the summary concise but include all important information."
+
+        # Create message format for the provider
+        messages = [
+            {
+                "role": "system",
+                "content": f"{system_prompt}\n\n{summary_instruction}\nmodel: {model_info['model']}",
+            },
+            {"role": "user", "content": conversation_text},
+        ]
+
+        # Get completion from the provider
+        summary_text, token_count = provider.get_completion(
+            messages=messages,
+            temperature=0.5,
+            max_tokens=300,
         )
-
-        summary_text = response.choices[0].message.content
 
         # Create and save the new summary
         summary = ConversationSummary.objects.create(
@@ -135,28 +179,40 @@ def generate_conversation_summary(conversation_id, user, message_threshold=10):
         return summary
 
     except Exception as e:
-        print(f"Error generating conversation summary: {e}")
+        logger.error(f"Error generating conversation summary: {e}")
         return latest_summary if latest_summary else None
 
 
-def get_message_embedding(message_content):
+def get_message_embedding(message_content, provider_name=None):
     """
-    Get an embedding vector for a message.
+    Get an embedding vector for a message using the specified or default provider.
 
     Args:
         message_content: The text content of the message
+        provider_name: Provider to use for embeddings (defaults to settings)
 
     Returns:
         List of floats representing the embedding vector
     """
+    if not provider_name:
+        provider_name = getattr(settings, "DEFAULT_EMBEDDINGS_PROVIDER", "openai")
+
+    provider = get_provider(provider_name)
+
     try:
-        response = client.embeddings.create(
-            input=message_content,
-            model="text-embedding-ada-002",  # TODO Expose this to end user
-        )
-        return response.data[0].embedding
+        return provider.get_embedding(message_content)
     except Exception as e:
-        print(f"Error getting message embedding: {e}")
+        logger.error(f"Error getting message embedding: {e}")
+
+        # If the specified provider fails, try OpenAI as fallback
+        if provider_name != "openai":
+            try:
+                logger.warning(f"Falling back to OpenAI for embeddings")
+                fallback_provider = get_provider("openai")
+                return fallback_provider.get_embedding(message_content)
+            except Exception as fallback_error:
+                logger.error(f"Fallback embedding also failed: {fallback_error}")
+
         return None
 
 
@@ -228,36 +284,41 @@ def find_relevant_messages(current_message, conversation_id, limit=3):
     return [msg for msg, _ in similarities[:limit]]
 
 
-def build_context_for_message(current_message, conversation_id, user=None, recent_message_count=5):
+def build_context_for_message(
+    current_message, conversation_id, user=None, recent_message_count=5
+):
     """
     Build context for the current message using our hybrid approach.
 
     Args:
         current_message: Text of the current message
         conversation_id: ID of the conversation
+        user: User requesting the context
         recent_message_count: Number of recent messages to include
 
     Returns:
-        List of OpenAI message objects representing the context
+        List of message objects representing the context
     """
     try:
         conversation = Conversation.objects.get(id=conversation_id)
-        
-        # If user is not provided, try to get it from the project
-        if user is None and hasattr(conversation.project, 'user') and conversation.project.user:
-            user = conversation.project.user
-            
+        session = conversation.session
+
+        # If user is not provided, try to get it from the session
+        if user is None and session.user:
+            user = session.user
+
+        # Get the mode handler for this session
+        mode_handler = get_mode_handler(session, conversation, user)
+
         # Generate summary if we have a user
         summary = None
         if user is not None:
             try:
                 summary = generate_conversation_summary(conversation_id, user)
             except Exception as e:
-                print(f"Error generating summary: {e}")
+                logger.error(f"Error generating summary: {e}")
                 # Continue without a summary if there's an error
-        
-        # Get conversation summary
-        summary = generate_conversation_summary(conversation_id, user) if user else None
+
         # Get recent messages
         recent_messages = Message.objects.filter(conversation=conversation).order_by(
             "-timestamp"
@@ -269,26 +330,11 @@ def build_context_for_message(current_message, conversation_id, user=None, recen
         # Build context
         context_messages = []
 
-        # Add project information
-        project = conversation.project
-        project_context = f"Project Name: {project.name}\n"
-
-        if project.board_type:
-            project_context += f"Arduino Board: {project.board_type}\n"
-
-        if project.libraries_text:
-            project_context += f"Libraries: {project.libraries_text}\n"
-
-        if project.components_text:
-            project_context += f"Components: {project.components_text}\n"
-
-        if project.description:
-            project_context += f"Project Description: {project.description}\n"
-
+        # Add base system prompt using the mode handler
         context_messages.append(
             {
                 "role": "system",
-                "content": f"You are an Arduino coding assistant. The user is working on the following project:\n{project_context}",
+                "content": mode_handler.get_system_prompt(),
             }
         )
 
@@ -310,68 +356,84 @@ def build_context_for_message(current_message, conversation_id, user=None, recen
 
             context_messages.append({"role": "system", "content": relevant_context})
 
+        # Add mode-specific additional context
+        mode_context = mode_handler.build_additional_context()
+        context_messages.extend(mode_context)
+
         # Add recent messages
         for msg in reversed(list(recent_messages)):  # Oldest to newest
             if msg.content != current_message:  # Avoid duplicating current message
                 role = "user" if msg.sender == "user" else "assistant"
-                context_messages.append({"role": role, "content": msg.content})
+                content = msg.content
+                context_messages.append({"role": role, "content": content})
 
         return context_messages
 
     except Exception as e:
         # In case of any errors, return a fallback message
-        print(f"Error calling OpenAI API: {e}")
-        return f"I'm sorry, I encountered an error generating a summary. Please try again later.", 0
+        logger.error(f"Error building context: {e}")
+        return [{"role": "system", "content": "You are an Arduino coding assistant."}]
 
 
-## Generate response with enhanced context management
 def generate_response(current_message, conversation_id, user):
     """
-    Generate a response using OpenAI's API with enhanced context management.
-    
+    Generate a response using the appropriate AI provider and mode handler.
+
     Returns:
         tuple: (response_text, tokens_used)
     """
     try:
-        # Get the conversation to determine the project
+        # Get the conversation to determine the session
         conversation = Conversation.objects.get(id=conversation_id)
-        project_id = conversation.project_id
-        
-        # Determine which model to use
-        model = get_model_for_user(user, project_id, is_summary=False)
-        
-        # Build context using our advanced context manager - pass the user
+        session = conversation.session
+        session_id = session.id
+
+        # Get the mode handler for this session
+        mode_handler = get_mode_handler(session, conversation, user)
+
+        # Process the user message according to the mode
+        processed_message = mode_handler.process_user_message(current_message)
+
+        # Determine which model/provider to use
+        model_info = get_model_for_user(user, session_id, is_summary=False)
+        provider_name = model_info["provider"]
+        model_name = model_info["model"]
+
+        # Get the provider instance
+        provider = get_provider(provider_name)
+
+        # Build context using our advanced context manager
         context_messages = build_context_for_message(
-            current_message=current_message, 
-            conversation_id=conversation_id, 
+            current_message=processed_message,
+            conversation_id=conversation_id,
             user=user,
-            recent_message_count=5
+            recent_message_count=5,
         )
-        
+
+        # Add model info to the first system message
+        if context_messages and context_messages[0]["role"] == "system":
+            context_messages[0]["content"] += f"\nmodel: {model_name}"
+
         # Add the current user message
-        messages = context_messages + [
-            {"role": "user", "content": current_message}
-        ]
-        
-        # Call OpenAI API with the determined model
-        completion = client.chat.completions.create(
-            model=model,
-            messages=messages,
-            temperature=0.7,
-            max_tokens=1000
+        messages = context_messages + [{"role": "user", "content": processed_message}]
+
+        # Call provider API
+        completion_text, total_tokens = provider.get_completion(
+            messages=messages, temperature=0.7, max_tokens=1000
         )
-        
-        # Extract token usage
-        prompt_tokens = completion.usage.prompt_tokens
-        completion_tokens = completion.usage.completion_tokens
-        total_tokens = prompt_tokens + completion_tokens
-        
-        return completion.choices[0].message.content, total_tokens
-    
+
+        # Process the AI response according to the mode
+        processed_response = mode_handler.process_ai_response(completion_text)
+
+        return processed_response, total_tokens
+
     except Exception as e:
         # In case of any errors, return a fallback message
-        print(f"Error calling OpenAI API: {e}")
-        return f"I'm sorry, I encountered an error generating a response. Please try again later.", 0
+        logger.error(f"Error calling AI provider: {e}")
+        return (
+            f"I'm sorry, I encountered an error generating a response. Please try again later.",
+            0,
+        )
 
 
 def estimate_token_count(text):

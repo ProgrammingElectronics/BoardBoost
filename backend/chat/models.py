@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -12,12 +13,23 @@ class UserProfile(models.Model):
     tokens_remaining = models.IntegerField(default=100000)
     last_token_reset = models.DateTimeField(default=timezone.now)
 
+    # Provider choices
+    PROVIDER_CHOICES = [
+        ("openai", "OpenAI"),
+        ("anthropic", "Anthropic"),
+        # Add more providers as they become available
+    ]
+
     # Model choices
     QUERY_MODEL_CHOICES = [
         ("gpt-3.5-turbo", "GPT-3.5 Turbo"),
         ("gpt-4", "GPT-4"),
         ("gpt-4o", "GPT-4o"),
         ("gpt-4o-mini", "GPT-4o Mini"),
+        ("claude-3-opus-20240229", "Claude 3 Opus"),
+        ("claude-3-sonnet-20240229", "Claude 3 Sonnet"),
+        ("claude-3-haiku-20240307", "Claude 3 Haiku"),
+        ("claude-3-5-sonnet-20240620", "Claude 3.5 Sonnet"),
     ]
 
     SUMMARY_MODEL_CHOICES = [
@@ -25,9 +37,17 @@ class UserProfile(models.Model):
         ("gpt-4", "GPT-4"),
         ("gpt-4o", "GPT-4o"),
         ("gpt-4o-mini", "GPT-4o Mini"),
+        ("claude-3-opus-20240229", "Claude 3 Opus"),
+        ("claude-3-sonnet-20240229", "Claude 3 Sonnet"),
+        ("claude-3-haiku-20240307", "Claude 3 Haiku"),
+        ("claude-3-5-sonnet-20240620", "Claude 3.5 Sonnet"),
     ]
 
-    # Global model preferences
+    # Global model and provider preferences
+    default_provider = models.CharField(
+        max_length=50, choices=PROVIDER_CHOICES, default="openai"
+    )
+
     default_query_model = models.CharField(
         max_length=50, choices=QUERY_MODEL_CHOICES, default="gpt-3.5-turbo"
     )
@@ -64,49 +84,93 @@ def save_user_profile(sender, instance, **kwargs):
     instance.userprofile.save()
 
 
-class Project(models.Model):
-    """Model to store the project"""
+class Session(models.Model):
+    """Unified session model with fields for all session types"""
 
+    SESSION_TYPE_CHOICES = [
+        ("chat", "Chat Mode"),
+        ("widget", "Widget Mode"),
+        ("library", "Learn a Library Mode"),
+        ("topic", "Learn a Topic Mode"),
+    ]
+
+    EXPERIENCE_LEVEL_CHOICES = [
+        ("beginner", "Beginner"),
+        ("intermediate", "Intermediate"),
+        ("advanced", "Advanced"),
+    ]
+
+    COMPLEXITY_LEVEL_CHOICES = [
+        ("simple", "Simple"),
+        ("intermediate", "Intermediate"),
+        ("complex", "Complex"),
+    ]
+
+    # Provider choices
+    PROVIDER_CHOICES = UserProfile.PROVIDER_CHOICES
+
+    # Base fields
     name = models.CharField(max_length=100)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="projects")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sessions")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    session_type = models.CharField(
+        max_length=20, choices=SESSION_TYPE_CHOICES, default="chat"
+    )
 
-    # Fields for project details
+    # AI provider settings
+    ai_provider = models.CharField(
+        max_length=50, choices=PROVIDER_CHOICES, blank=True, null=True
+    )
+
+    # Hardware details fields
     board_fqbn = models.CharField(max_length=100, blank=True, null=True)
     board_type = models.CharField(max_length=100, blank=True)
     components_text = models.TextField(blank=True)
     libraries_text = models.TextField(blank=True)
-
-    # Additional project information
     description = models.TextField(blank=True)
+
+    # Settings
     history_window_size = models.IntegerField(default=10)
-
-    # Use the same model choices as UserProfile
-    QUERY_MODEL_CHOICES = UserProfile.QUERY_MODEL_CHOICES
-    SUMMARY_MODEL_CHOICES = UserProfile.SUMMARY_MODEL_CHOICES
-
-    # Project-specific model preferences (null means use user defaults)
     query_model = models.CharField(
-        max_length=50, choices=QUERY_MODEL_CHOICES, blank=True, null=True
+        max_length=50, choices=UserProfile.QUERY_MODEL_CHOICES, blank=True, null=True
+    )
+    summary_model = models.CharField(
+        max_length=50, choices=UserProfile.SUMMARY_MODEL_CHOICES, blank=True, null=True
     )
 
-    summary_model = models.CharField(
-        max_length=50, choices=SUMMARY_MODEL_CHOICES, blank=True, null=True
+    # Widget mode specific fields
+    target_platform = models.CharField(max_length=100, blank=True)
+    complexity_level = models.CharField(
+        max_length=20,
+        choices=COMPLEXITY_LEVEL_CHOICES,
+        default="intermediate",
+        blank=True,
     )
+
+    # Library mode specific fields
+    library_name = models.CharField(max_length=100, blank=True)
+
+    # Learning mode specific fields (shared by library and topic modes)
+    experience_level = models.CharField(
+        max_length=20, choices=EXPERIENCE_LEVEL_CHOICES, default="beginner", blank=True
+    )
+
+    # Topic mode specific fields
+    topic_name = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.get_session_type_display()})"
 
 
 class Conversation(models.Model):
     """Model to store the conversation"""
 
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    session = models.ForeignKey(Session, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Conversation for {self.project.name} at {self.created_at}"
+        return f"Conversation for {self.session.name} at {self.created_at}"
 
 
 class Message(models.Model):
