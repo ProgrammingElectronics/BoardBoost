@@ -445,7 +445,7 @@ body::after {
   padding: 0;
   height: 100%;
   box-sizing: border-box;
-  max-width: 80%;
+  max-width: 60%;
   margin: 0 auto;
   position: relative;
   z-index: 1;

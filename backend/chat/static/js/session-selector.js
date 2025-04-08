@@ -641,7 +641,6 @@ function sendMessage() {
 }
 
 // Set up sessions sidebar toggle
-// Set up sessions sidebar toggle
 function setupSessionsSidebarToggle() {
   // First create the toggle button if it doesn't exist
   if (!document.querySelector(".sessions-sidebar-toggle")) {
@@ -652,16 +651,14 @@ function setupSessionsSidebarToggle() {
   }
 
   const sidebar = document.querySelector(".sessions-sidebar");
-  const chatContainer = document.querySelector(".chat-container");
   const toggleButton = document.querySelector(".sessions-sidebar-toggle");
 
-  if (sidebar && chatContainer && toggleButton) {
+  if (sidebar && toggleButton) {
     // Set initial state based on localStorage
     const sidebarCollapsed =
       localStorage.getItem("sessionsSidebarCollapsed") === "true";
     if (sidebarCollapsed) {
       sidebar.classList.add("collapsed");
-      chatContainer.classList.add("sidebar-collapsed");
       toggleButton.classList.add("collapsed");
       toggleButton.querySelector(".toggle-icon").innerHTML = "▶";
     }
@@ -669,7 +666,6 @@ function setupSessionsSidebarToggle() {
     // Add click event to toggle button
     toggleButton.addEventListener("click", function () {
       sidebar.classList.toggle("collapsed");
-      chatContainer.classList.toggle("sidebar-collapsed");
       toggleButton.classList.toggle("collapsed");
 
       // Change icon direction based on state
