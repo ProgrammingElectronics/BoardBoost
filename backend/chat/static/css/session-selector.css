@@ -23,7 +23,7 @@
 .sessions-sidebar-toggle {
   position: fixed;
   top: 75px;
-  left: 225px;
+  left: 257px;
   width: 24px;
   height: 24px;
   background-color: rgba(40, 40, 56, 0.95);
@@ -308,26 +308,6 @@
     font-size: 24px;
   }
 }
-
-/* Add this to your session-selector.css file to fix the centering issue */
-
-/* Override chat container styles to ensure proper fixed centering */
-/* .chat-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  height: 100%;
-  box-sizing: border-box;
-  width: 80%;
-  max-width: 1000px;
-  margin: 0 auto; 
-  position: relative;
-  z-index: 1;
-  left: 0; 
-  transform: translateX(0); 
-  transition: transform 0.3s ease; 
-} */
 
 /* No margin or width changes when sidebar is toggled - only transforms */
 .chat-container.sidebar-collapsed {
