@@ -366,7 +366,7 @@ def build_context_for_message(
                 role = "user" if msg.sender == "user" else "assistant"
                 content = msg.content
                 context_messages.append({"role": role, "content": content})
-
+        print("context_messages:", context_messages)
         return context_messages
 
     except Exception as e:
