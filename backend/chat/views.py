@@ -16,7 +16,7 @@ from .serializers import (
     ConversationSerializer,
     MessageSerializer,
 )
-from .ai_service import generate_response
+from .ai_service import generate_response, save_conversation_message
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -159,9 +159,10 @@ def send_message(request):
             )
 
         # Save user message
-        user_message = Message.objects.create(
-            conversation=conversation, sender="user", content=content
-        )
+        user_message = save_conversation_message(conversation, "user", content)
+        # user_message = Message.objects.create(
+        #     conversation=conversation, sender="user", content=content
+        # )
 
         # Generate response with token usage information
         assistant_response, tokens_used = generate_response(
@@ -175,9 +176,13 @@ def send_message(request):
         profile.save()
 
         # Save assistant message
-        assistant_message = Message.objects.create(
-            conversation=conversation, sender="assistant", content=assistant_response
+        assistant_message = save_conversation_message(
+            conversation, "assistant", assistant_response
         )
+
+        # assistant_message = Message.objects.create(
+        #     conversation=conversation, sender="assistant", content=assistant_response
+        # )
 
         # Add token usage information to the response
         return Response(

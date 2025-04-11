@@ -1056,3 +1056,23 @@ body::after {
 .back-to-home svg {
   margin-right: 8px;
 }
+
+/* Add this to your CSS */
+.loading-message {
+  text-align: center;
+  padding: 20px;
+  color: #8c8c98;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}

@@ -10,52 +10,62 @@ from openai import OpenAI
 from django.conf import settings
 from django.utils import timezone
 import numpy as np
-from .models import Message, Conversation, ConversationSummary, MessageEmbedding, UserProfile, Project
+from .models import (
+    Message,
+    Conversation,
+    ConversationSummary,
+    MessageEmbedding,
+    UserProfile,
+    Project,
+)
 
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
 
 def get_model_for_user(user, project_id=None, is_summary=False):
     """
     Determine which model to use based on user preferences and project settings.
-    
+
     Args:
         user: The user making the request
         project_id: Optional project ID
         is_summary: Whether this is for a summary (True) or query (False)
-        
+
     Returns:
         String representing the model name to use
     """
     # Default fallback model
     default_model = "gpt-3.5-turbo"
-    
+
     try:
         # Get user's default preferences
         profile = UserProfile.objects.get(user=user)
-        user_default = profile.default_summary_model if is_summary else profile.default_query_model
-        
+        user_default = (
+            profile.default_summary_model if is_summary else profile.default_query_model
+        )
+
         # If no project specified, use user default
         if not project_id:
             return user_default or default_model
-        
+
         # Check for project-specific preference
         try:
             project = Project.objects.get(id=project_id)
             project_model = project.summary_model if is_summary else project.query_model
-            
+
             # If project has a specific model set, use it
             if project_model:
                 return project_model
-            
+
             # Otherwise use user default
             return user_default or default_model
-            
+
         except Project.DoesNotExist:
             return user_default or default_model
-            
+
     except UserProfile.DoesNotExist:
         return default_model
-    
+
 
 def generate_conversation_summary(conversation_id, user, message_threshold=10):
     """
@@ -228,7 +238,9 @@ def find_relevant_messages(current_message, conversation_id, limit=3):
     return [msg for msg, _ in similarities[:limit]]
 
 
-def build_context_for_message(current_message, conversation_id, user=None, recent_message_count=5):
+def build_context_for_message(
+    current_message, conversation_id, user=None, recent_message_count=5
+):
     """
     Build context for the current message using our hybrid approach.
 
@@ -242,11 +254,15 @@ def build_context_for_message(current_message, conversation_id, user=None, recen
     """
     try:
         conversation = Conversation.objects.get(id=conversation_id)
-        
+
         # If user is not provided, try to get it from the project
-        if user is None and hasattr(conversation.project, 'user') and conversation.project.user:
+        if (
+            user is None
+            and hasattr(conversation.project, "user")
+            and conversation.project.user
+        ):
             user = conversation.project.user
-            
+
         # Generate summary if we have a user
         summary = None
         if user is not None:
@@ -255,7 +271,7 @@ def build_context_for_message(current_message, conversation_id, user=None, recen
             except Exception as e:
                 print(f"Error generating summary: {e}")
                 # Continue without a summary if there's an error
-        
+
         # Get conversation summary
         summary = generate_conversation_summary(conversation_id, user) if user else None
         # Get recent messages
@@ -321,14 +337,17 @@ def build_context_for_message(current_message, conversation_id, user=None, recen
     except Exception as e:
         # In case of any errors, return a fallback message
         print(f"Error calling OpenAI API: {e}")
-        return f"I'm sorry, I encountered an error generating a summary. Please try again later.", 0
+        return (
+            f"I'm sorry, I encountered an error generating a summary. Please try again later.",
+            0,
+        )
 
 
 ## Generate response with enhanced context management
 def generate_response(current_message, conversation_id, user):
     """
     Generate a response using OpenAI's API with enhanced context management.
-    
+
     Returns:
         tuple: (response_text, tokens_used)
     """
@@ -336,42 +355,40 @@ def generate_response(current_message, conversation_id, user):
         # Get the conversation to determine the project
         conversation = Conversation.objects.get(id=conversation_id)
         project_id = conversation.project_id
-        
+
         # Determine which model to use
         model = get_model_for_user(user, project_id, is_summary=False)
-        
+
         # Build context using our advanced context manager - pass the user
         context_messages = build_context_for_message(
-            current_message=current_message, 
-            conversation_id=conversation_id, 
+            current_message=current_message,
+            conversation_id=conversation_id,
             user=user,
-            recent_message_count=5
+            recent_message_count=5,
         )
-        
+
         # Add the current user message
-        messages = context_messages + [
-            {"role": "user", "content": current_message}
-        ]
-        
+        messages = context_messages + [{"role": "user", "content": current_message}]
+
         # Call OpenAI API with the determined model
         completion = client.chat.completions.create(
-            model=model,
-            messages=messages,
-            temperature=0.7,
-            max_tokens=1000
+            model=model, messages=messages, temperature=0.7, max_tokens=1000
         )
-        
+
         # Extract token usage
         prompt_tokens = completion.usage.prompt_tokens
         completion_tokens = completion.usage.completion_tokens
         total_tokens = prompt_tokens + completion_tokens
-        
+
         return completion.choices[0].message.content, total_tokens
-    
+
     except Exception as e:
         # In case of any errors, return a fallback message
         print(f"Error calling OpenAI API: {e}")
-        return f"I'm sorry, I encountered an error generating a response. Please try again later.", 0
+        return (
+            f"I'm sorry, I encountered an error generating a response. Please try again later.",
+            0,
+        )
 
 
 def estimate_token_count(text):
@@ -380,3 +397,24 @@ def estimate_token_count(text):
     This is a rough estimation - approximately 4 characters per token for English.
     """
     return len(text) // 4 + 1
+
+
+def save_conversation_message(conversation, sender, content):
+    """
+    Utility function to save a message to a conversation.
+
+    Args:
+        conversation: The conversation object
+        sender: 'user' or 'assistant'
+        content: The message content
+
+    Returns:
+        The saved Message object
+    """
+
+    # Save the message
+    message = Message.objects.create(
+        conversation=conversation, sender=sender, content=content
+    )
+
+    return message
