@@ -1,6 +1,7 @@
 // Global variables
 let currentConversationId = null;
 let currentProjectId = null;
+let currentFile = null;
 
 // SVG icon for download functionality
 const DOWNLOAD_ICON = `
@@ -139,14 +140,53 @@ document.addEventListener("DOMContentLoaded", function () {
   // Set up event listeners
   setupEventListeners();
 
-  // Load projects
-  loadUserProjects();
+  // Don't show any default messages yet
+  const chatMessages = document.getElementById("chat-messages");
+  if (chatMessages) {
+    // Store original content if needed later
+    const originalContent = chatMessages.innerHTML;
+    // Clear the messages area until we determine what to show
+    chatMessages.innerHTML =
+      '<div class="loading-message">Loading your project...</div>';
+
+    // Load projects and then check for saved project
+    loadUserProjects()
+      .then(() => {
+        const savedProjectId = localStorage.getItem("currentProjectId");
+
+        if (savedProjectId) {
+          // We have a saved project, load it
+          loadProject(savedProjectId);
+          // No need to show default message
+        } else {
+          // No saved project, show the default welcome
+          chatMessages.innerHTML = originalContent || "";
+          // If no original content, add default welcome message
+          if (!originalContent) {
+            addMessage(
+              "Let's start a new project! If you'd like you can enter some optional project details in the Project Settings panel (mouse to the right of the screen to expand it). This will give me some context every time I reply to your queries",
+              "assistant"
+            );
+          }
+        }
+      })
+      .catch((error) => {
+        console.error("Error during initialization:", error);
+        // On error, show the default welcome
+        chatMessages.innerHTML = originalContent || "";
+        if (!originalContent) {
+          addMessage(
+            "Welcome to BoardBoost! I encountered an error loading your projects, but you can still start a new one.",
+            "assistant"
+          );
+        }
+      });
+  }
 
   // Load model choices
   loadModelChoices();
 
   // Add copy buttons to code blocks
-  // addCopyButtons();
   addCodeButtons();
 
   // Set up sidebar toggle
@@ -158,6 +198,35 @@ document.addEventListener("DOMContentLoaded", function () {
   // Set up file upload
   setupFileUpload();
 });
+
+// Document ready function
+// document.addEventListener("DOMContentLoaded", function () {
+//   // Set up event listeners
+//   setupEventListeners();
+
+//   // Load projects
+//   // loadUserProjects();
+//   loadUserProjects().then(() => {
+//     // After projects are loaded, check for saved project ID
+//     loadSavedProject();
+//   });
+
+//   // Load model choices
+//   loadModelChoices();
+
+//   // Add copy buttons to code blocks
+//   // addCopyButtons();
+//   addCodeButtons();
+
+//   // Set up sidebar toggle
+//   setupSidebarToggle();
+
+//   // Set up auto-resize for textarea
+//   setupTextareaAutoResize();
+
+//   // Set up file upload
+//   setupFileUpload();
+// });
 
 // Set up event listeners
 function setupEventListeners() {
@@ -284,44 +353,6 @@ function addCodeButtons() {
     codeBlockWrapper.appendChild(downloadButton);
   });
 }
-
-// Add copy buttons to code blocks
-// function addCopyButtons() {
-//   const codeBlocks = document.querySelectorAll(".message pre");
-
-//   codeBlocks.forEach((codeBlock) => {
-//     if (codeBlock.querySelector(".copy-code-button")) return;
-
-//     const copyButton = document.createElement("button");
-//     copyButton.classList.add("copy-code-button");
-//     copyButton.innerHTML = COPY_ICON;
-//     copyButton.title = "Copy code";
-
-//     copyButton.addEventListener("click", () => {
-//       const code = codeBlock.textContent;
-
-//       navigator.clipboard
-//         .writeText(code)
-//         .then(() => {
-//           copyButton.innerHTML = CHECK_ICON;
-
-//           setTimeout(() => {
-//             copyButton.innerHTML = COPY_ICON;
-//           }, 2000);
-//         })
-//         .catch((err) => {
-//           console.error("Failed to copy code: ", err);
-//           copyButton.innerHTML = ERROR_ICON;
-//         });
-//     });
-
-//     const codeBlockWrapper = document.createElement("div");
-//     codeBlockWrapper.style.position = "relative";
-//     codeBlock.parentNode.insertBefore(codeBlockWrapper, codeBlock);
-//     codeBlockWrapper.appendChild(codeBlock);
-//     codeBlockWrapper.appendChild(copyButton);
-//   });
-// }
 
 // Helper function to add messages to the chat UI with markdown support
 function addMessage(content, sender) {
@@ -464,93 +495,127 @@ function setupSidebarToggle() {
   }
 }
 
-// Function to load user's projects
-function loadUserProjects() {
-  fetch("/api/projects/")
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Failed to load projects");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      const projectsList = document.getElementById("projects-list");
-      if (!projectsList) return;
+// Save current project ID to localStorage
+function saveCurrentProject(projectId) {
+  if (projectId) {
+    localStorage.setItem("currentProjectId", projectId);
+  }
+}
 
-      // Clear loading message
-      projectsList.innerHTML = "";
+// Load current project ID from localStorage
+function loadSavedProject() {
+  const savedProjectId = localStorage.getItem("currentProjectId");
+  if (savedProjectId) {
+    // Load the saved project
+    loadProject(savedProjectId);
 
-      // Check if we received an array (expected) and it has projects
-      if (Array.isArray(data) && data.length > 0) {
-        // Sort projects by last updated (newest first)
-        data.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
-
-        // Add each project to the list
-        data.forEach((project) => {
-          const projectItem = document.createElement("div");
-          projectItem.classList.add("project-item");
-          if (currentProjectId === project.id) {
-            projectItem.classList.add("active");
-          }
-
-          const projectDate = new Date(project.updated_at);
-          const formattedDate = projectDate.toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          });
-
-          projectItem.innerHTML = `
-              <div class="project-name">${project.name}</div>
-              <div class="project-date">Last updated: ${formattedDate}</div>
-            `;
-
-          projectItem.addEventListener("click", () => {
-            // Set this as the active project
-            document.querySelectorAll(".project-item").forEach((item) => {
-              item.classList.remove("active");
-            });
-            projectItem.classList.add("active");
-
-            // Load the project and its conversation
-            loadProject(project.id);
-
-            // Reset conversation
-            currentConversationId = null;
-
-            // Clear chat messages except for the welcome message
-            const chatMessages = document.getElementById("chat-messages");
-            chatMessages.innerHTML = "";
-
-            // Add welcome message for the project
-            const welcomeMessage =
-              `I'm ready to help with your "${project.name}" project! ` +
-              `${
-                project.board_type
-                  ? "I see you're using " + project.board_type + "."
-                  : ""
-              } ` +
-              "What would you like to discuss?";
-
-            addMessage(welcomeMessage, "assistant");
-          });
-
-          projectsList.appendChild(projectItem);
-        });
+    // Set this as the active project in the sidebar
+    document.querySelectorAll(".project-item").forEach((item) => {
+      if (item.dataset.projectId === savedProjectId) {
+        item.classList.add("active");
       } else {
-        // No projects or empty response
-        projectsList.innerHTML =
-          '<div class="no-projects">No projects yet. Create one to get started!</div>';
-      }
-    })
-    .catch((error) => {
-      console.error("Error loading projects:", error);
-      const projectsList = document.getElementById("projects-list");
-      if (projectsList) {
-        projectsList.innerHTML =
-          '<div class="load-error">Error loading projects. Please try again.</div>';
+        item.classList.remove("active");
       }
     });
+  }
+}
+
+function loadUserProjects() {
+  return new Promise((resolve, reject) => {
+    fetch("/api/projects/")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to load projects");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const projectsList = document.getElementById("projects-list");
+        if (!projectsList) {
+          resolve(); // Resolve even if there's no projects list
+          return;
+        }
+
+        // Clear loading message
+        projectsList.innerHTML = "";
+
+        // Check if we received an array (expected) and it has projects
+        if (Array.isArray(data) && data.length > 0) {
+          // Sort projects by last updated (newest first)
+          data.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+
+          // Add each project to the list
+          data.forEach((project) => {
+            const projectItem = document.createElement("div");
+            projectItem.classList.add("project-item");
+            projectItem.dataset.projectId = project.id; // Add this line
+
+            if (currentProjectId === project.id) {
+              projectItem.classList.add("active");
+            }
+
+            const projectDate = new Date(project.updated_at);
+            const formattedDate = projectDate.toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            });
+
+            projectItem.innerHTML = `
+                          <div class="project-name">${project.name}</div>
+                          <div class="project-date">Last updated: ${formattedDate}</div>
+                      `;
+
+            projectItem.addEventListener("click", () => {
+              // Set this as the active project
+              document.querySelectorAll(".project-item").forEach((item) => {
+                item.classList.remove("active");
+              });
+              projectItem.classList.add("active");
+
+              // Load the project and its conversation
+              loadProject(project.id);
+
+              // Reset conversation
+              currentConversationId = null;
+
+              // Clear chat messages except for the welcome message
+              const chatMessages = document.getElementById("chat-messages");
+              chatMessages.innerHTML = "";
+
+              // Add welcome message for the project
+              const welcomeMessage =
+                `I'm ready to help with your "${project.name}" project! ` +
+                `${
+                  project.board_type
+                    ? "I see you're using " + project.board_type + "."
+                    : ""
+                } ` +
+                "What would you like to discuss?";
+
+              addMessage(welcomeMessage, "assistant");
+            });
+
+            projectsList.appendChild(projectItem);
+          });
+        } else {
+          // No projects or empty response
+          projectsList.innerHTML =
+            '<div class="no-projects">No projects yet. Create one to get started!</div>';
+        }
+
+        resolve(); // Resolve the promise when done
+      })
+      .catch((error) => {
+        console.error("Error loading projects:", error);
+        const projectsList = document.getElementById("projects-list");
+        if (projectsList) {
+          projectsList.innerHTML =
+            '<div class="load-error">Error loading projects. Please try again.</div>';
+        }
+        reject(error); // Reject the promise on error
+      });
+  });
 }
 
 // Add a function to create a new project
@@ -564,6 +629,9 @@ function createNewProject() {
   // Reset project ID
   currentProjectId = null;
   currentConversationId = null;
+
+  // Clear saved project from localStorage
+  localStorage.removeItem("currentProjectId");
 
   // Clear chat messages except for the welcome message
   const chatMessages = document.getElementById("chat-messages");
@@ -580,6 +648,33 @@ function createNewProject() {
     item.classList.remove("active");
   });
 }
+
+// function createNewProject() {
+//   // Clear form fields
+//   document.getElementById("project-name").value = "";
+//   document.getElementById("board-type").value = "";
+//   document.getElementById("components-text").value = "";
+//   document.getElementById("libraries-text").value = "";
+
+//   // Reset project ID
+//   currentProjectId = null;
+//   currentConversationId = null;
+
+//   // Clear chat messages except for the welcome message
+//   const chatMessages = document.getElementById("chat-messages");
+//   chatMessages.innerHTML = "";
+
+//   // Add welcome message for new project
+//   addMessage(
+//     "Let's start a new project! If you'd like you can enter some optional project details in the Project Settings panel (mouse to the right of the screen to expand it). This will give me some context every time I reply to your queries",
+//     "assistant"
+//   );
+
+//   // Update active project in the list
+//   document.querySelectorAll(".project-item").forEach((item) => {
+//     item.classList.remove("active");
+//   });
+// }
 
 function loadProject(projectId) {
   fetch(`/api/projects/${projectId}/`)
@@ -605,6 +700,9 @@ function loadProject(projectId) {
 
       // Update current project ID
       currentProjectId = data.id;
+
+      // Save project ID to localStorage
+      saveCurrentProject(data.id);
 
       // Now load the project's conversation messages
       loadProjectMessages(projectId);
@@ -771,8 +869,6 @@ function saveProject() {
       alert(`Failed to save project: ${error.message}`);
     });
 }
-
-let currentFile = null;
 
 // Function to send a message to the AI assistant
 function sendMessage() {
