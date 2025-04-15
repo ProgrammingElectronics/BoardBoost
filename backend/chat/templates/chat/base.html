@@ -2,52 +2,35 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% block extra_css %} {% endblock %}
+    {% block extra_css %}
+
+    {% endblock %}
     <link rel="stylesheet" href="{% static 'css/serial-controls.css' %}" />
     <link rel="stylesheet" href="{% static 'css/auth.css' %}" />
-    <title>{% block title %} BoardBoost{% endblock %}</title>
-    <!-- <title>BoardBoost - Microcontroller Coding Assistant</title> -->
+    <title>
+      {% block title %}
+        BoardBoost
+      {% endblock %}
+    </title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   </head>
 
   <body>
-    <div class="header">
-      <div class="logo">
-        <img
-          src="{% static 'images/boardboost-logo.svg' %}"
-          alt="BoardBoost Logo"
-          class="logo-img"
-        />
-        <h1>BoardBoost</h1>
-      </div>
-      <!-- INSERT CUT HERE below-->
-      <div class="header-nav">
-        {% if user.is_authenticated %}
+    {% block header %}
+      {% include 'components/header-public.html' %}
+    {% endblock %}
 
-        <span class="user-welcome">Welcome, {{ user.username }}!</span>
-        <span id="tokens-remaining"
-          >{{ tokens_remaining|intcomma }} tokens</span
-        >
-        <a href="{% url 'user_settings' %}" class="settings-button">Settings</a>
-        <a href="{% url 'logout' %}" class="logout-button">Logout</a>
-        {% else %}
-        <a href="{% url 'login' %}" class="login-button">Login</a>
-        <a href="{% url 'signup' %}" class="signup-button">Sign Up</a>
-        {% endif %}
-      </div>
+    <div class="content">
+      {% block content %}
 
-      <!-- INSERT CUT HERE above -->
+      {% endblock %}
     </div>
 
-    <div class="content">{% block content %}{% endblock %}</div>
+    {% block extra_js %}
+
+    {% endblock %}
   </body>
 </html>

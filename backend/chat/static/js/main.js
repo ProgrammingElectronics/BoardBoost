@@ -197,36 +197,47 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Set up file upload
   setupFileUpload();
+
+  // User Settings Dropdown
+  setupUserDropdown();
 });
 
-// Document ready function
-// document.addEventListener("DOMContentLoaded", function () {
-//   // Set up event listeners
-//   setupEventListeners();
+// Set up dropdown functionality
+function setupUserDropdown() {
+  // For mobile/touch devices where hover doesn't work well
+  const userAvatar = document.querySelector(".user-avatar");
+  const dropdownContent = document.querySelector(".dropdown-content");
 
-//   // Load projects
-//   // loadUserProjects();
-//   loadUserProjects().then(() => {
-//     // After projects are loaded, check for saved project ID
-//     loadSavedProject();
-//   });
+  if (userAvatar && dropdownContent) {
+    // Toggle dropdown on click for mobile
+    userAvatar.addEventListener("click", function (e) {
+      e.stopPropagation();
 
-//   // Load model choices
-//   loadModelChoices();
+      const isExpanded = dropdownContent.classList.contains("expanded");
+      if (isExpanded) {
+        dropdownContent.classList.remove("expanded");
+        dropdownContent.style.opacity = "";
+        dropdownContent.style.visibility = "";
+        dropdownContent.style.transform = "";
+      } else {
+        dropdownContent.classList.add("expanded");
+        dropdownContent.style.opacity = "1";
+        dropdownContent.style.visibility = "visible";
+        dropdownContent.style.transform = "translateY(0)";
+      }
+    });
 
-//   // Add copy buttons to code blocks
-//   // addCopyButtons();
-//   addCodeButtons();
-
-//   // Set up sidebar toggle
-//   setupSidebarToggle();
-
-//   // Set up auto-resize for textarea
-//   setupTextareaAutoResize();
-
-//   // Set up file upload
-//   setupFileUpload();
-// });
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function () {
+      if (dropdownContent.classList.contains("expanded")) {
+        dropdownContent.classList.remove("expanded");
+        dropdownContent.style.opacity = "";
+        dropdownContent.style.visibility = "";
+        dropdownContent.style.transform = "";
+      }
+    });
+  }
+}
 
 // Set up event listeners
 function setupEventListeners() {

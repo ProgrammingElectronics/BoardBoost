@@ -259,6 +259,7 @@ def user_settings(request):
             "profile": profile,
             "query_models": UserProfile.QUERY_MODEL_CHOICES,
             "summary_models": UserProfile.SUMMARY_MODEL_CHOICES,
+            "tokens_remaining": profile.tokens_remaining,
         },
     )
 

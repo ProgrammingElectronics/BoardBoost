@@ -125,25 +125,6 @@ form {
   }
 }
 
-/* Save button */
-/* .save-button {
-  background-color: #6c7fe8;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.save-button:hover {
-  background-color: #5b6ed7;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(108, 127, 232, 0.25);
-} */
-
 /* Notification messages */
 .messages {
   max-width: 800px;
