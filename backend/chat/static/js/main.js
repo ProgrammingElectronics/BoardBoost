@@ -72,7 +72,6 @@ const md = window.markdownit({
     return ""; // Use external default escaping
   },
 });
-// Add this to the top of your main.js file or as a separate utility
 
 // Enhanced error handling and logging
 window.debugMode = true; // Set to false in production
@@ -424,7 +423,7 @@ function addMessage(content, sender) {
       chatMessages.scrollTop = scrollPosition;
 
       // Add copy buttons to new code blocks
-      // addCopyButtons();
+
       addCodeButtons();
     }, 10); // Small delay to ensure DOM is updated
   } else {
@@ -660,32 +659,6 @@ function createNewProject() {
   });
 }
 
-// function createNewProject() {
-//   // Clear form fields
-//   document.getElementById("project-name").value = "";
-//   document.getElementById("board-type").value = "";
-//   document.getElementById("components-text").value = "";
-//   document.getElementById("libraries-text").value = "";
-
-//   // Reset project ID
-//   currentProjectId = null;
-//   currentConversationId = null;
-
-//   // Clear chat messages except for the welcome message
-//   const chatMessages = document.getElementById("chat-messages");
-//   chatMessages.innerHTML = "";
-
-//   // Add welcome message for new project
-//   addMessage(
-//     "Let's start a new project! If you'd like you can enter some optional project details in the Project Settings panel (mouse to the right of the screen to expand it). This will give me some context every time I reply to your queries",
-//     "assistant"
-//   );
-
-//   // Update active project in the list
-//   document.querySelectorAll(".project-item").forEach((item) => {
-//     item.classList.remove("active");
-//   });
-// }
 
 function loadProject(projectId) {
   fetch(`/api/projects/${projectId}/`)
@@ -881,6 +854,157 @@ function saveProject() {
     });
 }
 
+
+// Function to send a message to the AI assistant
+// function sendMessage() {
+//   const userInput = document.getElementById("user-input");
+//   if (!userInput) return;
+
+//   const message = userInput.value.trim();
+
+//   if (!message && !currentFile) {
+//     return;
+//   }
+
+//   // If there's a file, read it first, then send the message
+//   if (currentFile) {
+//     const reader = new FileReader();
+
+//     reader.onload = function (e) {
+//       const fileContent = e.target.result;
+//       // We'll create a message with both the user text and file content
+//       sendMessageWithFile(message, fileContent, currentFile.name);
+
+//       // Clear file after sending
+//       currentFile = null;
+//       const filePreview = document.querySelector(".file-preview");
+//       if (filePreview) filePreview.remove();
+//       document.getElementById("file-upload").value = "";
+//     };
+
+//     reader.onerror = function () {
+//       console.error("Error reading file");
+//       addMessage("Error reading file. Please try again.", "assistant");
+//     };
+
+//     // Read the file as text
+//     reader.readAsText(currentFile);
+
+//     // Clear input early since we're using an async process
+//     userInput.value = "";
+//     return; // Exit early since we'll send the message after reading the file
+//   }
+
+//   // Add user message to chat UI
+//   addMessage(message, "user");
+
+//   // Clear input
+//   userInput.value = "";
+
+//   // Show typing indicator
+//   const indicator = showTypingIndicator();
+
+//   // Prepare message data
+//   const messageData = {
+//     content: message,
+//     project_id: currentProjectId,
+//   };
+
+//   // Send message to API
+//   fetch("/api/send-message/", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       "X-CSRFToken": getCookie("csrftoken"),
+//     },
+//     body: JSON.stringify(messageData),
+//   })
+//     .then((response) => {
+//       if (response.status === 403) {
+//         // Handle insufficient tokens
+//         hideTypingIndicator(); // Hide indicator on error
+//         return response.json().then((data) => {
+//           throw new Error(data.error || "Insufficient tokens");
+//         });
+//       }
+//       return response.json();
+//     })
+//     .then((data) => {
+//       // Hide typing indicator before adding the assistant's message
+//       hideTypingIndicator();
+
+//       // Update current conversation ID
+//       currentConversationId = data.conversation_id;
+
+//       // Check if a new project was created
+//       const wasNewProject = !currentProjectId && data.project_id;
+      
+//       if (wasNewProject) {
+//         // Update current project ID
+//         currentProjectId = data.project_id;
+        
+//         // Save project ID to localStorage
+//         saveCurrentProject(data.project_id);
+        
+//         // Load the project data to get the generated name
+//         fetch(`/api/projects/${data.project_id}/`)
+//           .then(response => response.json())
+//           .then(projectData => {
+//             // Update the project name field in settings
+//             const projectNameField = document.getElementById("project-name");
+//             if (projectNameField && !projectNameField.value) {
+//               projectNameField.value = projectData.name;
+//             }
+//           })
+//           .catch(error => console.error("Error loading project data:", error));
+        
+//         // Refresh the projects list to show the new project
+//         loadUserProjects().then(() => {
+//           // After projects are loaded, mark the new project as active
+//           document.querySelectorAll(".project-item").forEach((item) => {
+//             if (item.dataset.projectId === data.project_id.toString()) {
+//               // Remove active class from all items first
+//               document.querySelectorAll(".project-item").forEach(i => i.classList.remove("active"));
+//               // Add active class to the new project
+//               item.classList.add("active");
+//             }
+//           });
+//         }).catch(error => console.error("Error refreshing projects list:", error));
+//       }
+
+//       // Update tokens display
+//       if (data.tokens_remaining !== undefined) {
+//         const tokensElement = document.getElementById("tokens-remaining");
+//         if (tokensElement) {
+//           tokensElement.textContent = `${data.tokens_remaining.toLocaleString()} tokens`;
+//         }
+//       }
+
+//       // Add assistant message to chat
+//       addMessage(data.assistant_message.content, "assistant");
+
+//       // Optionally show token usage for this interaction
+//       if (data.tokens_used) {
+//         const tokenMsg = `(Used ${data.tokens_used} tokens for this response)`;
+//         const tokenInfoDiv = document.createElement("div");
+//         tokenInfoDiv.classList.add("token-info");
+//         tokenInfoDiv.textContent = tokenMsg;
+//         document.getElementById("chat-messages").appendChild(tokenInfoDiv);
+//       }
+//     })
+//     .catch((error) => {
+//       // Hide typing indicator on error
+//       hideTypingIndicator();
+
+//       console.error("Error sending message:", error);
+//       addMessage(
+//         error.message || "Sorry, there was an error processing your message.",
+//         "assistant"
+//       );
+//     });
+// }
+
+
 // Function to send a message to the AI assistant
 function sendMessage() {
   const userInput = document.getElementById("user-input");
@@ -981,6 +1105,8 @@ function sendMessage() {
         tokenInfoDiv.textContent = tokenMsg;
         document.getElementById("chat-messages").appendChild(tokenInfoDiv);
       }
+
+      loadUserProjects();
     })
     .catch((error) => {
       // Hide typing indicator on error
@@ -993,6 +1119,173 @@ function sendMessage() {
       );
     });
 }
+
+
+
+// // Sending messages with files
+// function sendMessageWithFile(message, fileContent, fileName) {
+//   // Get file extension
+//   const fileExtension = fileName.split(".").pop().toLowerCase();
+
+//   // Format file content based on type
+//   let formattedFileContent;
+
+//   // List of code file extensions that should be formatted with markdown code blocks
+//   const codeExtensions = [
+//     "ino",
+//     "h",
+//     "c",
+//     "cpp",
+//     "hpp",
+//     "pde",
+//     "S",
+//     "py",
+//     "json",
+//     "xml",
+//     "properties",
+//   ];
+
+//   if (codeExtensions.includes(fileExtension)) {
+//     // For code files, wrap in markdown code blocks with proper language highlighting
+//     let language = fileExtension;
+//     if (fileExtension === "ino" || fileExtension === "pde") {
+//       language = "cpp"; // Arduino sketch files are basically C++
+//     } else if (fileExtension === "S") {
+//       language = "asm"; // Assembly files
+//     } else if (fileExtension === "properties") {
+//       language = "properties"; // Properties files
+//     }
+
+//     formattedFileContent = `\`\`\`${language}\n${fileContent}\n\`\`\``;
+//   } else {
+//     // For other files, just include the raw content
+//     formattedFileContent = fileContent;
+//   }
+
+//   // Create a display message that includes file information
+//   let displayMessage = message;
+//   if (message) {
+//     displayMessage += `\n\n[Attached file: ${fileName}]`;
+//   } else {
+//     displayMessage = `[Attached file: ${fileName}]`;
+//   }
+
+//   // Add user message to chat UI
+//   addMessage(displayMessage, "user");
+
+//   // Show typing indicator
+//   const indicator = showTypingIndicator();
+
+//   // Create the content that includes both the message and formatted file content
+//   const combinedContent = message
+//     ? `${message}\n\nFile content from ${fileName}:\n${formattedFileContent}`
+//     : `File content from ${fileName}:\n${formattedFileContent}`;
+
+//   // Prepare message data
+//   const messageData = {
+//     content: combinedContent,
+//     project_id: currentProjectId,
+//   };
+
+//   // Send message to API
+//   fetch("/api/send-message/", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       "X-CSRFToken": getCookie("csrftoken"),
+//     },
+//     body: JSON.stringify(messageData),
+//   })
+//     .then((response) => {
+//       if (response.status === 403) {
+//         // Handle insufficient tokens
+//         hideTypingIndicator(); // Hide indicator on error
+//         return response.json().then((data) => {
+//           throw new Error(data.error || "Insufficient tokens");
+//         });
+//       }
+//       return response.json();
+//     })
+//     .then((data) => {
+//       // Hide typing indicator before adding the assistant's message
+//       hideTypingIndicator();
+
+//       // Update current conversation ID
+//       currentConversationId = data.conversation_id;
+
+//       // Check if a new project was created
+//       const wasNewProject = !currentProjectId && data.project_id;
+      
+//       if (wasNewProject) {
+//         // Update current project ID
+//         currentProjectId = data.project_id;
+        
+//         // Save project ID to localStorage
+//         saveCurrentProject(data.project_id);
+        
+//         // Load the project data to get the generated name
+//         fetch(`/api/projects/${data.project_id}/`)
+//           .then(response => response.json())
+//           .then(projectData => {
+//             // Update the project name field in settings
+//             const projectNameField = document.getElementById("project-name");
+//             if (projectNameField && !projectNameField.value) {
+//               projectNameField.value = projectData.name;
+//             }
+//           })
+//           .catch(error => console.error("Error loading project data:", error));
+        
+//         // Refresh the projects list to show the new project
+//         loadUserProjects().then(() => {
+//           // After projects are loaded, mark the new project as active
+//           document.querySelectorAll(".project-item").forEach((item) => {
+//             if (item.dataset.projectId === data.project_id.toString()) {
+//               // Remove active class from all items first
+//               document.querySelectorAll(".project-item").forEach(i => i.classList.remove("active"));
+//               // Add active class to the new project
+//               item.classList.add("active");
+//             }
+//           });
+//         }).catch(error => console.error("Error refreshing projects list:", error));
+//       }
+
+//       // Update tokens display
+//       if (data.tokens_remaining !== undefined) {
+//         const tokensElement = document.getElementById("tokens-remaining");
+//         if (tokensElement) {
+//           tokensElement.textContent = `${data.tokens_remaining.toLocaleString()} tokens`;
+//         }
+//       }
+
+//       // Add assistant message to chat
+//       addMessage(data.assistant_message.content, "assistant");
+
+//       // Optionally show token usage for this interaction
+//       if (data.tokens_used) {
+//         const tokenMsg = `(Used ${data.tokens_used} tokens for this response)`;
+//         const tokenInfoDiv = document.createElement("div");
+//         tokenInfoDiv.classList.add("token-info");
+//         tokenInfoDiv.textContent = tokenMsg;
+//         document.getElementById("chat-messages").appendChild(tokenInfoDiv);
+//       }
+      
+//       // Clear file-related UI elements
+//       currentFile = null;
+//       document.getElementById("file-preview-container").innerHTML = "";
+//       document.getElementById("file-upload").value = "";
+//     })
+//     .catch((error) => {
+//       // Hide typing indicator on error
+//       hideTypingIndicator();
+
+//       console.error("Error sending message:", error);
+//       addMessage(
+//         error.message || "Sorry, there was an error processing your message.",
+//         "assistant"
+//       );
+//     });
+// }
+
 
 // Sending messages with files
 function sendMessageWithFile(message, fileContent, fileName) {

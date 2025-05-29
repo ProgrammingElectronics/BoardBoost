@@ -29,11 +29,11 @@ class UserProfile(models.Model):
 
     # Global model preferences
     default_query_model = models.CharField(
-        max_length=50, choices=QUERY_MODEL_CHOICES, default="gpt-3.5-turbo"
+        max_length=50, choices=QUERY_MODEL_CHOICES, default="gpt-4o"
     )
 
     default_summary_model = models.CharField(
-        max_length=50, choices=SUMMARY_MODEL_CHOICES, default="gpt-3.5-turbo"
+        max_length=50, choices=SUMMARY_MODEL_CHOICES, default="gpt-4o"
     )
 
     def __str__(self):

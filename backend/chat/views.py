@@ -16,7 +16,11 @@ from .serializers import (
     ConversationSerializer,
     MessageSerializer,
 )
-from .ai_service import generate_response, save_conversation_message
+from .ai_service import (
+    generate_response,
+    save_conversation_message,
+    create_project_name,
+)
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -121,6 +125,7 @@ def send_message(request):
 
         # Extract data from request
         content = request.data.get("content")
+
         project_id = request.data.get("project_id")
 
         # Validate inputs
@@ -132,8 +137,14 @@ def send_message(request):
 
         # Get or create project
         if not project_id:
+
+            # create a project name based on the first query text
+            generated_project_name = create_project_name(content)
+
             # Create a default project if none specified
-            project = Project.objects.create(name="Default Project", user=request.user)
+            project = Project.objects.create(
+                name=generated_project_name, user=request.user
+            )
             project_id = project.id
         else:
             try:
@@ -160,9 +171,6 @@ def send_message(request):
 
         # Save user message
         user_message = save_conversation_message(conversation, "user", content)
-        # user_message = Message.objects.create(
-        #     conversation=conversation, sender="user", content=content
-        # )
 
         # Generate response with token usage information
         assistant_response, tokens_used = generate_response(
@@ -179,10 +187,6 @@ def send_message(request):
         assistant_message = save_conversation_message(
             conversation, "assistant", assistant_response
         )
-
-        # assistant_message = Message.objects.create(
-        #     conversation=conversation, sender="assistant", content=assistant_response
-        # )
 
         # Add token usage information to the response
         return Response(

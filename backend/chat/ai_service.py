@@ -2,14 +2,6 @@ from openai import OpenAI
 from django.conf import settings
 from django.utils import timezone
 import numpy as np
-from .models import Message, Conversation, ConversationSummary, MessageEmbedding
-
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
-
-from openai import OpenAI
-from django.conf import settings
-from django.utils import timezone
-import numpy as np
 from .models import (
     Message,
     Conversation,
@@ -35,7 +27,7 @@ def get_model_for_user(user, project_id=None, is_summary=False):
         String representing the model name to use
     """
     # Default fallback model
-    default_model = "gpt-3.5-turbo"
+    default_model = "gpt-4o"
 
     try:
         # Get user's default preferences
@@ -372,7 +364,7 @@ def generate_response(current_message, conversation_id, user):
 
         # Call OpenAI API with the determined model
         completion = client.chat.completions.create(
-            model=model, messages=messages, temperature=0.7, max_tokens=1000
+            model=model, messages=messages, temperature=0.7, max_tokens=4096
         )
 
         # Extract token usage
@@ -389,6 +381,27 @@ def generate_response(current_message, conversation_id, user):
             f"I'm sorry, I encountered an error generating a response. Please try again later.",
             0,
         )
+
+
+def create_project_name(first_message):
+    """
+    Create a max 47 character name for the project based on a summary of the first prompt
+
+    """
+    try:
+        response = client.responses.create(
+            model="gpt-4o",
+            input=f"Create a project name based on this text {first_message}. The project name can be a max of 47 characters. Only include letters of the alphabet, numbers, spaces, dashes or emojis in your name. No markup or quotes.  Do not repeat anything that may be vulgar.",
+        )
+        print(response.output_text)
+        return response.output_text
+
+    except (ConnectionError, TimeoutError) as e:
+        print(f"Network error calling API: {e}")
+        return "Network error - unable to generate name"
+    except Exception as e:
+        print(f"Unexpected error calling API: {e}")
+        return "Unable to generate project name"
 
 
 def estimate_token_count(text):
