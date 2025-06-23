@@ -31,3 +31,5 @@ whitenoise==6.9.0
 django-cors-headers==4.3.1
 cryptography>=36.0.0
 pycryptodome>=3.22.0
+selenium==4.33.0
+webdriver-manager==4.0.1

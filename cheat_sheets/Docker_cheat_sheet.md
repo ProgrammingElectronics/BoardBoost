@@ -6,6 +6,7 @@ docker build --progress=plain --no-cache
 
 ## This project
 
+
 ````bash
 # Create migrations
 docker exec -it boardboost-web python manage.py makemigrations
