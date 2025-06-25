@@ -1,6 +1,59 @@
 from selenium import webdriver
+import unittest
 
-browser = webdriver.Firefox()
-browser.get('http://localhost:8000')
+class NewVisitorTest(unittest.TestCase):
+  
+  def setUp(self):
+    self.browser = webdriver.Firefox()
+    
+  def tearDown(self):
+    self.browser.quit()
+    
+  def test_can_start_a_chat_and_retrieve_it_later(self):
+    
+    # Bill heard about boardboost and wanted to check out the homepage
+    self.browser.get('http://localhost:8000')
 
-assert 'The install worked successfully! Congratulations!' in browser.title
+    # He notices the page title
+    self.assertIn('BoardBoost', self.browser.title)
+    self.fail('Finish the test!')
+    
+    # He clicks Use BoardBoost and is taken to a signup page
+    # browser.get('http://localhost:8000/sign-up')
+
+    # He see's several options to sign up
+    #1 Username and Password
+    #2 Google
+    #3 Facebook
+
+    # He clicks the Captcha box on the page and presses submit
+
+    # Bill now sees an app workspace
+    browser.get('http://localhost:8000/app')
+
+    # A chat box says "Welcome Bill, what can I help you with?"
+
+    # Bill see's a folder icon on the left hand side of the screen with the name "projects" and clicks this
+
+    # A left hand side panel extends out
+
+    # He clicks "New Project" and a new chat window appears
+
+    # He asks the chat bot about an Arduino question and presses enter
+
+    # He gets an answer
+    
+    # Bill asks another question and gets another answer
+    
+    # Bill's wife calls down and he has to walk away
+    
+    # When he comes back 2 days later he has been logged out
+    
+    # Bill logs in
+    
+    # He sees the previous chat he was having is loaded and ready
+    
+    # When he opens the left hand projects side bar, he see's the project has been given a short name that summarizes what the chat was about
+
+if __name__ == '__main__':
+  unittest.main(warnings='ignore')
