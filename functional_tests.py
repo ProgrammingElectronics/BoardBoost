@@ -34,10 +34,13 @@ class NewVisitorTest(unittest.TestCase):
     # browser.get('http://localhost:8000/app')
 
     # A chat box says "Welcome Bill, what can I help you with?"
-    inputbox = self.browser.find_element(By.ID, 'id_new_chat')
-    self.assertEqual(inputbox.get_attribute('place_holder', "Welcome <Bill>, what can I help you with?"))
+    ai_default_message = self.browser.find_element(By.CSS_SELECTOR, '.message.ai-message')
+    self.assertEqual(ai_default_message.text, "Hello! I'm BoardBoost, your microcontroller coding assistant. How can I help you today?")
     
     # Bill see's a folder icon on the left hand side of the screen with the name "projects" and clicks this
+    chat_input_text_area = self.browser.find_element(By.CSS_SELECTOR, '.user-input')
+    self.assertEqual(chat_input_text_area.get_attribute('placeholder'), "Type your message here...")
+    
     self.fail('Finish the test!')
     
     # A left hand side panel extends out
