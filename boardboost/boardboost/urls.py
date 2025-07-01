@@ -20,5 +20,5 @@ from django.urls import path
 from bb_app import views
 
 urlpatterns = [
-    path("", views.home_page, name='home'),
+    path("", views.chat_page, name='chat'),
 ]
