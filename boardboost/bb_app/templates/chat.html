@@ -5,9 +5,13 @@
       <div class="chat-container">
         <div class="chat-messages">
           <div class="message ai-message">Hello! I'm BoardBoost, your microcontroller coding assistant. How can I help you today?</div>
+          <div class="message user-message">{{ new_user_input }}</div>
         </div>
         <div class="chat-input">
-          <textarea class="user-input" placeholder="Type your message here..."></textarea>
+          <form method="post">
+            <input class="user-input" name="user_input" id="id_new_user_input" placeholder="Type your message here..." />
+            {% csrf_token %}
+          </form>
         </div>
       </div>
     </body>

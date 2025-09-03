@@ -11,3 +11,9 @@ class ChatPageTest(TestCase):
     
     response = self.client.get('/')  
     self.assertTemplateUsed(response, 'chat.html')
+    
+  def test_can_save_a_POST_request(self):
+    
+    response = self.client.post('/', data={'user_input': 'can you help? YES or NO'})
+    self.assertIn('can you help? YES or NO', response.content.decode())
+    self.assertTemplateUsed(response, 'chat.html')

@@ -37,21 +37,27 @@ class NewVisitorTest(unittest.TestCase):
     ai_default_message = self.browser.find_element(By.CSS_SELECTOR, '.message.ai-message')
     self.assertEqual(ai_default_message.text, "Hello! I'm BoardBoost, your microcontroller coding assistant. How can I help you today?")
     
-    # Bill see's a folder icon on the left hand side of the screen with the name "projects" and clicks this
+    # Bill see's a text input box at the bottom of the screen
     chat_input_text_area = self.browser.find_element(By.CSS_SELECTOR, '.user-input')
     self.assertEqual(chat_input_text_area.get_attribute('placeholder'), "Type your message here...")
     
-    self.fail('Finish the test!')
+    # He types in an Arduino related question to the text box and presses enter
+    user_question_1 = "Respond with *only* YES or NO -> can you help me with Arduino code?"
+    chat_input_text_area.send_keys(user_question_1)
+  
+    chat_input_text_area.send_keys(Keys.ENTER)
+    time.sleep(1)
     
-    # A left hand side panel extends out
-
-    # He clicks "New Project" and a new chat window appears
-
-    # He asks the chat bot about an Arduino question and presses enter
-
-    # He gets an answer
+    #  He see's his question populate a box under the AI message 
+    user_message = self.browser.find_element(By.CSS_SELECTOR, '.message.user-message')
+    self.assertEqual(user_message.text, user_question_1,f"users question does not echo to chat container")
+    
+    # After a brief moment an ai answer appears under his echoed message
+    ai_response = self.browser.find_element(By.CSS_SELECTOR, '.message.ai-message')
+    self.assertIn(ai_response.text, 'YES', f"ai response does not show up")
     
     # Bill asks another question and gets another answer
+    self.fail('Finish the test!')  
     
     # Bill's wife calls down and he has to walk away
     
