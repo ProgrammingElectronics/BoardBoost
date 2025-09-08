@@ -2,14 +2,17 @@
   <head>
     <title>BoardBoost</title>
     <body>
-      <div class="chat-container">
-        <div class="chat-messages">
-          <div class="message ai-message">Hello! I'm BoardBoost, your microcontroller coding assistant. How can I help you today?</div>
-          <div class="message user-message">{{ new_user_input }}</div>
+      <div class='chat-container'>
+        <div class='chat-messages'>
+          <div class='message ai-message'>Hello! I'm BoardBoost, your microcontroller coding assistant. How can I help you today?</div>
+          {% for message in messages %}
+              <!-- add class via additional Message field -->
+          <div class='message'>{{ message.text }}</div>
+          {% endfor %}
         </div>
-        <div class="chat-input">
-          <form method="post">
-            <input class="user-input" name="user_input" id="id_new_user_input" placeholder="Type your message here..." />
+        <div class='chat-input'>
+          <form method='post'>
+            <input class='user-input' name='user_input' id='id_new_user_input' placeholder='Type your message here...' />
             {% csrf_token %}
           </form>
         </div>

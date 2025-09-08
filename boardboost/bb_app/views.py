@@ -1,7 +1,13 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import redirect, render
+from bb_app.models import Message
+
 
 def chat_page(request):
-  return render(request, 'chat.html', {
-    'new_user_input' : request.POST.get('user_input',''),
-  })
+
+    if request.method == "POST":
+        Message.objects.create(text=request.POST["user_input"])
+        return redirect("/")
+
+    messages = Message.objects.all()
+
+    return render(request, "chat.html", {"messages": messages})
