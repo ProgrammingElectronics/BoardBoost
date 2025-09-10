@@ -1,11 +1,14 @@
+from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import WebDriverException
 import time
-import unittest
+
+MAX_WAIT = 10
 
 
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
@@ -13,16 +16,31 @@ class NewVisitorTest(unittest.TestCase):
     def tearDown(self):
         self.browser.quit()
 
+    def wait_for_message_in_chat(self, message_txt):
+        start_time = time.time()
+        while True:
+            try:
+                chat_messages = self.browser.find_elements(
+                    By.CLASS_NAME, "chat-message"
+                )
+                message_text = [msg.text for msg in chat_messages]
+
+                self.assertIn(message_txt, message_text)
+                return
+            except (AssertionError, WebDriverException) as e:
+                if time.time() - start_time > MAX_WAIT:
+                    raise e
+                time.sleep(0.5)
+
     def test_can_start_a_chat_and_retrieve_it_later(self):
 
         # Bill heard about boardboost and wanted to check out the homepage
-        self.browser.get("http://localhost:8000")
+        self.browser.get(self.live_server_url)
 
         # He notices the page title
         self.assertIn("BoardBoost", self.browser.title)
 
         # He clicks Use BoardBoost and is taken to a signup page
-        # browser.get('http://localhost:8000/sign-up')
 
         # He see's several options to sign up
         # 1 Username and Password
@@ -32,7 +50,6 @@ class NewVisitorTest(unittest.TestCase):
         # He clicks the Captcha box on the page and presses submit
 
         # Bill now sees an app workspace
-        # browser.get('http://localhost:8000/app')
 
         # A chat box says 'Welcome Bill, what can I help you with?'
         ai_default_message = self.browser.find_element(By.CLASS_NAME, "welcome-message")
@@ -50,22 +67,13 @@ class NewVisitorTest(unittest.TestCase):
             f"user-input box not showing up.",
         )
 
-        # He types in an Arduino related question to the text box and presses enter
+        # He types in an Arduino related question to the text box and presses enter and he see's his question populate a box under the AI message
         user_question_1 = (
             "Respond with *only* YES or NO -> can you help me with Arduino code?"
         )
         chat_input_text_area.send_keys(user_question_1)
-
         chat_input_text_area.send_keys(Keys.ENTER)
-        time.sleep(1)
-
-        #  He see's his question populate a box under the AI message
-        user_message = self.browser.find_element(By.CLASS_NAME, "chat-message")
-        self.assertEqual(
-            user_message.text,
-            user_question_1,
-            f"users question does not echo to chat container",
-        )
+        self.wait_for_message_in_chat(user_question_1)
 
         # After a brief moment an ai answer appears under his echoed message
         ai_response = self.browser.find_elements(By.CLASS_NAME, "chat-messages")
@@ -83,7 +91,3 @@ class NewVisitorTest(unittest.TestCase):
         # He sees the previous chat he was having is loaded and ready
 
         # When he opens the left hand projects side bar, he see's the project has been given a short name that summarizes what the chat was about
-
-
-if __name__ == "__main__":
-    unittest.main(warnings="ignore")
