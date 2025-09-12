@@ -27,6 +27,7 @@ class NewVisitorTest(LiveServerTestCase):
 
                 self.assertIn(message_txt, message_text)
                 return
+
             except (AssertionError, WebDriverException) as e:
                 if time.time() - start_time > MAX_WAIT:
                     raise e
@@ -91,3 +92,7 @@ class NewVisitorTest(LiveServerTestCase):
         # He sees the previous chat he was having is loaded and ready
 
         # When he opens the left hand projects side bar, he see's the project has been given a short name that summarizes what the chat was about
+
+    # def test_multiple_users_can_start_chats_at_different_urls(self):
+    #     # bill starts a new chat session
+    #     self.browser.get(self.live_server_url)

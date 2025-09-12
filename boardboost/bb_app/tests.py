@@ -58,3 +58,9 @@ class MessageModelTest(TestCase):
         second_saved_message = saved_messages[1]
         self.assertEqual(first_saved_message.text, "The first (ever) message")
         self.assertEqual(second_saved_message.text, "The 2nd message")
+
+    def test_roles_field_for_messages(self):
+        user_message = Message.objects.create(role="user")
+        user_message.save()
+
+        self.assertEqual(user_message.role, "user")

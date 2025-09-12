@@ -1,0 +1,2 @@
+[] going to have to adjust my wait helper function
+[] add field to populate html class for AI-message vs chat-message
