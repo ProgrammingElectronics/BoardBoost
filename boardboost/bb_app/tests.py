@@ -1,7 +1,7 @@
 from django.urls import resolve
 from django.test import TestCase
 from django.http import HttpRequest
-from bb_app.views import chat_page
+from bb_app.views import chat_page, get_ai_response
 from bb_app.models import Message
 
 
@@ -24,6 +24,13 @@ class ChatPageTest(TestCase):
         self.assertEqual(Message.objects.count(), 1)
         new_message = Message.objects.first()
         self.assertEqual(new_message.text, "can you help? YES or NO")
+
+    def test_user_messages_have_role_field_set_to_user(self):
+
+        response = self.client.post("/", data={"user_input": "can you help? YES or NO"})
+
+        user_message = Message.objects.first()
+        self.assertEqual(user_message.role, "user")
 
     def test_redirects_after_POST(self):
         response = self.client.post("/", data={"user_input": "can you help? YES or NO"})
@@ -60,7 +67,27 @@ class MessageModelTest(TestCase):
         self.assertEqual(second_saved_message.text, "The 2nd message")
 
     def test_roles_field_for_messages(self):
-        user_message = Message.objects.create(role="user")
-        user_message.save()
+        user_message_1 = Message.objects.create(role="user")
+        user_message_1.save()
 
-        self.assertEqual(user_message.role, "user")
+        user_message_2 = Message.objects.create(role="developer")
+        user_message_2.save()
+
+        user_message_3 = Message.objects.create(role="assistant")
+        user_message_3.save()
+
+        self.assertEqual(user_message_1.role, "user")
+        self.assertEqual(user_message_2.role, "developer")
+        self.assertEqual(user_message_3.role, "assistant")
+
+    def test_AI_messages_have_role_field_set_to_user(self):
+        data = "can you help? yes or no"
+        ai_response = get_ai_response(data)
+
+        self.assertEqual(ai_response.role, "assistant")
+
+    def test_AI_response_returns_answer(self):
+        data = "can you help? yes or no"
+        ai_response = get_ai_response(data)
+
+        self.assertEqual(ai_response.text, "yes")
