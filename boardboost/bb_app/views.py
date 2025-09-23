@@ -35,10 +35,6 @@ def get_ai_response(data):
     if previous_message:
         previous_message_id = previous_message.response_id
 
-    # if Message.objects.count() > 2:
-    #     previous_message_ids = Message.objects.all().order_by("-id")
-    #     previous_message_id = previous_message_ids[1].response_id
-
     assistant_message = Message.objects.create(role="assistant")
     context = [{"role": "user", "content": data}]
 
