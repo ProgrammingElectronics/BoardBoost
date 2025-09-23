@@ -21,7 +21,7 @@ class ChatPageTest(TestCase):
 
         response = self.client.post("/", data={"user_input": "can you help? YES or NO"})
 
-        self.assertEqual(Message.objects.count(), 1)
+        self.assertEqual(Message.objects.count(), 2)
         new_message = Message.objects.first()
         self.assertEqual(new_message.text, "can you help? YES or NO")
 
@@ -80,7 +80,19 @@ class MessageModelTest(TestCase):
         self.assertEqual(user_message_2.role, "developer")
         self.assertEqual(user_message_3.role, "assistant")
 
-    def test_AI_messages_have_role_field_set_to_user(self):
+    def test_response_id_for_messages(self):
+        user_message_1 = Message.objects.create(
+            response_id="msg_67b73f697ba4819183a15cc17d011509"
+        )
+        user_message_1.save()
+        self.assertEqual(
+            user_message_1.response_id, "msg_67b73f697ba4819183a15cc17d011509"
+        )
+
+
+class AIResponsesTest(TestCase):
+
+    def test_AI_messages_have_role_field_set_to_assistant(self):
         data = "can you help? yes or no"
         ai_response = get_ai_response(data)
 
@@ -88,6 +100,25 @@ class MessageModelTest(TestCase):
 
     def test_AI_response_returns_answer(self):
         data = "can you help? yes or no"
+        desired_answer = "yes"
         ai_response = get_ai_response(data)
 
-        self.assertEqual(ai_response.text, "yes")
+        self.assertIn(desired_answer, ai_response.text.lower())
+
+    def test_AI_response_ID_is_captured(self):
+        data = "can you help? yes or no"
+        desired_answer = "yes"
+        ai_response = get_ai_response(data)
+
+        self.assertIsNotNone(Message.objects.last().response_id, None)
+
+    def test_keeps_context_across_messages(self):
+
+        user_msg_1 = "Please respond with an integer -> what is 1 + 1?"
+        assistant_msg_1 = "2"
+        user_msg_2 = "Please respond with an integer -> what is you last answer + 40?"
+
+        self.client.post("/", data={"user_input": user_msg_1})
+        response = self.client.post("/", data={"user_input": user_msg_2})
+
+        self.assertIn("42", Message.objects.last().text)

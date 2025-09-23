@@ -7,7 +7,7 @@
           <div class='welcome-message'>Hello! I'm BoardBoost, your microcontroller coding assistant. How can I help you today?</div>
           {% for message in messages %}
               <!-- add class via additional Message field -->
-          <div class='chat-message'>{{ message.text }}</div>
+          <div class='chat-message {{message.role}}'>{{ message.text }}</div>
           {% endfor %}
         </div>
         <div class='chat-input'>

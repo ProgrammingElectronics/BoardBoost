@@ -7,6 +7,9 @@ import time
 
 MAX_WAIT = 10
 
+user_question_1 = "Please respond with an integer -> what is 1 + 1?"
+user_question_2 = "Please respond with an integer -> what is you last answer + 40?"
+
 
 class NewVisitorTest(LiveServerTestCase):
 
@@ -23,9 +26,9 @@ class NewVisitorTest(LiveServerTestCase):
                 chat_messages = self.browser.find_elements(
                     By.CLASS_NAME, "chat-message"
                 )
-                message_text = [msg.text for msg in chat_messages]
+                messages = [msg.text for msg in chat_messages]
 
-                self.assertIn(message_txt, message_text)
+                self.assertIn(message_txt, messages, f"text not found in chat history")
                 return
 
             except (AssertionError, WebDriverException) as e:
@@ -33,7 +36,7 @@ class NewVisitorTest(LiveServerTestCase):
                     raise e
                 time.sleep(0.5)
 
-    def test_can_start_a_chat_and_retrieve_it_later(self):
+    def test_can_start_a_chat_for_one_user(self):
 
         # Bill heard about boardboost and wanted to check out the homepage
         self.browser.get(self.live_server_url)
@@ -41,18 +44,7 @@ class NewVisitorTest(LiveServerTestCase):
         # He notices the page title
         self.assertIn("BoardBoost", self.browser.title)
 
-        # He clicks Use BoardBoost and is taken to a signup page
-
-        # He see's several options to sign up
-        # 1 Username and Password
-        # 2 Google
-        # 3 Facebook
-
-        # He clicks the Captcha box on the page and presses submit
-
-        # Bill now sees an app workspace
-
-        # A chat box says 'Welcome Bill, what can I help you with?'
+        # He see's an AI chat message welcoming him to ask a question
         ai_default_message = self.browser.find_element(By.CLASS_NAME, "welcome-message")
         self.assertEqual(
             ai_default_message.text,
@@ -69,30 +61,29 @@ class NewVisitorTest(LiveServerTestCase):
         )
 
         # He types in an Arduino related question to the text box and presses enter and he see's his question populate a box under the AI message
-        user_question_1 = (
-            "Respond with *only* YES or NO -> can you help me with Arduino code?"
-        )
         chat_input_text_area.send_keys(user_question_1)
         chat_input_text_area.send_keys(Keys.ENTER)
         self.wait_for_message_in_chat(user_question_1)
 
         # After a brief moment an ai answer appears under his echoed message
-        ai_response = self.browser.find_elements(By.CLASS_NAME, "chat-messages")
-        self.assertIn(ai_response[-1].text, "YES", f"ai response does not show up")
+        ai_response_1 = self.browser.find_elements(By.CLASS_NAME, "chat-messages")
+        self.assertIn("2", ai_response_1[-1].text, f"ai response does not show up")
 
         # Bill asks another question and gets another answer
-        self.fail("Finish the test!")
+        chat_input_text_area = self.browser.find_element(By.CLASS_NAME, "user-input")
+        chat_input_text_area.send_keys(user_question_2)
+        chat_input_text_area.send_keys(Keys.ENTER)
+        self.wait_for_message_in_chat(user_question_2)
 
-        # Bill's wife calls down and he has to walk away
+        # After a brief moment the ai answer appears under his echoed message
+        ai_response_2 = self.browser.find_elements(By.CLASS_NAME, "chat-messages")
+        self.assertIn("42", ai_response_2[-1].text, f"ai response not keep context")
 
-        # When he comes back 2 days later he has been logged out
-
-        # Bill logs in
-
-        # He sees the previous chat he was having is loaded and ready
-
-        # When he opens the left hand projects side bar, he see's the project has been given a short name that summarizes what the chat was about
-
-    # def test_multiple_users_can_start_chats_at_different_urls(self):
-    #     # bill starts a new chat session
-    #     self.browser.get(self.live_server_url)
+    def test_multiple_users_can_start_chats_at_different_urls(self):
+        # Bill starts a new chat session
+        self.browser.get(self.live_server_url)
+        chat_input_text_area = self.browser.find_element(By.CLASS_NAME, "user-input")
+        chat_input_text_area.send_keys(user_question_1)
+        chat_input_text_area.send_keys(Keys.ENTER)
+        self.wait_for_message_in_chat(user_question_1)
+        self.fail("finish the test!")

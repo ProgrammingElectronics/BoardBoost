@@ -10,3 +10,4 @@ class Message(models.Model):
 
     text = models.TextField(default="")
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.USER)
+    response_id = models.TextField(default="")
